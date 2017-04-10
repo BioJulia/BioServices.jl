@@ -1,0 +1,42 @@
+# Project information
+site_name:   BioServices.jl
+site_description: BioJulia tools for working with online services.
+site_author: The BioJulia Organisation
+site_url: https://biojulia.github.io/BioServices.jl/
+
+# Repository
+repo_url:  https://github.com/BioJulia/BioServices.jl
+
+# Copyright
+copyright: Copyright (c) 2016 The BioJulia Organisation
+
+# Documentation and theme
+theme: biojulia
+docs_dir: 'build'
+
+# Options
+extra:
+  logo: images/biojl.png
+  author:
+    github: BioJulia
+
+extra_css:
+  - assets/Documenter.css
+
+extra_javascript:
+  - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML
+  - assets/mathjaxhelper.js
+
+# Extensions
+markdown_extensions:
+  - extra
+  - tables
+  - fenced_code
+  - codehilite
+  - def_list
+
+# Page tree
+pages:
+- Home: index.md
+- Manual:
+    - EUtils: man/eutils.md
