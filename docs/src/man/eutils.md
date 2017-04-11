@@ -2,7 +2,7 @@
 CurrentModule = BioServices
 ```
 
-## E-Utilities
+# E-Utilities
 
 E-Utilities provide a interface to Entrez databases at
 [NCBI](https://www.ncbi.nlm.nih.gov/).  The APIs are defined in the
