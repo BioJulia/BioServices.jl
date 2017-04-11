@@ -2,13 +2,18 @@
     "docs": [
         {
             "location": "/", 
-            "text": "BioServices: APIs for Web Services\n\n\nThe \nBioServices\n module provides APIs for various web services.\n\n\n- [E-Utilities](man/eutils.md#E-Utilities-1)", 
+            "text": "BioServices: APIs for Web Services\n\n\nThe \nBioServices\n module provides APIs for various web services.\n\n\n\n\nContents\n\n\n\n\nE-Utilities", 
             "title": "Home"
         }, 
         {
             "location": "/#bioservices-apis-for-web-services", 
-            "text": "The  BioServices  module provides APIs for various web services.  - [E-Utilities](man/eutils.md#E-Utilities-1)", 
+            "text": "The  BioServices  module provides APIs for various web services.", 
             "title": "BioServices: APIs for Web Services"
+        }, 
+        {
+            "location": "/#contents", 
+            "text": "E-Utilities", 
+            "title": "Contents"
         }, 
         {
             "location": "/man/eutils/", 
