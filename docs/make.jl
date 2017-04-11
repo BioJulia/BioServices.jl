@@ -1,4 +1,4 @@
-using Documenter, Bio
+using Documenter, BioServices
 
 makedocs()
 deploydocs(
