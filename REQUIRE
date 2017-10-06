@@ -1,4 +1,4 @@
-julia 0.5
-EzXML 0.2
+julia 0.6
+EzXML 0.5
 JSON
 Requests
