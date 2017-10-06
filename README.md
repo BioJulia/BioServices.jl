@@ -3,7 +3,6 @@
 **Latest release:**
 
 [![Latest Release](https://img.shields.io/github/release/BioJulia/BioServices.jl.svg)](https://github.com/BioJulia/BioServices.jl/releases/latest)
-[![BioServices](http://pkg.julialang.org/badges/BioServices_0.6.svg)](http://pkg.julialang.org/?pkg=BioServices)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/BioJulia/BioServices.jl/blob/master/LICENSE)
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://biojulia.github.io/BioServices.jl/stable)
 
