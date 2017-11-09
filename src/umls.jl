@@ -97,7 +97,7 @@ A tgt is valid for 8 hours. Therefore, look for UTS_TGT.txt in the local
 directory to see if it has been recently stored. One can force getting a 
 new ticket by passing keyword argument `force_new=true` 
 
-###Examples
+####Examples
 
 ```julia
 tgt = get_tgt(username = "myuser", password = "mypass")
@@ -178,13 +178,13 @@ Search UMLS Rest API. For more info see
 [UMLS_API](https://documentation.uts.nlm.nih.gov/rest/search/)
 
 
-###Arguments
+####Arguments
 
 - `tgt`: Ticket Granting Ticket
 - `query`: UMLS query containing the search term
 - `version:` Optional - defaults to current
 
-###Output
+####Output
 
 - `result_pages`: Array, where each entry is a dictionary containing a page of
 results. e.g
@@ -195,7 +195,7 @@ Dict{AbstractString,Any} with 3 entries:
 "result"     => Dict{AbstractString,Any}("classType"=>"searchResults","result…
 ```
 
-###Examples
+####Examples
 
 ```julia
 credentials = Credentials(user, psswd)
@@ -258,7 +258,7 @@ best_match_cui(result_pages)
 
 Retrive the best match from array of all result pages
 
-###Example
+####Example
 
 ```julia
 cui = best_match_cui(all_results)
@@ -279,7 +279,7 @@ Returns UTS json response
 
 See: https://documentation.uts.nlm.nih.gov/rest/concept
 
-### Example
+####Example
 
 ```julia
 tgt = get_tgt(apikey = "mykey")
@@ -314,7 +314,7 @@ get_semantic_types(c::Credentials, cui)
 
 Return an array of the semantic types associated with a cui
 
-### Example
+####Example
 
 ```julia
 tgt = get_tgt(apikey = "mykey")
