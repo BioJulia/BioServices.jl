@@ -53,7 +53,7 @@ The following functions access the mentioned enpoints. See the [method's documen
 Service tickets are needed each time you search or retrieve content from the UMLS REST API. 
 A service ticket is retrieved automatically by this software from a **ticket granting ticket**.
 
-Therefore, the firts step of your workflow must start by requesting a **ticket granting ticket**
+Therefore, the first step of your workflow must start by requesting a **ticket granting ticket**
 from your credentials. Two methods are available
 
 **Use username and password**

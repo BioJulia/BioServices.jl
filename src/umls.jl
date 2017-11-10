@@ -7,16 +7,18 @@
 # License is MIT: https://github.com/BioJulia/Bio.jl/blob/master/LICENSE.md
 
 """
+    BioServices.UMLS
+
 Julia interface to [Unified Medical Language REST API](https://github.com/HHS/uts-rest-api)
 
 
 The UMLS provides basic functionality to authenticate and query the UMLS API.
 The following functions are exported from this module:
 1. `get_tgt`: Get Ticket-Granting Ticket
-3. `search_umls`: Search the UMLS
-4. `best_match_cui`: Get the best matching CUI for a term
-5. `get_cui`: Get Concept ID
-6. `get_semantic_types`: Get UMLS semantic type
+2. `search_umls`: Search the UMLS
+3. `best_match_cui`: Get the best matching CUI for a term
+4. `get_cui`: Get Concept ID
+5. `get_semantic_types`: Get UMLS semantic type
 
 
 See "UMLS REST API Home Page"
@@ -56,9 +58,9 @@ time_to_last_save(file)
 Get how many hours since last save 
 """
 function time_to_last_save(file)
-#unix time is GMT
-time_diff = Dates.value(Dates.unix2datetime(time()) - Dates.unix2datetime(mtime(file)))/ (1000 * 60 * 60)
-return time_diff
+    #unix time is GMT
+    time_diff = Dates.value(now() - Dates.unix2datetime(mtime(file)))/ (1000 * 60 * 60)
+    return time_diff
 end
 
 """
@@ -138,17 +140,18 @@ function get_tgt(; force_new::Bool = false, kwargs...)
     doc = parsehtml(ascii_r)
     #for now - harcoded
     #TO DO:: parse and check
+    ticket = ""
     try
         ticket = getattr(doc.root.children[2].children[2], "action")
-
-        open(tgt_file, "w") do f
-            write(f, ticket)
-        end
-
-        return ticket
     catch
-        error("Could not get TGT: UTS response structure is wrong")
+        error("Could not get TGT: Unexpected structure of UTS response")
     end
+
+    open(tgt_file, "w") do f
+        write(f, ticket)
+    end
+
+    return ticket
 
 end
 
@@ -160,7 +163,7 @@ Retrieve a single-use Service Ticket using TGT
 function get_ticket(tgt)
     params = Dict("service"=> service)
     h = Dict("Content-type"=> "application/x-www-form-urlencoded",
-    "Accept"=> "text/plain", "User-Agent"=>"bcbi-julia" )
+    "Accept"=> "text/plain", "User-Agent"=>"JuliaBioServices" )
     r = HttpCommon.Response(503)
     try
         r = post(tgt; data=params, headers=h)
@@ -224,16 +227,12 @@ function search_umls(tgt, query; version::String="current", timeout=1)
 
         #get a new ticket per page if necessary
         ticket = ""
-        try
-            ticket = get_ticket(tgt)
-        catch err
-            rethrow(err)
-        end
+        ticket = get_ticket(tgt)
 
         page +=1
         #append ticket to query
         query["ticket"]= ticket
-        query["pageNumber"]= @sprintf("%d", page)
+        query["pageNumber"]= string(page)
 
         r = get(rest_uri*content_endpoint, query=query, timeout=timeout)
 
@@ -325,12 +324,10 @@ sm = get_semantic_types(tgt, cui)
 function get_semantic_types(tgt, cui; version="current")
     json_response = get_cui(tgt,cui; version=version)
     st = json_response["result"]["semanticTypes"]
-    concepts = Array{String}(length(st))
-    for (ci, concept) in enumerate(st)
-        concepts[ci] =concept["name"]
-    end
-
-    return concepts
+    
+    concepts = [String(concept["name"]) for concept in st]
+    
+    concepts
 end
 
 end
