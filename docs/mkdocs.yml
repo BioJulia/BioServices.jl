@@ -11,7 +11,7 @@ repo_url:  https://github.com/BioJulia/BioServices.jl
 copyright: Copyright (c) 2016 The BioJulia Organisation
 
 # Documentation and theme
-theme: biojulia
+theme: material
 docs_dir: 'build'
 
 # Options
@@ -40,3 +40,4 @@ pages:
 - Home: index.md
 - Manual:
     - EUtils: man/eutils.md
+    - UMLS: man/umls.md
