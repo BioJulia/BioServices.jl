@@ -24,7 +24,7 @@ BioServices.jl provides an interface to APIs for various web services.
 Install BioServices from the Julia REPL:
 
 ```julia
-julia> Pkg.clone("https://github.com/BioJulia/BioServices.jl.git")
+julia> Pkg.add("BioServices")
 ```
 
 If you are interested in the cutting edge of the development, please check out
