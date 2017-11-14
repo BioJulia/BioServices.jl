@@ -766,7 +766,10 @@
 <h3 id="get-ticket-granting-ticket">Get ticket-granting ticket</h3>
 <p><a id='BioServices.UMLS.get_tgt-Tuple{}' href='#BioServices.UMLS.get_tgt-Tuple{}'>#</a>
 <strong><code>BioServices.UMLS.get_tgt</code></strong> &mdash; <em>Method</em>.</p>
-<p>get_tgt(; force_new::Bool = false, kwargs...)</p>
+<div class="codehilite"><pre><span></span>get_tgt(; force_new::Bool = false, kwargs...)
+</pre></div>
+
+
 <p>Retrieve a ticket granting ticket (TGT) using </p>
 <ol>
 <li>UTS username and password OR</li>
@@ -782,13 +785,16 @@
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/BioJulia/BioServices.jl/blob/e9ddef6f1b6857bb18eebf8d511c3ffac7b17eab/src/umls.jl#L90-L112' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioServices.jl/blob/ca7c21a5c2814ef00ffc214f08c8fa3f9612032b/src/umls.jl#L86-L107' class='documenter-source'>source</a><br></p>
 <hr />
 <p><a id='Search-UMLS-1'></a></p>
 <h3 id="search-umls">Search UMLS</h3>
 <p><a id='BioServices.UMLS.search_umls-Tuple{Any,Any}' href='#BioServices.UMLS.search_umls-Tuple{Any,Any}'>#</a>
 <strong><code>BioServices.UMLS.search_umls</code></strong> &mdash; <em>Method</em>.</p>
-<p>search_umls(tgt, query)</p>
+<div class="codehilite"><pre><span></span>search_umls(tgt, query)
+</pre></div>
+
+
 <p>Search UMLS Rest API. For more info see <a href="https://documentation.uts.nlm.nih.gov/rest/search/">UMLS_API</a></p>
 <h4 id="arguments">Arguments</h4>
 <ul>
@@ -817,26 +823,32 @@
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/BioJulia/BioServices.jl/blob/e9ddef6f1b6857bb18eebf8d511c3ffac7b17eab/src/umls.jl#L177-L210' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioServices.jl/blob/ca7c21a5c2814ef00ffc214f08c8fa3f9612032b/src/umls.jl#L169-L202' class='documenter-source'>source</a><br></p>
 <hr />
 <p><a id='Best-CUI-1'></a></p>
 <h3 id="best-cui">Best CUI</h3>
 <p><a id='BioServices.UMLS.best_match_cui-Tuple{Any}' href='#BioServices.UMLS.best_match_cui-Tuple{Any}'>#</a>
 <strong><code>BioServices.UMLS.best_match_cui</code></strong> &mdash; <em>Method</em>.</p>
-<p>best_match_cui(result_pages)</p>
-<p>Retrive the best match from array of all result pages</p>
+<div class="codehilite"><pre><span></span>best_match_cui(result_pages)
+</pre></div>
+
+
+<p>Retrieve the best match from array of all result pages</p>
 <h4 id="example">Example</h4>
 <div class="codehilite"><pre><span></span><span class="n">cui</span> <span class="o">=</span> <span class="n">best_match_cui</span><span class="p">(</span><span class="n">all_results</span><span class="p">)</span>
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/BioJulia/BioServices.jl/blob/e9ddef6f1b6857bb18eebf8d511c3ffac7b17eab/src/umls.jl#L255-L265' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioServices.jl/blob/ca7c21a5c2814ef00ffc214f08c8fa3f9612032b/src/umls.jl#L244-L254' class='documenter-source'>source</a><br></p>
 <hr />
 <p><a id='Search-based-on-CUI-1'></a></p>
 <h3 id="search-based-on-cui">Search based on CUI</h3>
 <p><a id='BioServices.UMLS.get_cui-Tuple{Any,Any}' href='#BioServices.UMLS.get_cui-Tuple{Any,Any}'>#</a>
 <strong><code>BioServices.UMLS.get_cui</code></strong> &mdash; <em>Method</em>.</p>
-<p>get_cui(tgt,cui)</p>
+<div class="codehilite"><pre><span></span>get_cui(tgt,cui)
+</pre></div>
+
+
 <p>Retrieve information (name, semantic types, number of atoms, etc) for a known CUI  from latest UMLS version or a specific release.</p>
 <p>Returns UTS json response</p>
 <p>See: https://documentation.uts.nlm.nih.gov/rest/concept</p>
@@ -847,13 +859,16 @@
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/BioJulia/BioServices.jl/blob/e9ddef6f1b6857bb18eebf8d511c3ffac7b17eab/src/umls.jl#L271-L288' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioServices.jl/blob/ca7c21a5c2814ef00ffc214f08c8fa3f9612032b/src/umls.jl#L260-L277' class='documenter-source'>source</a><br></p>
 <hr />
 <p><a id='Semantic-types-1'></a></p>
 <h3 id="semantic-types">Semantic types</h3>
 <p><a id='BioServices.UMLS.get_semantic_types-Tuple{Any,Any}' href='#BioServices.UMLS.get_semantic_types-Tuple{Any,Any}'>#</a>
 <strong><code>BioServices.UMLS.get_semantic_types</code></strong> &mdash; <em>Method</em>.</p>
-<p>get_semantic_types(c::Credentials, cui)</p>
+<div class="codehilite"><pre><span></span>get_semantic_types(c::Credentials, cui)
+</pre></div>
+
+
 <p>Return an array of the semantic types associated with a cui</p>
 <h4 id="example_2">Example</h4>
 <div class="codehilite"><pre><span></span><span class="n">tgt</span> <span class="o">=</span> <span class="n">get_tgt</span><span class="p">(</span><span class="n">apikey</span> <span class="o">=</span> <span class="s">&quot;mykey&quot;</span><span class="p">)</span>
@@ -862,7 +877,7 @@
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/BioJulia/BioServices.jl/blob/e9ddef6f1b6857bb18eebf8d511c3ffac7b17eab/src/umls.jl#L311-L323' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioServices.jl/blob/ca7c21a5c2814ef00ffc214f08c8fa3f9612032b/src/umls.jl#L299-L311' class='documenter-source'>source</a><br></p>
 <hr />
                 
                   
