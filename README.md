@@ -4,7 +4,9 @@
 
 [![Latest Release](https://img.shields.io/github/release/BioJulia/BioServices.jl.svg)](https://github.com/BioJulia/BioServices.jl/releases/latest)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/BioJulia/BioServices.jl/blob/master/LICENSE)
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://biojulia.github.io/BioServices.jl/stable)
+[![Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://biojulia.github.io/BioServices.jl/stable)
+[![BioJulia maintainer: bicycle1885](https://img.shields.io/badge/BioJulia%20Maintainer-bicycle1885-orange.svg)](https://github.com/bicycle1885)
+[![BioJulia maintainer: mirestrepo](https://img.shields.io/badge/BioJulia%20Maintainer-mirestrepo-orange.svg)](https://github.com/mirestrepo)
 
 
 **Development status:**
@@ -12,7 +14,7 @@
 [![Build Status](https://travis-ci.org/BioJulia/BioServices.jl.svg?branch=master)](https://travis-ci.org/BioJulia/BioServices.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/github/biojulia/bioservices.jl?svg=true)](https://ci.appveyor.com/project/Ward9250/BioServices-jl/branch/master)
 [![codecov](https://codecov.io/gh/BioJulia/BioServices.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/BioJulia/BioServices.jl)
-[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://biojulia.github.io/BioServices.jl/latest)
+[![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://biojulia.github.io/BioServices.jl/latest)
 
 
 ## Description
