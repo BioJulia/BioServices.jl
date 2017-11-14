@@ -1,5 +1,5 @@
 # UMLS
-# ======
+# ====
 #
 # Julia utilities to interact with the Unified Medical Language System (UMLS) REST API
 #
@@ -11,7 +11,6 @@
 
 Julia interface to [Unified Medical Language REST API](https://github.com/HHS/uts-rest-api)
 
-
 The UMLS provides basic functionality to authenticate and query the UMLS API.
 The following functions are exported from this module:
 1. `get_tgt`: Get Ticket-Granting Ticket
@@ -19,7 +18,6 @@ The following functions are exported from this module:
 3. `best_match_cui`: Get the best matching CUI for a term
 4. `get_cui`: Get Concept ID
 5. `get_semantic_types`: Get UMLS semantic type
-
 
 See "UMLS REST API Home Page"
 (https://documentation.uts.nlm.nih.gov/rest/home.html) for more details.
@@ -37,8 +35,8 @@ using Requests
 using HttpCommon
 
 #------------- Endpoints -----------------------
-const uri="https://utslogin.nlm.nih.gov"
-const service="http://umlsks.nlm.nih.gov"
+const uri = "https://utslogin.nlm.nih.gov"
+const service = "http://umlsks.nlm.nih.gov"
 const rest_uri = "https://uts-ws.nlm.nih.gov"
 #----------------------------------------------
 
@@ -53,7 +51,7 @@ end
 
 #-------------- Authentication -------------------
 """
-time_to_last_save(file)
+    time_to_last_save(file)
 
 Get how many hours since last save 
 """
@@ -64,31 +62,29 @@ function time_to_last_save(file)
 end
 
 """
-tgt_exists(; tgt_file = "UTS_TGT.txt", hours = 1)
+    tgt_exists(; tgt_file = "UTS_TGT.txt", hours = 1)
 
 Check if there is a TGT in disk and if it has not expired
 """
 function tgt_exists(; tgt_file = "UTS_TGT.txt", hours = 1)
-
-if isfile(tgt_file)
-    #check time
-    time_elapsed = time_to_last_save(tgt_file)
-    # Expiration time should be 8 hours - but I tend to expirience bad TGT after few hours
-    if time_elapsed > hours
-        info("UTS TGT Expired")
-        rm(tgt_file)
-        return false
-    else
-        return true
+    if isfile(tgt_file)
+        #check time
+        time_elapsed = time_to_last_save(tgt_file)
+        # Expiration time should be 8 hours - but I tend to expirience bad TGT after few hours
+        if time_elapsed > hours
+            info("UTS TGT Expired")
+            rm(tgt_file)
+            return false
+        else
+            return true
+        end
     end
-end
-
-return false
+    return false
 end
 
 
 """
-get_tgt(; force_new::Bool = false, kwargs...)
+    get_tgt(; force_new::Bool = false, kwargs...)
 
 Retrieve a ticket granting ticket (TGT) using 
 
@@ -108,12 +104,9 @@ tgt = get_tgt(username = "myuser", password = "mypass")
 ```julia
 tgt = get_tgt(apikey = "mykey")
 ```
-
 """
 function get_tgt(; force_new::Bool = false, kwargs...)
-
     params = Dict(kwargs)
-
     auth_endpoint = "/cas/v1/tickets/"
 
     if !haskey(params, :apikey)
@@ -152,11 +145,10 @@ function get_tgt(; force_new::Bool = false, kwargs...)
     end
 
     return ticket
-
 end
 
 """
-get_ticket(tgt)
+    get_ticket(tgt)
 
 Retrieve a single-use Service Ticket using TGT
 """
@@ -175,7 +167,7 @@ end
 
 #------------------Search ---------------------
 """
-search_umls(tgt, query)
+    search_umls(tgt, query)
 
 Search UMLS Rest API. For more info see
 [UMLS_API](https://documentation.uts.nlm.nih.gov/rest/search/)
@@ -209,9 +201,7 @@ all_results= search_umls(tgt, query)
 ```
 """
 function search_umls(tgt, query; version::String="current", timeout=1)
-
-    page=0
-
+    page = 0
     content_endpoint = "/rest/search/current"
 
     #each page of results is appended to the output list
@@ -249,13 +239,12 @@ function search_umls(tgt, query; version::String="current", timeout=1)
     end
 
     return result_pages
-
 end
 
 """
-best_match_cui(result_pages)
+    best_match_cui(result_pages)
 
-Retrive the best match from array of all result pages
+Retrieve the best match from array of all result pages
 
 ####Example
 
@@ -269,7 +258,7 @@ end
 
 #------------------Content--------------------------------
 """
-get_cui(tgt,cui)
+    get_cui(tgt,cui)
 
 Retrieve information (name, semantic types, number of atoms, etc) for a known CUI 
 from latest UMLS version or a specific release.
@@ -287,7 +276,6 @@ concept = get_cui(tgt, cui)
 ```
 """
 function get_cui(tgt,cui; version="current")
-
     content_endpoint = "/rest/content/$(version)/CUI/"*cui
     #get a new ticket
     ticket = ""
@@ -304,12 +292,12 @@ function get_cui(tgt,cui; version="current")
         isdefined(r, :code) ? error("UMLS GET error: ", r.code) : error("UMLS COULD NOT GET")
     end
 
-    json_response = Requests.json(r)
+    return Requests.json(r)
 end
 
 
 """
-get_semantic_types(c::Credentials, cui)
+    get_semantic_types(c::Credentials, cui)
 
 Return an array of the semantic types associated with a cui
 
@@ -324,10 +312,7 @@ sm = get_semantic_types(tgt, cui)
 function get_semantic_types(tgt, cui; version="current")
     json_response = get_cui(tgt,cui; version=version)
     st = json_response["result"]["semanticTypes"]
-    
-    concepts = [String(concept["name"]) for concept in st]
-    
-    concepts
+    return [String(concept["name"]) for concept in st]
 end
 
 end
