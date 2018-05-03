@@ -4,14 +4,14 @@
         res = einfo(db="pubmed")
         @test res.status == 200
         @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test isa(parsexml(res.body), EzXML.Document)
     end
 
     @testset "esearch" begin
         res = esearch(db="pubmed", term="asthma")
         @test res.status == 200
         @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test isa(parsexml(res.body), EzXML.Document)
     end
 
     @testset "epost" begin
@@ -19,7 +19,7 @@
         res = epost(ctx, db="protein", id="NP_005537")
         @test res.status == 200
         @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test isa(parsexml(res.body), EzXML.Document)
         @test haskey(ctx, :WebEnv)
         @test haskey(ctx, :query_key)
     end
@@ -29,12 +29,12 @@
         res = esummary(db="protein", id="15718680,157427902,119703751")
         @test res.status == 200
         @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test isa(parsexml(res.body), EzXML.Document)
 
         res = esummary(db="protein", id=["15718680", "157427902", "119703751"])
         @test res.status == 200
         @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test isa(parsexml(res.body), EzXML.Document)
 
         # esearch then esummary
         query = "asthma[mesh] AND leukotrienes[mesh] AND 2009[pdat]"
@@ -55,7 +55,7 @@
         res = efetch(db="nuccore", id="NM_001178.5", retmode="xml", idtype="acc")
         @test res.status == 200
         @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test isa(parsexml(res.body), EzXML.Document)
 
         # epost then efetch
         ctx = Dict()
@@ -69,21 +69,21 @@
         res = elink(dbfrom="protein", db="gene", id="NM_001178.5")
         @test res.status == 200
         @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test isa(parsexml(res.body), EzXML.Document)
     end
 
     @testset "egquery" begin
         res = egquery(term="asthma")
         @test res.status == 200
         @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test isa(parsexml(res.body), EzXML.Document)
     end
 
     @testset "espell" begin
         res = espell(db="pubmed", term="athma")
         @test res.status == 200
         @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test isa(parsexml(res.body), EzXML.Document)
     end
 
     @testset "ecitmatch" begin
