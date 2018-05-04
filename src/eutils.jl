@@ -181,8 +181,11 @@ function set_context!(ctx, res)
     end
 
     # extract WebEnv and query_key from the response
-    contenttype = res.headers["Content-Type"]
-    data = String(res.body)
+    contenttype = Dict(res.headers)["Content-Type"]
+    data = try String(res.data)
+    catch
+        String(res.body)
+    end
     if startswith(contenttype, "text/xml")
         doc = EzXML.parsexml(data)
         ctx[:WebEnv] = EzXML.nodecontent(findfirst(doc, "//WebEnv"))

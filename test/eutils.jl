@@ -3,14 +3,14 @@
     @testset "einfo" begin
         res = einfo(db="pubmed")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parsexml(res.body), EzXML.Document)
     end
 
     @testset "esearch" begin
         res = esearch(db="pubmed", term="asthma")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parsexml(res.body), EzXML.Document)
     end
 
@@ -18,8 +18,8 @@
         ctx = Dict()
         res = epost(ctx, db="protein", id="NP_005537")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.body), EzXML.Document)
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
+        @test isa(parsexml(res.data), EzXML.Document)
         @test haskey(ctx, :WebEnv)
         @test haskey(ctx, :query_key)
     end
@@ -28,12 +28,12 @@
         # esummary doesn't seem to support accession numbers
         res = esummary(db="protein", id="15718680,157427902,119703751")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parsexml(res.body), EzXML.Document)
 
         res = esummary(db="protein", id=["15718680", "157427902", "119703751"])
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parsexml(res.body), EzXML.Document)
 
         # esearch then esummary
@@ -54,8 +54,8 @@
     @testset "efetch" begin
         res = efetch(db="nuccore", id="NM_001178.5", retmode="xml", idtype="acc")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.body), EzXML.Document)
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
+        @test isa(parsexml(res.data), EzXML.Document)
 
         # epost then efetch
         ctx = Dict()
@@ -68,21 +68,21 @@
     @testset "elink" begin
         res = elink(dbfrom="protein", db="gene", id="NM_001178.5")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parsexml(res.body), EzXML.Document)
     end
 
     @testset "egquery" begin
         res = egquery(term="asthma")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parsexml(res.body), EzXML.Document)
     end
 
     @testset "espell" begin
-        res = espell(db="pubmed", term="athma")
+        res = espell(db="pubmed", term="asthma")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parsexml(res.body), EzXML.Document)
     end
 
