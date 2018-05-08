@@ -31,9 +31,8 @@ export get_tgt,
        get_semantic_types
 
 using Gumbo
-using Requests
-using HttpCommon
 import HTTP
+import JSON
 
 #------------- Endpoints -----------------------
 const uri = "https://utslogin.nlm.nih.gov"
@@ -108,6 +107,7 @@ tgt = get_tgt(apikey = "mykey")
 """
 function get_tgt(; force_new::Bool = false, kwargs...)
     params = Dict(kwargs)
+    body = HTTP.escapeuri(params)
     auth_endpoint = "/cas/v1/tickets/"
 
     if !haskey(params, :apikey)
@@ -128,8 +128,8 @@ function get_tgt(; force_new::Bool = false, kwargs...)
     info("UTS: Requesting new TGT")
     headers = Dict("Content-type"=> "application/x-www-form-urlencoded",
     "Accept"=> "text/plain", "User-Agent"=>"julia" )
-    r = HTTP.post(uri*auth_endpoint,data=params,headers=headers)
-    ascii_r = String(r.data)
+    r = HTTP.request("POST", uri*auth_endpoint, body=body, headers=headers)
+    ascii_r = String(r.body)
 
     doc = parsehtml(ascii_r)
     #for now - harcoded
@@ -155,15 +155,17 @@ Retrieve a single-use Service Ticket using TGT
 """
 function get_ticket(tgt)
     params = Dict("service"=> service)
-    h = Dict("Content-type"=> "application/x-www-form-urlencoded",
+    body = HTTP.escapeuri(params)
+
+    headers = Dict("Content-type"=> "application/x-www-form-urlencoded",
     "Accept"=> "text/plain", "User-Agent"=>"JuliaBioServices" )
     r = HTTP.Response(503)
     try
-        r = HTTP.post(tgt; data=params, headers=h)
+        r = HTTP.request("POST", tgt; body=body, headers=headers)
     catch
         isdefined(r, :code) ? error("UMLS GET error: ", r.code) : error("UMLS COULD NOT GET")
     end
-    return String(r.data)
+    return String(r.body)
 end
 
 #------------------Search ---------------------
@@ -225,13 +227,13 @@ function search_umls(tgt, query; version::String="current", timeout=1)
         query["ticket"]= ticket
         query["pageNumber"]= string(page)
 
-        r = HTTP.get(rest_uri*content_endpoint, query=query, timeout=timeout)
+        r = HTTP.request("GET", rest_uri*content_endpoint, query=query, timeout=timeout)
 
         if r.status != 200
             error("Bad HTTP status $(r.status)")
         end
 
-        json_response = Requests.json(r)
+        json_response = JSON.parse(String(r.body))
         # println("No Results ", length(json_response["result"]["results"]))
         if json_response["result"]["results"][1]["ui"]=="NONE"
             break
@@ -288,12 +290,12 @@ function get_cui(tgt,cui; version="current")
 
     r = HTTP.Response(503)
     try
-        r = HTTP.get( rest_uri*content_endpoint,query=Dict("ticket"=> ticket))
+        r = HTTP.request("GET", rest_uri*content_endpoint,query=Dict("ticket"=> ticket))
     catch
         isdefined(r, :code) ? error("UMLS GET error: ", r.code) : error("UMLS COULD NOT GET")
     end
 
-    return Requests.json(r)
+    return JSON.parse(String(r.body))
 end
 
 
