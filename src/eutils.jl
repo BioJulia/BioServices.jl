@@ -105,7 +105,8 @@ Parameters: db, id, query_key, WebEnv, retstart, retmax, retmode, version.
 """
 function esummary(ctx::Associative=empty_context(); params...)
     params = process_parameters(params, ctx)
-    return HTTP.request("POST", string(baseURL, "esummary.fcgi"), data=params)
+    body = HTTP.escapeuri(params)
+    return HTTP.request("POST", string(baseURL, "esummary.fcgi?", body))
 end
 
 """
@@ -132,7 +133,8 @@ datetype, reldate, mindate, maxdate.
 """
 function elink(ctx::Associative=empty_context(); params...)
     params = process_parameters(params, ctx)
-    return HTTP.request("POST", string(baseURL, "elink.fcgi"), data=params)
+    body = HTTP.escapeuri(params)
+    return HTTP.request("POST", string(baseURL, "elink.fcgi?", body))
 end
 
 """

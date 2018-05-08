@@ -5,6 +5,7 @@
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parsexml(res.body), EzXML.Document)
+        @test nodename(elements(root(parsexml(res.body)))[1]) != "ERROR"
     end
 
     @testset "esearch" begin
@@ -12,6 +13,7 @@
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parsexml(res.body), EzXML.Document)
+        @test nodename(elements(root(parsexml(res.body)))[1]) != "ERROR"
     end
 
     @testset "epost" begin
@@ -30,11 +32,13 @@
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parsexml(res.body), EzXML.Document)
+        @test nodename(elements(root(parsexml(res.body)))[1]) != "ERROR"
 
         res = esummary(db="protein", id=["15718680", "157427902", "119703751"])
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parsexml(res.body), EzXML.Document)
+        @test nodename(elements(root(parsexml(res.body)))[1]) != "ERROR"
 
         # esearch then esummary
         query = "asthma[mesh] AND leukotrienes[mesh] AND 2009[pdat]"
@@ -80,10 +84,14 @@
     end
 
     @testset "espell" begin
-        res = espell(db="pubmed", term="asthma")
+        res = espell(db="pmc", term="fiberblast cell grwth")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parsexml(res.body), EzXML.Document)
+        doc = parsexml(res.body)
+        spelled_query = elements(root(doc))[4]
+        replaced_spell = nodecontent(elements(spelled_query)[4])
+        @test replaced_spell == "growth"
     end
 
     @testset "ecitmatch" begin
