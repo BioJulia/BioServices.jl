@@ -19,7 +19,7 @@
         res = epost(ctx, db="protein", id="NP_005537")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test isa(parsexml(res.body), EzXML.Document)
         @test haskey(ctx, :WebEnv)
         @test haskey(ctx, :query_key)
     end
@@ -55,7 +55,7 @@
         res = efetch(db="nuccore", id="NM_001178.5", retmode="xml", idtype="acc")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test isa(parsexml(res.body), EzXML.Document)
 
         # epost then efetch
         ctx = Dict()

@@ -90,7 +90,8 @@ Parameters: db, id, WebEnv.
 """
 function epost(ctx::Associative=empty_context(); params...)
     params = process_parameters(params, ctx)
-    res = HTTP.request("POST", string(baseURL, "epost.fcgi"), data=params)
+    body = HTTP.escapeuri(params)
+    res = HTTP.request("POST", string(baseURL, "epost.fcgi?", body))
     set_context!(ctx, res)
     return res
 end
@@ -117,7 +118,8 @@ strand, seq_start, seq_stop, complexity.
 """
 function efetch(ctx::Associative=empty_context(); params...)
     params = process_parameters(params, ctx)
-    return HTTP.request("POST", string(baseURL, "efetch.fcgi"), data=params)
+    body = HTTP.escapeuri(params)
+    return HTTP.request("POST", string(baseURL, "efetch.fcgi?", body))
 end
 
 """
@@ -182,10 +184,8 @@ function set_context!(ctx, res)
 
     # extract WebEnv and query_key from the response
     contenttype = Dict(res.headers)["Content-Type"]
-    data = try String(res.data)
-    catch
-        String(res.body)
-    end
+    data = String(res.body)
+
     if startswith(contenttype, "text/xml")
         doc = EzXML.parsexml(data)
         ctx[:WebEnv] = EzXML.nodecontent(findfirst(doc, "//WebEnv"))
