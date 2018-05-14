@@ -9,7 +9,9 @@
     end
 
     @testset "esearch" begin
-        res = esearch(db="pubmed", term="asthma")
+        res = esearch(db="pubmed", term="""(Asthma[MeSH Major Topic]) AND
+                                        ("1/1/2018"[Date - Publication] :
+                                        "3000"[Date - Publication])""")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parsexml(res.body), EzXML.Document)
@@ -77,7 +79,9 @@
     end
 
     @testset "egquery" begin
-        res = egquery(term="asthma")
+        res = egquery(term="""(Asthma[MeSH Major Topic]) AND
+                              ("1/1/2018"[Date - Publication] :
+                              "3000"[Date - Publication])""")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parsexml(res.body), EzXML.Document)
