@@ -3,23 +3,27 @@
     @testset "einfo" begin
         res = einfo(db="pubmed")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
+        @test isa(parsexml(res.body), EzXML.Document)
+        @test nodename(elements(root(parsexml(res.body)))[1]) != "ERROR"
     end
 
     @testset "esearch" begin
-        res = esearch(db="pubmed", term="asthma")
+        res = esearch(db="pubmed", term="""(Asthma[MeSH Major Topic]) AND
+                                        ("1/1/2018"[Date - Publication] :
+                                        "3000"[Date - Publication])""")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
+        @test isa(parsexml(res.body), EzXML.Document)
+        @test nodename(elements(root(parsexml(res.body)))[1]) != "ERROR"
     end
 
     @testset "epost" begin
         ctx = Dict()
         res = epost(ctx, db="protein", id="NP_005537")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
+        @test isa(parsexml(res.body), EzXML.Document)
         @test haskey(ctx, :WebEnv)
         @test haskey(ctx, :query_key)
     end
@@ -28,13 +32,15 @@
         # esummary doesn't seem to support accession numbers
         res = esummary(db="protein", id="15718680,157427902,119703751")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
+        @test isa(parsexml(res.body), EzXML.Document)
+        @test nodename(elements(root(parsexml(res.body)))[1]) != "ERROR"
 
         res = esummary(db="protein", id=["15718680", "157427902", "119703751"])
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
+        @test isa(parsexml(res.body), EzXML.Document)
+        @test nodename(elements(root(parsexml(res.body)))[1]) != "ERROR"
 
         # esearch then esummary
         query = "asthma[mesh] AND leukotrienes[mesh] AND 2009[pdat]"
@@ -54,8 +60,8 @@
     @testset "efetch" begin
         res = efetch(db="nuccore", id="NM_001178.5", retmode="xml", idtype="acc")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
+        @test isa(parsexml(res.body), EzXML.Document)
 
         # epost then efetch
         ctx = Dict()
@@ -68,22 +74,28 @@
     @testset "elink" begin
         res = elink(dbfrom="protein", db="gene", id="NM_001178.5")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
+        @test isa(parsexml(res.body), EzXML.Document)
     end
 
     @testset "egquery" begin
-        res = egquery(term="asthma")
+        res = egquery(term="""(Asthma[MeSH Major Topic]) AND
+                              ("1/1/2018"[Date - Publication] :
+                              "3000"[Date - Publication])""")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
+        @test isa(parsexml(res.body), EzXML.Document)
     end
 
     @testset "espell" begin
-        res = espell(db="pubmed", term="athma")
+        res = espell(db="pmc", term="fiberblast cell grwth")
         @test res.status == 200
-        @test startswith(res.headers["Content-Type"], "text/xml")
-        @test isa(parsexml(res.data), EzXML.Document)
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
+        @test isa(parsexml(res.body), EzXML.Document)
+        doc = parsexml(res.body)
+        spelled_query = elements(root(doc))[4]
+        replaced_spell = nodecontent(elements(spelled_query)[4])
+        @test replaced_spell == "growth"
     end
 
     @testset "ecitmatch" begin

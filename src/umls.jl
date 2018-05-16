@@ -31,8 +31,8 @@ export get_tgt,
        get_semantic_types
 
 using Gumbo
-using Requests
-using HttpCommon
+import HTTP
+import JSON
 
 #------------- Endpoints -----------------------
 const uri = "https://utslogin.nlm.nih.gov"
@@ -53,7 +53,7 @@ end
 """
     time_to_last_save(file)
 
-Get how many hours since last save 
+Get how many hours since last save
 """
 function time_to_last_save(file)
     #unix time is GMT
@@ -86,14 +86,14 @@ end
 """
     get_tgt(; force_new::Bool = false, kwargs...)
 
-Retrieve a ticket granting ticket (TGT) using 
+Retrieve a ticket granting ticket (TGT) using
 
 1. UTS username and password OR
 2. apikey
 
 A tgt is valid for 8 hours. Therefore, look for UTS_TGT.txt in the local
-directory to see if it has been recently stored. One can force getting a 
-new ticket by passing keyword argument `force_new=true` 
+directory to see if it has been recently stored. One can force getting a
+new ticket by passing keyword argument `force_new=true`
 
 ####Examples
 
@@ -107,6 +107,7 @@ tgt = get_tgt(apikey = "mykey")
 """
 function get_tgt(; force_new::Bool = false, kwargs...)
     params = Dict(kwargs)
+    body = HTTP.escapeuri(params)
     auth_endpoint = "/cas/v1/tickets/"
 
     if !haskey(params, :apikey)
@@ -118,17 +119,17 @@ function get_tgt(; force_new::Bool = false, kwargs...)
     end
 
     # Check if there is a valid ticket on disk
-    tgt_file = "UTS_TGT.txt"    
+    tgt_file = "UTS_TGT.txt"
     if tgt_exists(tgt_file=tgt_file) && !force_new
-        info("UTS: Reading TGT from file")        
+        info("UTS: Reading TGT from file")
         return readline(tgt_file)
     end
 
     info("UTS: Requesting new TGT")
     headers = Dict("Content-type"=> "application/x-www-form-urlencoded",
     "Accept"=> "text/plain", "User-Agent"=>"julia" )
-    r = post(uri*auth_endpoint,data=params,headers=headers)
-    ascii_r = String(r.data)
+    r = HTTP.request("POST", uri*auth_endpoint, body=body, headers=headers)
+    ascii_r = String(r.body)
 
     doc = parsehtml(ascii_r)
     #for now - harcoded
@@ -154,15 +155,17 @@ Retrieve a single-use Service Ticket using TGT
 """
 function get_ticket(tgt)
     params = Dict("service"=> service)
-    h = Dict("Content-type"=> "application/x-www-form-urlencoded",
+    body = HTTP.escapeuri(params)
+
+    headers = Dict("Content-type"=> "application/x-www-form-urlencoded",
     "Accept"=> "text/plain", "User-Agent"=>"JuliaBioServices" )
-    r = HttpCommon.Response(503)
+    r = HTTP.Response(503)
     try
-        r = post(tgt; data=params, headers=h)
+        r = HTTP.request("POST", tgt; body=body, headers=headers)
     catch
         isdefined(r, :code) ? error("UMLS GET error: ", r.code) : error("UMLS COULD NOT GET")
     end
-    return String(r.data)
+    return String(r.body)
 end
 
 #------------------Search ---------------------
@@ -224,13 +227,13 @@ function search_umls(tgt, query; version::String="current", timeout=1)
         query["ticket"]= ticket
         query["pageNumber"]= string(page)
 
-        r = get(rest_uri*content_endpoint, query=query, timeout=timeout)
+        r = HTTP.request("GET", rest_uri*content_endpoint, query=query, timeout=timeout)
 
         if r.status != 200
             error("Bad HTTP status $(r.status)")
         end
 
-        json_response = Requests.json(r)
+        json_response = JSON.parse(String(r.body))
         # println("No Results ", length(json_response["result"]["results"]))
         if json_response["result"]["results"][1]["ui"]=="NONE"
             break
@@ -260,7 +263,7 @@ end
 """
     get_cui(tgt,cui)
 
-Retrieve information (name, semantic types, number of atoms, etc) for a known CUI 
+Retrieve information (name, semantic types, number of atoms, etc) for a known CUI
 from latest UMLS version or a specific release.
 
 Returns UTS json response
@@ -285,14 +288,14 @@ function get_cui(tgt,cui; version="current")
         rethrow(err)
     end
 
-    r = HttpCommon.Response(503)
+    r = HTTP.Response(503)
     try
-        r = get( rest_uri*content_endpoint,query=Dict("ticket"=> ticket))
+        r = HTTP.request("GET", rest_uri*content_endpoint,query=Dict("ticket"=> ticket))
     catch
         isdefined(r, :code) ? error("UMLS GET error: ", r.code) : error("UMLS COULD NOT GET")
     end
 
-    return Requests.json(r)
+    return JSON.parse(String(r.body))
 end
 
 

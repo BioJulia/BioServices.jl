@@ -44,7 +44,7 @@ export
 
 import EzXML
 import JSON
-import Requests
+import HTTP
 
 const baseURL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
 
@@ -61,7 +61,7 @@ Parameters: db, version, retmode.
 """
 function einfo(ctx::Associative=empty_context(); params...)
     params = process_parameters(params, ctx)
-    return Requests.get(string(baseURL, "einfo.fcgi"), query=params)
+    return HTTP.request("GET", string(baseURL, "einfo.fcgi"), query=params)
 end
 
 """
@@ -74,7 +74,7 @@ retmode, sort, field, datetype, reldate, mindate, maxdate.
 """
 function esearch(ctx::Associative=empty_context(); params...)
     params = process_parameters(params, ctx)
-    res = Requests.get(string(baseURL, "esearch.fcgi"), query=params)
+    res = HTTP.request("GET", string(baseURL, "esearch.fcgi"), query=params)
     if get(params, :usehistory, "") == "y"
         set_context!(ctx, res)
     end
@@ -90,7 +90,8 @@ Parameters: db, id, WebEnv.
 """
 function epost(ctx::Associative=empty_context(); params...)
     params = process_parameters(params, ctx)
-    res = Requests.post(string(baseURL, "epost.fcgi"), data=params)
+    body = HTTP.escapeuri(params)
+    res = HTTP.request("POST", string(baseURL, "epost.fcgi"), query=body)
     set_context!(ctx, res)
     return res
 end
@@ -104,7 +105,8 @@ Parameters: db, id, query_key, WebEnv, retstart, retmax, retmode, version.
 """
 function esummary(ctx::Associative=empty_context(); params...)
     params = process_parameters(params, ctx)
-    return Requests.post(string(baseURL, "esummary.fcgi"), data=params)
+    body = HTTP.escapeuri(params)
+    return HTTP.request("POST", string(baseURL, "esummary.fcgi"), query=body)
 end
 
 """
@@ -117,7 +119,8 @@ strand, seq_start, seq_stop, complexity.
 """
 function efetch(ctx::Associative=empty_context(); params...)
     params = process_parameters(params, ctx)
-    return Requests.post(string(baseURL, "efetch.fcgi"), data=params)
+    body = HTTP.escapeuri(params)
+    return HTTP.request("POST", string(baseURL, "efetch.fcgi"), query=body)
 end
 
 """
@@ -130,7 +133,8 @@ datetype, reldate, mindate, maxdate.
 """
 function elink(ctx::Associative=empty_context(); params...)
     params = process_parameters(params, ctx)
-    return Requests.post(string(baseURL, "elink.fcgi"), data=params)
+    body = HTTP.escapeuri(params)
+    return HTTP.request("POST", string(baseURL, "elink.fcgi"), query=body)
 end
 
 """
@@ -142,7 +146,7 @@ Parameters: term.
 """
 function egquery(ctx::Associative=empty_context(); params...)
     params = process_parameters(params, ctx)
-    return Requests.get(string(baseURL, "egquery.fcgi"), query=params)
+    return HTTP.request("GET", string(baseURL, "egquery.fcgi"), query=params)
 end
 
 """
@@ -154,7 +158,7 @@ Parameters: db, term.
 """
 function espell(ctx::Associative=empty_context(); params...)
     params = process_parameters(params, ctx)
-    return Requests.get(string(baseURL, "espell.fcgi"), query=params)
+    return HTTP.request("GET", string(baseURL, "espell.fcgi"), query=params)
 end
 
 """
@@ -166,7 +170,7 @@ Parameters: db, rettype, bdata.
 """
 function ecitmatch(ctx::Associative=empty_context(); params...)
     params = process_parameters(params, ctx)
-    return Requests.get(string(baseURL, "ecitmatch.cgi"), query=params)
+    return HTTP.request("GET", string(baseURL, "ecitmatch.cgi"), query=params)
 end
 
 # Create an empty context.
@@ -181,8 +185,9 @@ function set_context!(ctx, res)
     end
 
     # extract WebEnv and query_key from the response
-    contenttype = res.headers["Content-Type"]
-    data = String(res.data)
+    contenttype = Dict(res.headers)["Content-Type"]
+    data = String(res.body)
+
     if startswith(contenttype, "text/xml")
         doc = EzXML.parsexml(data)
         ctx[:WebEnv] = EzXML.nodecontent(findfirst(doc, "//WebEnv"))

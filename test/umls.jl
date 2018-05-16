@@ -1,10 +1,10 @@
 
 
 @testset "UMLS" begin
-    user= ""
+    user = ""
     psswd = ""
     apikey = ""
-    
+
     try
         user = ENV["UMLS_USER"]
         psswd = ENV["UMLS_PSSWD"]
@@ -17,10 +17,9 @@
         term = "obesity"
         query = Dict("string"=>term, "searchType"=>"exact" )
 
-
         tgt = get_tgt(force_new=true, username=user, password=psswd)
         #do it again to test reading from file
-        tgt = get_tgt(username=user, password=psswd)   
+        tgt = get_tgt(username=user, password=psswd)
         #test apikey
         tgt = get_tgt(force_new=true, apikey=apikey)
 
