@@ -74,7 +74,7 @@ retmode, sort, field, datetype, reldate, mindate, maxdate.
 """
 function esearch(ctx::Associative=empty_context(); params...)
     params = process_parameters(params, ctx)
-    res = HTTP.request("GET", string(baseURL, "esearch.fcgi"), query=params)
+    res = HTTP.request("GET", string(baseURL, "esearch.fcgi"), query=params, retry_non_idempotent=true)
     if get(params, :usehistory, "") == "y"
         set_context!(ctx, res)
     end
@@ -120,7 +120,7 @@ strand, seq_start, seq_stop, complexity.
 function efetch(ctx::Associative=empty_context(); params...)
     params = process_parameters(params, ctx)
     body = HTTP.escapeuri(params)
-    return HTTP.request("POST", string(baseURL, "efetch.fcgi"), query=body)
+    return HTTP.request("POST", string(baseURL, "efetch.fcgi"), query=body, retry_non_idempotent=true)
 end
 
 """

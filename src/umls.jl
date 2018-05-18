@@ -161,7 +161,7 @@ function get_ticket(tgt)
     "Accept"=> "text/plain", "User-Agent"=>"JuliaBioServices" )
     r = HTTP.Response(503)
     try
-        r = HTTP.request("POST", tgt; body=body, headers=headers)
+        r = HTTP.request("POST", tgt; body=body, headers=headers, retry_non_idempotent=true)
     catch
         isdefined(r, :code) ? error("UMLS GET error: ", r.code) : error("UMLS COULD NOT GET")
     end
@@ -227,7 +227,7 @@ function search_umls(tgt, query; version::String="current", timeout=1)
         query["ticket"]= ticket
         query["pageNumber"]= string(page)
 
-        r = HTTP.request("GET", rest_uri*content_endpoint, query=query, timeout=timeout)
+        r = HTTP.request("GET", rest_uri*content_endpoint, query=query, timeout=timeout, retry_non_idempotent=true)
 
         if r.status != 200
             error("Bad HTTP status $(r.status)")
