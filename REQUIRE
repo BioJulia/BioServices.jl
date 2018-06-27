@@ -1,5 +1,5 @@
 julia 0.6
-EzXML 0.5
+XMLDict
 JSON
 Gumbo 0.4.0
 HTTP

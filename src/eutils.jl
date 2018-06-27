@@ -42,7 +42,6 @@ export
     espell,
     ecitmatch
 
-using LightXML
 import XMLDict
 import JSON
 import HTTP
