@@ -42,7 +42,7 @@ export
     espell,
     ecitmatch
 
-import EzXML
+import XMLDict
 import JSON
 import HTTP
 
@@ -189,9 +189,9 @@ function set_context!(ctx, res)
     data = String(res.body)
 
     if startswith(contenttype, "text/xml")
-        doc = EzXML.parsexml(data)
-        ctx[:WebEnv] = EzXML.nodecontent(findfirst(doc, "//WebEnv"))
-        ctx[:query_key] = EzXML.nodecontent(findfirst(doc, "//QueryKey"))
+        doc = XMLDict.parse_xml(data)
+        ctx[:WebEnv] = doc["WebEnv"]
+        ctx[:query_key] = doc["QueryKey"]
     elseif startswith(contenttype, "application/json")
         dict = JSON.parse(data)
         ctx[:WebEnv] = dict["esearchresult"]["webenv"]

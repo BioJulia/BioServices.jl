@@ -2,7 +2,7 @@ module TestBioServices
 
 using BioServices.EUtils
 using BioServices.UMLS
-using EzXML
+using XMLDict
 using Base.Test
 
 all_tests = [

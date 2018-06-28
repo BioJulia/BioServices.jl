@@ -4,8 +4,9 @@
         res = einfo(db="pubmed")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
-        @test isa(parsexml(res.body), EzXML.Document)
-        @test nodename(elements(root(parsexml(res.body)))[1]) != "ERROR"
+        body = parse_xml(String(res.body))
+        @test isa(body, XMLDict.XMLDictElement)
+        @test first(body)[1] != "ERROR"
     end
 
     @testset "esearch" begin
@@ -14,8 +15,9 @@
                                         "3000"[Date - Publication])""")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
-        @test isa(parsexml(res.body), EzXML.Document)
-        @test nodename(elements(root(parsexml(res.body)))[1]) != "ERROR"
+        body = parse_xml(String(res.body))
+        @test isa(body, XMLDict.XMLDictElement)
+        @test first(body)[1] != "ERROR"
     end
 
     @testset "epost" begin
@@ -23,7 +25,8 @@
         res = epost(ctx, db="protein", id="NP_005537")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
-        @test isa(parsexml(res.body), EzXML.Document)
+        body = parse_xml(String(res.body))
+        @test isa(body, XMLDict.XMLDictElement)
         @test haskey(ctx, :WebEnv)
         @test haskey(ctx, :query_key)
     end
@@ -33,14 +36,16 @@
         res = esummary(db="protein", id="15718680,157427902,119703751")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
-        @test isa(parsexml(res.body), EzXML.Document)
-        @test nodename(elements(root(parsexml(res.body)))[1]) != "ERROR"
+        body = parse_xml(String(res.body))
+        @test isa(body, XMLDict.XMLDictElement)
+        @test first(body)[1] != "ERROR"
 
         res = esummary(db="protein", id=["15718680", "157427902", "119703751"])
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
-        @test isa(parsexml(res.body), EzXML.Document)
-        @test nodename(elements(root(parsexml(res.body)))[1]) != "ERROR"
+        body = parse_xml(String(res.body))
+        @test isa(body, XMLDict.XMLDictElement)
+        @test first(body)[1] != "ERROR"
 
         # esearch then esummary
         query = "asthma[mesh] AND leukotrienes[mesh] AND 2009[pdat]"
@@ -61,7 +66,7 @@
         res = efetch(db="nuccore", id="NM_001178.5", retmode="xml", idtype="acc")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
-        @test isa(parsexml(res.body), EzXML.Document)
+        @test isa(parse_xml(String(res.body)), XMLDict.XMLDictElement)
 
         # epost then efetch
         ctx = Dict()
@@ -75,7 +80,7 @@
         res = elink(dbfrom="protein", db="gene", id="NM_001178.5")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
-        @test isa(parsexml(res.body), EzXML.Document)
+        @test isa(parse_xml(String(res.body)), XMLDict.XMLDictElement)
     end
 
     @testset "egquery" begin
@@ -84,17 +89,16 @@
                               "3000"[Date - Publication])""")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
-        @test isa(parsexml(res.body), EzXML.Document)
+        @test isa(parse_xml(String(res.body)), XMLDict.XMLDictElement)
     end
 
     @testset "espell" begin
         res = espell(db="pmc", term="fiberblast cell grwth")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
-        @test isa(parsexml(res.body), EzXML.Document)
-        doc = parsexml(res.body)
-        spelled_query = elements(root(doc))[4]
-        replaced_spell = nodecontent(elements(spelled_query)[4])
+        @test isa(parse_xml(String(res.body)), XMLDict.XMLDictElement)
+        doc = parse_xml(String(res.body))
+        replaced_spell = doc["SpelledQuery"]["Replaced"][2]
         @test replaced_spell == "growth"
     end
 
