@@ -34,19 +34,19 @@ const dblistURL = "https://raw.githubusercontent.com/meso-cacase/GGGenome/master
 """
     gggsearch(query; params...)
 Retrieve results of gggenome search of a query sequence.
-Required parameters: 
-	query		String. Nucleotide sequence, case insensitive.
-Optional parameters:
-	db			String. Target database name. hg19 if not specified.
-				Full list of databases: https://gggenome.dbcls.jp/en/help.html#db_list
-	k			Integer. Maximum number of mismatches/gaps. 0 if not specified.
-	strand		 '+' ('plus') or '-' ('minus') to search specified strand only.
-	format		[html|txt|csv|bed|gff|json]. html if not specified.
-	timeout		Integer.
-	output		"toString": String.
-				"extractTopHit": Extract top hit as String. (Currently, only works with format="txt")
-				Otherwise: A HTTP.Messages.Response object is returned.
-	show_url	If true, print URL of REST API.
+
+# Arguments
+## Required 
+- `query::String`: Nucleotide sequence, case insensitive.
+
+## Optional
+- `db::String`: Target database name. hg19 if not specified. Full list of databases: https://gggenome.dbcls.jp/en/help.html#db_list
+- `k::Integer`: Maximum number of mismatches/gaps. 0 if not specified.
+- `strand::String`: '+' ('plus') or '-' ('minus') to search specified strand only.
+- `format::String`: [html|txt|csv|bed|gff|json]. html if not specified.
+- `timeout::Integer`
+- `output::String`: If "toString", a String object is returned. If "extractTopHit", a String object containing only top hit is returned (Currently, only works with format="txt"). Otherwise, A HTTP.Messages.Response object is returned.
+- `show_url::Bool`: If true, print URL of REST API.
 """
 function gggsearch(query; timeout=5, params...)
 	params = Dict(params)
