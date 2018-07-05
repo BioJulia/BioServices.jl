@@ -32,7 +32,7 @@ const dblistURL = "https://raw.githubusercontent.com/meso-cacase/GGGenome/master
 # -------------------
 
 """
-    gggsearch(; params...)
+    gggsearch(query; params...)
 Retrieve results of gggenome search of a query sequence.
 Required parameters: 
 	query		String. Nucleotide sequence, case insensitive.
@@ -48,9 +48,9 @@ Optional parameters:
 				Otherwise: A HTTP.Messages.Response object is returned.
 	show_url	If true, print URL of REST API.
 """
-function gggsearch(; timeout=5, params...)
+function gggsearch(query; timeout=5, params...)
 	params = Dict(params)
-	url = generate_url(params)
+	url = generate_url(query, params)
 	if haskey(params, :show_url) && params[:show_url] == true
 		println(url)
 	end
@@ -113,7 +113,7 @@ function gggdbs()
 	return arr[index_l:index_r]
 end
 
-function generate_url(params)
+function generate_url(query, params)
 	url = baseURL
 	if haskey(params, :db)
 		url *= params[:db] * "/"
@@ -127,9 +127,7 @@ function generate_url(params)
 		url *= params[:strand] * "/"
 	end
 
-	if haskey(params, :query)
-		url *= params[:query]
-	end
+	url *= query
 
 	if haskey(params, :format)
 		url *= "." * params[:format]

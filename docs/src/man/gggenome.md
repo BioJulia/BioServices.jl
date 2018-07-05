@@ -22,7 +22,7 @@ using BioServices.GGGenome
 
 ### Retrieve results of gggenome search of a query sequence.
 ```@docs
-    gggsearch(; params...)
+    gggsearch(query; params...)
 Retrieve results of gggenome search of a query sequence.
 Required parameters: 
     query       String. Nucleotide sequence, case insensitive.
@@ -64,7 +64,7 @@ Full list of available databases is https://gggenome.dbcls.jp/en/mm10/help.html#
 - in json format.
 
 ```
-julia> res = gggsearch(query="TTCATTGACAACATT", format="bed", output="toString");
+julia> res = gggsearch("TTCATTGACAACATT", format="bed", output="toString");
 
 julia> print(res)
 track name=GGGenome description="GGGenome matches"
@@ -85,7 +85,7 @@ chr3    84619844        84619859        .       0       +
 
 
 ```
-julia> res = gggsearch(query="TTCATTGACAACATTGCGT", db="mm10", k=2, strand="+", format="txt", output="toString");
+julia> res = gggsearch("TTCATTGACAACATTGCGT", db="mm10", k=2, strand="+", format="txt", output="toString");
 
 julia> print(res)
 # [ GGGenome | 2018-07-01 22:59:01 ]
@@ -106,7 +106,7 @@ By default, `gggsearch()` returns a HTTP.Messages.Response object.
 ```
 julia> query = "GTGCGGTAACGCGACCGATCCCGGAGAAGCCGGCGGGA";
 
-julia> res = gggsearch(query=query, db="refseq", format="txt");
+julia> res = gggsearch(query, db="refseq", format="txt");
 
 julia> typeof(res)
 HTTP.Messages.Response
@@ -118,7 +118,7 @@ By setting `output="toString"`, `gggsearch()` returns a String object.
 ```
 julia> query = "GTGCGGTAACGCGACCGATCCCGGAGAAGCCGGCGGGA";
 
-julia> res = gggsearch(query=query, db="refseq", format="txt", output="toString");
+julia> res = gggsearch(query, db="refseq", format="txt", output="toString");
 
 julia> typeof(res)
 String
@@ -141,7 +141,7 @@ By setting `output="extractTopHit"`, `gggsearch()` returns a String object conta
 ```
 julia> query = "GTGCGGTAACGCGACCGATCCCGGAGAAGCCGGCGGGA";
 
-julia> res = gggsearch(query=query, db="refseq", format="txt", output="extractTopHit");
+julia> res = gggsearch(query, db="refseq", format="txt", output="extractTopHit");
 
 julia> typeof(res)
 String
