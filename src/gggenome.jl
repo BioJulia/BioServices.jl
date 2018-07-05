@@ -18,8 +18,8 @@ See "GGGenome Help" (https://gggenome.dbcls.jp/en/help.html) for more details.
 module GGGenome
 
 export
-    gggenome,
-    gggenome_dblist
+    gggsearch,
+    gggdbs
 
 
 import HTTP
@@ -32,7 +32,7 @@ const dblistURL = "https://raw.githubusercontent.com/meso-cacase/GGGenome/master
 # -------------------
 
 """
-    gggenome(; params...)
+    gggsearch(; params...)
 Retrieve results of gggenome search of a query sequence.
 Required parameters: 
 	query		String. Nucleotide sequence, case insensitive.
@@ -48,7 +48,7 @@ Optional parameters:
 				Otherwise: A HTTP.Messages.Response object is returned.
 	show_url	If true, print URL of REST API.
 """
-function gggenome(; timeout=5, params...)
+function gggsearch(; timeout=5, params...)
 	params = Dict(params)
 	url = generate_url(params)
 	if haskey(params, :show_url) && params[:show_url] == true
@@ -93,11 +93,11 @@ end
 
 
 """
-    gggenome_dblist()
+    gggdbs()
 Retrieve full list of available databases.
 Full list of databases: https://gggenome.dbcls.jp/en/help.html#db_list.
 """
-function gggenome_dblist()
+function gggdbs()
 	res = HTTP.request("GET", dblistURL)
 	arr = split(String(res.body), "\n")
 	index_l = 0

@@ -22,7 +22,7 @@ using BioServices.GGGenome
 
 ### Retrieve results of gggenome search of a query sequence.
 ```@docs
-    gggenome(; params...)
+    gggsearch(; params...)
 Retrieve results of gggenome search of a query sequence.
 Required parameters: 
     query       String. Nucleotide sequence, case insensitive.
@@ -42,7 +42,7 @@ Optional parameters:
 
 ### Retrieve full list of available databases
 ```@docs
-    gggenome_dblist()
+    gggdbs()
 Retrieve full list of available databases.
 Full list of databases: https://gggenome.dbcls.jp/en/help.html#db_list..
 ```
@@ -64,7 +64,7 @@ Full list of available databases is https://gggenome.dbcls.jp/en/mm10/help.html#
 - in json format.
 
 ```
-julia> res = gggenome(query="TTCATTGACAACATT", format="bed", output="toString");
+julia> res = gggsearch(query="TTCATTGACAACATT", format="bed", output="toString");
 
 julia> print(res)
 track name=GGGenome description="GGGenome matches"
@@ -85,7 +85,7 @@ chr3    84619844        84619859        .       0       +
 
 
 ```
-julia> res = gggenome(query="TTCATTGACAACATTGCGT", db="mm10", k=2, strand="+", format="txt", output="toString");
+julia> res = gggsearch(query="TTCATTGACAACATTGCGT", db="mm10", k=2, strand="+", format="txt", output="toString");
 
 julia> print(res)
 # [ GGGenome | 2018-07-01 22:59:01 ]
@@ -101,24 +101,24 @@ chr1    +       98281503        98281520        TCTAGTGAGGAGAAATGTAAGCTAACGTGATA
 
 ### Understanding `output` parameters
 
-By default, `gggenome()` returns a HTTP.Messages.Response object.
+By default, `gggsearch()` returns a HTTP.Messages.Response object.
 
 ```
 julia> query = "GTGCGGTAACGCGACCGATCCCGGAGAAGCCGGCGGGA";
 
-julia> res = gggenome(query=query, db="refseq", format="txt");
+julia> res = gggsearch(query=query, db="refseq", format="txt");
 
 julia> typeof(res)
 HTTP.Messages.Response
 ```
 
-By setting `output="toString"`, `gggenome()` returns a String object.
+By setting `output="toString"`, `gggsearch()` returns a String object.
 
 
 ```
 julia> query = "GTGCGGTAACGCGACCGATCCCGGAGAAGCCGGCGGGA";
 
-julia> res = gggenome(query=query, db="refseq", format="txt", output="toString");
+julia> res = gggsearch(query=query, db="refseq", format="txt", output="toString");
 
 julia> typeof(res)
 String
@@ -136,12 +136,12 @@ NR_003287.4 Homo sapiens RNA, 28S ribosomal N5 (RNA28SN5), ribosomal RNA        
 ...
 ```
 
-By setting `output="extractTopHit"`, `gggenome()` returns a String object containing the top hit (Currently, only works with `format="txt"`).
+By setting `output="extractTopHit"`, `gggsearch()` returns a String object containing the top hit (Currently, only works with `format="txt"`).
 
 ```
 julia> query = "GTGCGGTAACGCGACCGATCCCGGAGAAGCCGGCGGGA";
 
-julia> res = gggenome(query=query, db="refseq", format="txt", output="extractTopHit");
+julia> res = gggsearch(query=query, db="refseq", format="txt", output="extractTopHit");
 
 julia> typeof(res)
 String
