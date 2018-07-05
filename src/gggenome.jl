@@ -49,46 +49,46 @@ Retrieve results of gggenome search of a query sequence.
 - `show_url::Bool`: If true, print URL of REST API.
 """
 function gggsearch(query; timeout=5, params...)
-	params = Dict(params)
-	url = generate_url(query, params)
-	if haskey(params, :show_url) && params[:show_url] == true
-		println(url)
-	end
-	res = HTTP.request("GET", url, timeout=timeout)
+    params = Dict(params)
+    url = generate_url(query, params)
+    if haskey(params, :show_url) && params[:show_url] == true
+        println(url)
+    end
+    res = HTTP.request("GET", url, timeout=timeout)
 
-	if haskey(params, :output)
-		if params[:output] == "toString"
-			return gggenomeToString(res)
-		elseif params[:output] == "extractTopHit" && haskey(params, :format) && params[:format] == "txt"
-			return extractTopHit(gggenomeToString(res))
-		else
-			return res
-		end
-	else
-		return res
-	end
+    if haskey(params, :output)
+        if params[:output] == "toString"
+            return gggenomeToString(res)
+        elseif params[:output] == "extractTopHit" && haskey(params, :format) && params[:format] == "txt"
+            return extractTopHit(gggenomeToString(res))
+        else
+            return res
+        end
+    else
+        return res
+    end
 end
 
 # function gggenome_base(; timeout=5, params...)
-# 	params = Dict(params)
-# 	return HTTP.request("GET", generate_url(params), timeout=timeout)
+#   params = Dict(params)
+#   return HTTP.request("GET", generate_url(params), timeout=timeout)
 # end
 
 function gggenomeToString(res::HTTP.Messages.Response)
-	return String(res.body)
+    return String(res.body)
 end
 
 function extractTopHit(res_str::String)
-	topResult = "No hit"
-	for ln in split(chomp(res_str), "\n")
-		if ln[1] == '#'
-			continue
-		else
-			topResult = String(chomp(ln))
-			break
-		end
-	end
-	return(topResult)
+    topResult = "No hit"
+    for ln in split(chomp(res_str), "\n")
+        if ln[1] == '#'
+            continue
+        else
+            topResult = String(chomp(ln))
+            break
+        end
+    end
+    return(topResult)
 end
 
 
@@ -98,42 +98,42 @@ Retrieve full list of available databases.
 Full list of databases: https://gggenome.dbcls.jp/en/help.html#db_list.
 """
 function gggdbs()
-	res = HTTP.request("GET", dblistURL)
-	arr = split(String(res.body), "\n")
-	index_l = 0
-	index_r = 0
-	for i in 1:length(arr)
-		if startswith("<<'--EOS--' ;", arr[i])
-			index_l = i + 1
-		elseif startswith("--EOS--", arr[i])
-			index_r = i - 1
-			break
-		end
-	end
-	return arr[index_l:index_r]
+    res = HTTP.request("GET", dblistURL)
+    arr = split(String(res.body), "\n")
+    index_l = 0
+    index_r = 0
+    for i in 1:length(arr)
+        if startswith("<<'--EOS--' ;", arr[i])
+            index_l = i + 1
+        elseif startswith("--EOS--", arr[i])
+            index_r = i - 1
+            break
+        end
+    end
+    return arr[index_l:index_r]
 end
 
 function generate_url(query, params)
-	url = baseURL
-	if haskey(params, :db)
-		url *= params[:db] * "/"
-	end
+    url = baseURL
+    if haskey(params, :db)
+        url *= params[:db] * "/"
+    end
 
-	if haskey(params, :k)
-		url *= string(params[:k]) * "/"
-	end
+    if haskey(params, :k)
+        url *= string(params[:k]) * "/"
+    end
 
-	if haskey(params, :strand)
-		url *= params[:strand] * "/"
-	end
+    if haskey(params, :strand)
+        url *= params[:strand] * "/"
+    end
 
-	url *= query
+    url *= query
 
-	if haskey(params, :format)
-		url *= "." * params[:format]
-	end
+    if haskey(params, :format)
+        url *= "." * params[:format]
+    end
 
-	return(url)
+    return(url)
 end
 
 
