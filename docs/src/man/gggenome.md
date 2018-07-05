@@ -6,7 +6,7 @@ CurrentModule=BioServices.GGGenome
 
 GGGenome is a ultrafast DNA sequence search service hosted by Database Center for Life Science (DBCLS). See "GGGenome Help" (https://gggenome.dbcls.jp/en/help.html) for more details.
 
-BioServices.GGGnome is a Julia module interfaces with the [GGGenome REST API](https://gggenome.dbcls.jp) to query a DNA sequence to various databases programmatically.
+BioServices.GGGenome is a Julia module interfaces with the [GGGenome REST API](https://gggenome.dbcls.jp) to query a DNA sequence to various databases programmatically.
 
 ## Getting Started
 
