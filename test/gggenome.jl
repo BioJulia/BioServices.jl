@@ -2,7 +2,7 @@
 @testset "GGGenome" begin
     @testset "gggsearch" begin
         query = "TTCATTGACAACATT"
-        res = gggsearch(query, db="felCat5", format = "txt")
+        res = gggsearch(query, db="felCat5", format = "html")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         body = parse_xml(String(res.body))
