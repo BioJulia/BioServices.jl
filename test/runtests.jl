@@ -2,6 +2,7 @@ module TestBioServices
 
 using BioServices.EUtils
 using BioServices.UMLS
+using BioServices.GGGenome
 using XMLDict
 using Base.Test
 
