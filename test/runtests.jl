@@ -7,7 +7,8 @@ using Base.Test
 
 all_tests = [
     ("eutils.jl",   "       Testing: EUtils"),
-    ("umls.jl",     "       Testing: UMLS")
+    ("umls.jl",     "       Testing: UMLS"),
+    ("gggenome.jl",     "       Testing: GGGenome")
     ]
 
 println("Running tests:")
