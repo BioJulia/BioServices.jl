@@ -75,11 +75,12 @@ end
 
 function extractTopHit(res_str::String)
     topResult = "No hit"
+    header = ""
     for ln in split(chomp(res_str), "\n")
         if ln[1] == '#'
-            continue
+            header *= String(ln) * "\n"
         else
-            topResult = String(chomp(ln))
+            topResult = header * String(ln)
             break
         end
     end
