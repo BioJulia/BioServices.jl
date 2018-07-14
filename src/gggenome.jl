@@ -69,11 +69,6 @@ function gggsearch(query; timeout=5, params...)
     end
 end
 
-# function gggenome_base(; timeout=5, params...)
-#   params = Dict(params)
-#   return HTTP.request("GET", generate_url(params), timeout=timeout)
-# end
-
 function gggenomeToString(res::HTTP.Messages.Response)
     return String(res.body)
 end
