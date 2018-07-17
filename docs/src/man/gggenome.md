@@ -22,11 +22,14 @@ using BioServices.GGGenome
 
 ### Retrieve results of gggenome search of a query sequence.
 ```@docs
-    gggsearch(query; params...)
+    gggsearch(query::AbstractString; 
+        db="hg19", k=0, strand=nothing,
+        format="html", timeout=5,
+        output=nothing, show_url=false)
 Retrieve results of gggenome search of a query sequence.
 
 # Arguments
-## Required 
+## Required
 - `query::String`: Nucleotide sequence, case insensitive.
 
 ## Optional
@@ -149,5 +152,3 @@ String
 julia> println(res)
 NR_003279.1 Mus musculus 28S ribosomal RNA (Rn28s1), ribosomal RNA      +       2326    2363    GAAGGGACGGGCGATGGCCTCCGTTGCCCTCGGCCGATCGAAAGGGAGTCGGGTTCAGATCCCCGAATCCGGAGTGGCGGAGATGGGCGCCGCGAGGCCAGTGCGGTAACGCGACCGATCCCGGAGAAGCCGGCGGGAGGCCTCGGGGAGAGTTCTCTTTTCTTTGTGAAGGGCAGGGCGCCCTGGAATGGGTTCGCCCCGAGAGAGGGGCCCGTGCCTTGGAAAGCGTCGCGGTTCC      2226    2463
 ```
-
-

@@ -32,7 +32,10 @@ const dblistURL = "https://raw.githubusercontent.com/meso-cacase/GGGenome/master
 # -------------------
 
 """
-    gggsearch(query; params...)
+    gggsearch(query::AbstractString; 
+                db="hg19", k=0, strand=nothing, 
+                format="html", timeout=5, 
+                output=nothing, show_url=false)
 Retrieve results of gggenome search of a query sequence.
 
 # Arguments
@@ -45,21 +48,35 @@ Retrieve results of gggenome search of a query sequence.
 - `strand::String`: '+' ('plus') or '-' ('minus') to search specified strand only.
 - `format::String`: [html|txt|csv|bed|gff|json]. html if not specified.
 - `timeout::Integer`
-- `output::String`: If "toString", a String object is returned. If "extractTopHit", a String object containing only top hit is returned (Currently, only works with format="txt"). Otherwise, A HTTP.Messages.Response object is returned.
+- `output::String`: If "toString", a String object is returned. If "extractTopHit", a String object containing only top hit is returned (Currently, only works with format="txt"). Otherwise, a HTTP.Messages.Response object is returned.
 - `show_url::Bool`: If true, print URL of REST API.
 """
-function gggsearch(query; timeout=5, params...)
-    params = Dict(params)
-    url = generate_url(query, params)
-    if haskey(params, :show_url) && params[:show_url] == true
+function gggsearch(query::AbstractString; 
+                    db="hg19", k=0, strand=nothing, format="html", 
+                    timeout=5, output=nothing, show_url=false)
+    # Generate URL
+    url = baseURL
+    url *= db * "/"
+    url *= string(k) * "/"
+    if typeof(strand) <: AbstractString
+        url *= strand * "/"
+    end
+    url *= query
+    url *= "." * format
+
+    # Show URL
+    if show_url == true
         println(url)
     end
+
+    # Request
     res = HTTP.request("GET", url, timeout=timeout)
 
-    if haskey(params, :output)
-        if params[:output] == "toString"
+    # Output
+    if typeof(output) <: AbstractString
+        if output == "toString"
             return gggenomeToString(res)
-        elseif params[:output] == "extractTopHit" && haskey(params, :format) && params[:format] == "txt"
+        elseif output == "extractTopHit" && format == "txt"
             return extractTopHit(gggenomeToString(res))
         else
             return res
@@ -107,29 +124,6 @@ function gggdbs()
         end
     end
     return arr[index_l:index_r]
-end
-
-function generate_url(query, params)
-    url = baseURL
-    if haskey(params, :db)
-        url *= params[:db] * "/"
-    end
-
-    if haskey(params, :k)
-        url *= string(params[:k]) * "/"
-    end
-
-    if haskey(params, :strand)
-        url *= params[:strand] * "/"
-    end
-
-    url *= query
-
-    if haskey(params, :format)
-        url *= "." * params[:format]
-    end
-
-    return(url)
 end
 
 
