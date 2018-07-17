@@ -52,8 +52,26 @@ Retrieve results of gggenome search of a query sequence.
 - `show_url::Bool`: If true, print URL of REST API.
 """
 function gggsearch(query::AbstractString; 
-                    db="hg19", k=0, strand=nothing, format="html", 
-                    timeout=5, output=nothing, show_url=false)
+                    db::AbstractString="hg19", k::Int64=0, strand=nothing, format::AbstractString="html", 
+                    timeout::Int64=5, output=nothing, show_url::Bool=false)
+    # Check parameters
+    if ! checkQuery(query)
+        throw(ArgumentError("`query` must be consisted of [A|C|G|T|U|N|R|Y|K|M|S|W|B|D|H|V]"))
+    end
+    if format ∉ ("html", "txt", "csv", "bed", "gff", "json")
+        throw(ArgumentError("`format` must be [html|txt|csv|bed|gff|json]"))
+    end
+    if typeof(strand) <: AbstractString
+        if strand ∉ ("+", "-")
+            throw(ArgumentError("`output` must be \"+\" or \"-\""))
+        end
+    end
+    if typeof(output) <: AbstractString
+        if output ∉ ("toString", "extractTopHit")
+            throw(ArgumentError("`output` must be \"toString\" or \"extractTopHit\""))
+        end
+    end
+
     # Generate URL
     url = baseURL
     url *= db * "/"
@@ -84,6 +102,15 @@ function gggsearch(query::AbstractString;
     else
         return res
     end
+end
+
+function checkQuery(query::AbstractString)
+    for i in 1:length(query)
+        if query[i] ∉ "NRYKMSWBDHVACGTU"
+            return false
+        end
+    end
+    return true
 end
 
 function gggenomeToString(res::HTTP.Messages.Response)
