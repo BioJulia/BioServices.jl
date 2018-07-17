@@ -8,8 +8,9 @@
 
 """
 GGGenome module.
+
 The `GGGenome` module provides a programming interface to GGGenome, 
-a ultrafast DNA sequence search service, hosted by DBCLS.
+an ultrafast DNA sequence search service, hosted by DBCLS.
 Two functions are exported from this module:
 1. `gggenome`: DNA sequence search
 2. `gggenome_dblist`: List of available databases
@@ -33,9 +34,10 @@ const dblistURL = "https://raw.githubusercontent.com/meso-cacase/GGGenome/master
 
 """
     gggsearch(query::AbstractString; 
-                db="hg19", k=0, strand=nothing, 
-                format="html", timeout=5, 
-                output=nothing, show_url=false)
+              db="hg19", k=0, strand=nothing, 
+              format="html", timeout=5, 
+              output=nothing, show_url=false)
+
 Retrieve results of gggenome search of a query sequence.
 
 # Arguments
@@ -47,43 +49,42 @@ Retrieve results of gggenome search of a query sequence.
 - `k::Integer`: Maximum number of mismatches/gaps. 0 if not specified.
 - `strand::String`: '+' ('plus') or '-' ('minus') to search specified strand only.
 - `format::String`: [html|txt|csv|bed|gff|json]. html if not specified.
-- `timeout::Integer`
-- `output::String`: If "toString", a String object is returned. If "extractTopHit", a String object containing only top hit is returned (Currently, only works with format="txt"). Otherwise, a HTTP.Messages.Response object is returned.
+- `timeout::Real`: Maximum time allowed for a query.
+- `output::String`: If "toString", a `String` object is returned. If
+  "extractTopHit", a `String` object containing only top hit is returned
+  (Currently, only works with format="txt"). Otherwise, a
+  `HTTP.Messages.Response` object is returned.
 - `show_url::Bool`: If true, print URL of REST API.
 """
 function gggsearch(query::AbstractString; 
-                    db::AbstractString="hg19", k::Int64=0, strand=nothing, format::AbstractString="html", 
-                    timeout::Int64=5, output=nothing, show_url::Bool=false)
+                    db::AbstractString="hg19", k::Integer=0, strand=nothing, format::AbstractString="html", 
+                    timeout::Real=5, output=nothing, show_url::Bool=false)
     # Check parameters
-    if ! checkQuery(query)
+    if !checkQuery(query)
         throw(ArgumentError("`query` must be consisted of [A|C|G|T|U|N|R|Y|K|M|S|W|B|D|H|V]"))
     end
     if format ∉ ("html", "txt", "csv", "bed", "gff", "json")
         throw(ArgumentError("`format` must be [html|txt|csv|bed|gff|json]"))
     end
-    if typeof(strand) <: AbstractString
-        if strand ∉ ("+", "-")
-            throw(ArgumentError("`output` must be \"+\" or \"-\""))
-        end
+    if strand != nothing && strand ∉ ("+", "-")
+        throw(ArgumentError("`output` must be \"+\" or \"-\""))
     end
-    if typeof(output) <: AbstractString
-        if output ∉ ("toString", "extractTopHit")
-            throw(ArgumentError("`output` must be \"toString\" or \"extractTopHit\""))
-        end
+    if output != nothing && output ∉ ("toString", "extractTopHit")
+        throw(ArgumentError("`output` must be \"toString\" or \"extractTopHit\""))
     end
 
     # Generate URL
     url = baseURL
     url *= db * "/"
     url *= string(k) * "/"
-    if typeof(strand) <: AbstractString
+    if strand isa AbstractString
         url *= strand * "/"
     end
     url *= query
     url *= "." * format
 
     # Show URL
-    if show_url == true
+    if show_url
         println(url)
     end
 
@@ -91,13 +92,14 @@ function gggsearch(query::AbstractString;
     res = HTTP.request("GET", url, timeout=timeout)
 
     # Output
-    if typeof(output) <: AbstractString
+    if output isa AbstractString
         if output == "toString"
             return gggenomeToString(res)
         elseif output == "extractTopHit" && format == "txt"
             return extractTopHit(gggenomeToString(res))
         else
-            return res
+            # unreachable
+            @assert false
         end
     else
         return res
@@ -105,12 +107,7 @@ function gggsearch(query::AbstractString;
 end
 
 function checkQuery(query::AbstractString)
-    for i in 1:length(query)
-        if query[i] ∉ "NRYKMSWBDHVACGTU"
-            return false
-        end
-    end
-    return true
+    return all(c -> c ∈ "NRYKMSWBDHVACGTU", query)
 end
 
 function gggenomeToString(res::HTTP.Messages.Response)
@@ -121,19 +118,19 @@ function extractTopHit(res_str::String)
     topResult = "No hit"
     header = ""
     for ln in split(chomp(res_str), "\n")
-        if ln[1] == '#'
+        if startswith(ln, '#')
             header *= String(ln) * "\n"
         else
             topResult = header * String(ln)
             break
         end
     end
-    return(topResult)
+    return topResult
 end
-
 
 """
     gggdbs()
+
 Retrieve full list of available databases.
 Full list of databases: https://gggenome.dbcls.jp/en/help.html#db_list.
 """
@@ -152,6 +149,5 @@ function gggdbs()
     end
     return arr[index_l:index_r]
 end
-
 
 end

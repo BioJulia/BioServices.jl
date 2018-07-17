@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 - Updated project files.
+- Add GGGenome ([#12](https://github.com/BioJulia/BioServices.jl/pull/12)).
 
 ## [0.1.3] - 2018-06-28
 ### Changed
