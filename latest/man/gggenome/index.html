@@ -549,9 +549,9 @@
 <p><a id='BioServices.GGGenome.gggsearch-Tuple{AbstractString}' href='#BioServices.GGGenome.gggsearch-Tuple{AbstractString}'>#</a>
 <strong><code>BioServices.GGGenome.gggsearch</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span><span class="nt">gggsearch</span><span class="o">(</span><span class="nt">query</span><span class="p">::</span><span class="nd">AbstractString</span><span class="o">;</span> 
-            <span class="nt">db</span><span class="o">=</span><span class="s2">&quot;hg19&quot;</span><span class="o">,</span> <span class="nt">k</span><span class="o">=</span><span class="nt">0</span><span class="o">,</span> <span class="nt">strand</span><span class="o">=</span><span class="nt">nothing</span><span class="o">,</span> 
-            <span class="nt">format</span><span class="o">=</span><span class="s2">&quot;html&quot;</span><span class="o">,</span> <span class="nt">timeout</span><span class="o">=</span><span class="nt">5</span><span class="o">,</span> 
-            <span class="nt">output</span><span class="o">=</span><span class="nt">nothing</span><span class="o">,</span> <span class="nt">show_url</span><span class="o">=</span><span class="nt">false</span><span class="o">)</span>
+          <span class="nt">db</span><span class="o">=</span><span class="s2">&quot;hg19&quot;</span><span class="o">,</span> <span class="nt">k</span><span class="o">=</span><span class="nt">0</span><span class="o">,</span> <span class="nt">strand</span><span class="o">=</span><span class="nt">nothing</span><span class="o">,</span> 
+          <span class="nt">format</span><span class="o">=</span><span class="s2">&quot;html&quot;</span><span class="o">,</span> <span class="nt">timeout</span><span class="o">=</span><span class="nt">5</span><span class="o">,</span> 
+          <span class="nt">output</span><span class="o">=</span><span class="nt">nothing</span><span class="o">,</span> <span class="nt">show_url</span><span class="o">=</span><span class="nt">false</span><span class="o">)</span>
 </pre></div>
 
 
@@ -567,11 +567,11 @@
 <li><code>k::Integer</code>: Maximum number of mismatches/gaps. 0 if not specified.</li>
 <li><code>strand::String</code>: '+' ('plus') or '-' ('minus') to search specified strand only.</li>
 <li><code>format::String</code>: [html|txt|csv|bed|gff|json]. html if not specified.</li>
-<li><code>timeout::Integer</code></li>
-<li><code>output::String</code>: If "toString", a String object is returned. If "extractTopHit", a String object containing only top hit is returned (Currently, only works with format="txt"). Otherwise, a HTTP.Messages.Response object is returned.</li>
+<li><code>timeout::Real</code>: Maximum time allowed for a query.</li>
+<li><code>output::String</code>: If "toString", a <code>String</code> object is returned. If "extractTopHit", a <code>String</code> object containing only top hit is returned (Currently, only works with format="txt"). Otherwise, a <code>HTTP.Messages.Response</code> object is returned.</li>
 <li><code>show_url::Bool</code>: If true, print URL of REST API.</li>
 </ul>
-<p><a target='_blank' href='https://github.com/BioJulia/BioServices.jl/blob/9e8f000b5ec36500a94b8a0717f90a424e3d6387/src/gggenome.jl#L34-L53' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioServices.jl/blob/df68418a2c554ef7248d2a5c79a24d542657117d/src/gggenome.jl#L35-L58' class='documenter-source'>source</a><br></p>
 <hr />
 <p><a id='Retrieve-full-list-of-available-databases-1'></a></p>
 <h3 id="retrieve-full-list-of-available-databases">Retrieve full list of available databases</h3>
@@ -582,7 +582,7 @@
 
 
 <p>Retrieve full list of available databases. Full list of databases: https://gggenome.dbcls.jp/en/help.html#db_list.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioServices.jl/blob/9e8f000b5ec36500a94b8a0717f90a424e3d6387/src/gggenome.jl#L135-L139' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioServices.jl/blob/df68418a2c554ef7248d2a5c79a24d542657117d/src/gggenome.jl#L131-L136' class='documenter-source'>source</a><br></p>
 <hr />
 <p><a id='Available-Databases-1'></a></p>
 <h2 id="available-databases">Available Databases</h2>
