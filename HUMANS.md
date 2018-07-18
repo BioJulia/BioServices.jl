@@ -14,6 +14,8 @@
   - GitHub: [mcmcgrath13](https://github.com/mcmcgrath13)
 - Haruka Ozaki
   - GitHub: [yuifu](https://github.com/yuifu)
+- Fernando Gelin
+  - GitHub: [fernandogelin](https://github.com/fernandogelin)
 
 [Full contributors list](https://github.com/BioJulia/BioServices.jl/graphs/contributors)
 
