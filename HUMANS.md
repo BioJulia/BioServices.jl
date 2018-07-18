@@ -12,6 +12,8 @@
   - GitHub: [bicycle1885](https://github.com/bicycle1885)
 - mcmcgrath13
   - GitHub: [mcmcgrath13](https://github.com/mcmcgrath13)
+- Haruka Ozaki
+  - GitHub: [yuifu](https://github.com/yuifu)
 
 [Full contributors list](https://github.com/BioJulia/BioServices.jl/graphs/contributors)
 
