@@ -33,7 +33,7 @@ and Windows.
 
 | **PackageEvaluator** | **Latest Build Status** |
 |:--------------------:|:-----------------------:|
-| [![](http://pkg.julialang.org/badges/BioServices_0.6.svg)](http://pkg.julialang.org/?pkg=BioServices) [![](http://pkg.julialang.org/badges/BioServices_0.7.svg)](http://pkg.julialang.org/?pkg=BioServices) | [![](https://travis-ci.org/BioJulia/BioServices.jl.svg?branch=master)](https://travis-ci.org/BioJulia/BioServices.jl) [![](https://ci.appveyor.com/api/projects/status/github/biojulia/bioservices.jl?svg=true)](https://ci.appveyor.com/project/Ward9250/BioServices-jl/branch/master) [![](https://codecov.io/gh/BioJulia/BioSymbols.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/BioJulia/BioSymbols.jl) [![](https://codecov.io/gh/BioJulia/BioServices.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/BioJulia/BioServices.jl) |
+| [![](http://pkg.julialang.org/badges/BioServices_0.6.svg)](http://pkg.julialang.org/?pkg=BioServices) [![](http://pkg.julialang.org/badges/BioServices_0.7.svg)](http://pkg.julialang.org/?pkg=BioServices) | [![](https://travis-ci.org/BioJulia/BioServices.jl.svg?branch=master)](https://travis-ci.org/BioJulia/BioServices.jl) [![](https://ci.appveyor.com/api/projects/status/github/biojulia/bioservices.jl?svg=true)](https://ci.appveyor.com/project/Ward9250/BioServices-jl/branch/master) [![](https://codecov.io/gh/BioJulia/BioServices.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/BioJulia/BioServices.jl) |
 
 
 ## Contributing
