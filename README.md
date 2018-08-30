@@ -19,7 +19,6 @@ Install BioServices from the Julia REPL:
 ```julia
 using Pkg
 add("BioServices")
-# Pkg.add("BioServices") for julia prior to v0.7
 ```
 
 If you are interested in the cutting edge of the development, please check out
