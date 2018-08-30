@@ -72,16 +72,16 @@
         @test res.status == 200
     end
 
-      
+
     @testset "efetch" begin
-        sleep(0.3)  
+        sleep(0.3)
         res = efetch(db="nuccore", id="NM_001178.5", retmode="xml", idtype="acc")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parse_xml(String(res.body)), XMLDict.XMLDictElement)
 
         # epost then efetch
-        sleep(0.3) 
+        sleep(0.3)
         ctx = Dict()
         res = epost(ctx, db="protein", id="NP_005537")
         @test res.status == 200
@@ -90,7 +90,7 @@
     end
 
     @testset "elink" begin
-        sleep(0.3) 
+        sleep(0.3)
         res = elink(dbfrom="protein", db="gene", id="NM_001178.5")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
@@ -98,7 +98,7 @@
     end
 
     @testset "egquery" begin
-        sleep(0.3) 
+        sleep(0.3)
         res = egquery(term="""(Asthma[MeSH Major Topic]) AND
                               ("1/1/2018"[Date - Publication] :
                               "3000"[Date - Publication])""")
@@ -108,18 +108,18 @@
     end
 
     @testset "espell" begin
-        sleep(0.3) 
+        sleep(0.3)
         res = espell(db="pmc", term="fiberblast cell grwth")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
-        @test isa(parse_xml(String(res.body)), XMLDict.XMLDictElement)
-        doc = parse_xml(String(res.body))
-        replaced_spell = doc["SpelledQuery"]["Replaced"][2]
+        body = parse_xml(String(res.body))
+        @test isa(body, XMLDict.XMLDictElement)
+        replaced_spell = body["SpelledQuery"]["Replaced"][2]
         @test replaced_spell == "growth"
     end
 
     @testset "ecitmatch" begin
-        sleep(0.3) 
+        sleep(0.3)
         res = ecitmatch(
             db="pubmed",
             retmode="xml",

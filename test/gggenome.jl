@@ -5,7 +5,7 @@
         res = gggsearch(query, db="felCat5", format = "html")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/html")
-        @test ismatch(Regex("query="*query), String(res.body))
+        @test occursin(Regex("query="*query), String(res.body))
 
         res = gggsearch(query, db="felCat5", format = "txt", output = "toString")
         @test typeof(res) == String

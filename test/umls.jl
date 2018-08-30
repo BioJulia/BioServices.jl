@@ -10,7 +10,7 @@
         psswd = ENV["UMLS_PSSWD"]
         apikey = ENV["UMLS_APIKEY"]
     catch
-        warn("UMLS tests could not run: Set up credentials as enviroment variables: UMLS_USER, UMLS_PSSWD and UMLS_APIKEY")
+        @warn "UMLS tests could not run: Set up credentials as enviroment variables: UMLS_USER, UMLS_PSSWD and UMLS_APIKEY"
     end
 
     if (user != "") && (psswd != "") && (apikey != "")

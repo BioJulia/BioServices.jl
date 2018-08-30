@@ -4,12 +4,12 @@ using BioServices.EUtils
 using BioServices.UMLS
 using BioServices.GGGenome
 using XMLDict
-using Base.Test
+using Test
 
 all_tests = [
     ("eutils.jl",   "       Testing: EUtils"),
     ("umls.jl",     "       Testing: UMLS"),
-    ("gggenome.jl",     "       Testing: GGGenome")
+    ("gggenome.jl",     "   Testing: GGGenome")
     ]
 
 println("Running tests:")
