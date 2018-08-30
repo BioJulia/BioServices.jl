@@ -26,7 +26,7 @@ module UMLS
 
 export get_tgt,
        search_umls,
-       best_match_cui
+       best_match_cui,
        get_cui,
        get_semantic_types
 
