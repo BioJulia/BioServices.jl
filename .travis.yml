@@ -18,9 +18,7 @@ before_script:
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   # - julia -e 'Pkg.clone(pwd(), "BioServices"); Pkg.build("BioSercices"); ENV["TRAVIS"] = "yes"; Pkg.test("BioServices"; coverage=true)'
-  - julia --check-bounds=yes -e 'import Pkg;
-          Pkg.build();
-          Pkg.test("BioServices"; coverage=true)'
+  - julia --check-bounds=yes -e 'import Pkg; Pkg.build(); Pkg.test("BioServices"; coverage=true)'
 after_success:
   - julia -e 'import Pkg; Pkg.instantiate(); Pkg.add("Documenter"); Pkg.add("Literate"); include(joinpath("docs", "make.jl"))'
   - julia -e 'import Pkg; Pkg.instantiate(); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'

@@ -26,13 +26,14 @@ module UMLS
 
 export get_tgt,
        search_umls,
-       best_match_cui,
+       best_match_cui
        get_cui,
        get_semantic_types
 
 using Gumbo
 import HTTP
 import JSON
+using Dates
 
 #------------- Endpoints -----------------------
 const uri = "https://utslogin.nlm.nih.gov"
@@ -72,7 +73,7 @@ function tgt_exists(; tgt_file = "UTS_TGT.txt", hours = 1)
         time_elapsed = time_to_last_save(tgt_file)
         # Expiration time should be 8 hours - but I tend to expirience bad TGT after few hours
         if time_elapsed > hours
-            info("UTS TGT Expired")
+            @info "UTS TGT Expired"
             rm(tgt_file)
             return false
         else
@@ -121,11 +122,11 @@ function get_tgt(; force_new::Bool = false, kwargs...)
     # Check if there is a valid ticket on disk
     tgt_file = "UTS_TGT.txt"
     if tgt_exists(tgt_file=tgt_file) && !force_new
-        info("UTS: Reading TGT from file")
+        @info "UTS: Reading TGT from file"
         return readline(tgt_file)
     end
 
-    info("UTS: Requesting new TGT")
+    @info "UTS: Requesting new TGT"
     headers = Dict("Content-type"=> "application/x-www-form-urlencoded",
     "Accept"=> "text/plain", "User-Agent"=>"julia" )
     r = HTTP.request("POST", uri*auth_endpoint, body=body, headers=headers)
