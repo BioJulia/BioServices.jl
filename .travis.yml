@@ -11,7 +11,6 @@ matrix:
     - julia: nightly
 notifications:
   email: false
-# sudo: false
 before_script:
   - export PATH=$HOME/.local/bin:$PATH
 after_success:
