@@ -19,7 +19,6 @@ Install BioServices from the Julia REPL:
 ```julia
 using Pkg
 add("BioServices")
-# Pkg.add("BioServices") for julia prior to v0.7
 ```
 
 If you are interested in the cutting edge of the development, please check out
@@ -28,7 +27,7 @@ the master branch to try new features before release.
 
 ## Testing
 
-BioServices is tested against Julia `0.6` and current `0.7-dev` on Linux, OS X,
+BioServices is tested against Julia `0.7` and current `1.0` on Linux, OS X,
 and Windows.
 
 | **PackageEvaluator** | **Latest Build Status** |

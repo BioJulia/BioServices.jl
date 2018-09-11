@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 - Updated HUMANS.md.
+- Added compatibility with Julia 1.0
 
 ## [0.2.0] - 2018-07-18
 ### Changed
@@ -19,7 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.1.2] - 2018-05-22
 ### Changed
-- Optionally retry after HTTP posts to UMLS fail. 
+- Optionally retry after HTTP posts to UMLS fail.
 
 ## [0.1.1] - 2018-05-16
 ### Added
