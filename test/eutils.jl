@@ -108,7 +108,7 @@
 
         body = parse_xml(String(res.body))
 
-        @test haskey(body, "PubMedArticle")
+        @test haskey(body, "PubmedArticle")
         @test length(body["PubmedArticle"]) == retmax
  
     end
