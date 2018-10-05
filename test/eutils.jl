@@ -87,6 +87,30 @@
         @test res.status == 200
         res = efetch(ctx, db="protein", retmode="xml")
         @test res.status == 200
+
+        # esearch then efeth for large number of ids
+        retmax = 1000
+        search_term = """(Asthma[MeSH Major Topic]) 
+                        AND ("1/1/2018"[Date - Publication] :
+                        "3000"[Date - Publication])"""
+        res = esearch(db = "pubmed", term = search_term,
+        retstart = 0, retmax = retmax, tool = "BioJulia")
+
+        #convert xml to dictionary
+        esearch_dict = parse_xml(String(res.body))
+
+        #get the list of ids and perfom a fetch
+        ids = [parse(Int64, id_node) for id_node in esearch_dict["IdList"]["Id"]]
+
+        res = efetch(db = "pubmed", tool = "BioJulia", retmode = "xml", rettype = "null", id = ids)
+        @test res.status == 200
+        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
+
+        body = parse_xml(String(res.body))
+
+        @test haskey(body, "PubmedArticle")
+        @test length(body["PubmedArticle"]) == retmax
+ 
     end
 
     @testset "elink" begin
