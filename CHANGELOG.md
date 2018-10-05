@@ -4,7 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.1] - 2018-10-5
+### Changes
+- eutils.jl to use the correct http parameter when passing the body to POST
+- tests/eutils.jl to perform efetch with large number of PMID which breaks if incorrect http format is used
+### Removed
+- *.toml files to wait until versioning is ready for new Pkg
+
+## [0.3.0] - 2018-09-21
+### Changed
 - Updated HUMANS.md.
 - Added compatibility with Julia 1.0
 
