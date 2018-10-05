@@ -92,7 +92,7 @@ Parameters: db, id, WebEnv.
 function epost(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     body = HTTP.escapeuri(params)
-    res = HTTP.request("POST", string(baseURL, "epost.fcgi"), query=body)
+    res = HTTP.request("POST", string(baseURL, "epost.fcgi"), body=body)
     set_context!(ctx, res)
     return res
 end
@@ -107,7 +107,7 @@ Parameters: db, id, query_key, WebEnv, retstart, retmax, retmode, version.
 function esummary(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     body = HTTP.escapeuri(params)
-    return HTTP.request("POST", string(baseURL, "esummary.fcgi"), query=body)
+    return HTTP.request("POST", string(baseURL, "esummary.fcgi"), body=body)
 end
 
 """
@@ -121,7 +121,7 @@ strand, seq_start, seq_stop, complexity.
 function efetch(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     body = HTTP.escapeuri(params)
-    return HTTP.request("POST", string(baseURL, "efetch.fcgi"), query=body, retry_non_idempotent=true)
+    return HTTP.request("POST", string(baseURL, "efetch.fcgi"), body=body, retry_non_idempotent=true)
 end
 
 """
@@ -135,7 +135,7 @@ datetype, reldate, mindate, maxdate.
 function elink(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     body = HTTP.escapeuri(params)
-    return HTTP.request("POST", string(baseURL, "elink.fcgi"), query=body)
+    return HTTP.request("POST", string(baseURL, "elink.fcgi"), body=body)
 end
 
 """
