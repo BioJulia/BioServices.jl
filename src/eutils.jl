@@ -92,7 +92,9 @@ Parameters: db, id, WebEnv.
 function epost(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     body = HTTP.escapeuri(params)
-    res = HTTP.request("POST", string(baseURL, "epost.fcgi"), body=body)
+    # added user-agent header as workaround for EOFError - HTTP.jl issue #342
+    headers = Dict("user-agent"=>"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
+    res = HTTP.request("POST", string(baseURL, "epost.fcgi"), headers, body=body)
     set_context!(ctx, res)
     return res
 end
