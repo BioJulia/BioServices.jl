@@ -85,6 +85,7 @@
         ctx = Dict()
         res = epost(ctx, db="protein", id="NP_005537")
         @test res.status == 200
+        sleep(0.3)
         res = efetch(ctx, db="protein", retmode="xml")
         @test res.status == 200
 
@@ -93,6 +94,7 @@
         search_term = """(Asthma[MeSH Major Topic]) 
                         AND ("1/1/2018"[Date - Publication] :
                         "3000"[Date - Publication])"""
+        sleep(0.3)
         res = esearch(db = "pubmed", term = search_term,
         retstart = 0, retmax = retmax, tool = "BioJulia")
 
@@ -102,6 +104,7 @@
         #get the list of ids and perfom a fetch
         ids = [parse(Int64, id_node) for id_node in esearch_dict["IdList"]["Id"]]
 
+        sleep(0.3)
         res = efetch(db = "pubmed", tool = "BioJulia", retmode = "xml", rettype = "null", id = ids)
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
