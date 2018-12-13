@@ -41,3 +41,4 @@ pages:
 - Manual:
     - EUtils: man/eutils.md
     - UMLS: man/umls.md
+    - GGGenome: man/gggenome.md

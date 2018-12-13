@@ -40,9 +40,10 @@ export
     elink,
     egquery,
     espell,
-    ecitmatch
+    ecitmatch,
+    set_context!
 
-import EzXML
+import XMLDict
 import JSON
 import HTTP
 
@@ -59,7 +60,7 @@ Retrieve a list of databases or statistics for a database.
 
 Parameters: db, version, retmode.
 """
-function einfo(ctx::Associative=empty_context(); params...)
+function einfo(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     return HTTP.request("GET", string(baseURL, "einfo.fcgi"), query=params)
 end
@@ -72,7 +73,7 @@ Retrieve a list of UIDs matching a text query.
 Parameters: db, term, usehistory, WebEnv, query_key, retstart, retmax, rettype,
 retmode, sort, field, datetype, reldate, mindate, maxdate.
 """
-function esearch(ctx::Associative=empty_context(); params...)
+function esearch(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     res = HTTP.request("GET", string(baseURL, "esearch.fcgi"), query=params, retry_non_idempotent=true)
     if get(params, :usehistory, "") == "y"
@@ -88,10 +89,12 @@ Upload or append a list of UIDs to the Entrez History server.
 
 Parameters: db, id, WebEnv.
 """
-function epost(ctx::Associative=empty_context(); params...)
+function epost(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     body = HTTP.escapeuri(params)
-    res = HTTP.request("POST", string(baseURL, "epost.fcgi"), query=body)
+    # added user-agent header as workaround for EOFError - HTTP.jl issue #342
+    headers = Dict("user-agent"=>"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
+    res = HTTP.request("POST", string(baseURL, "epost.fcgi"), headers, body=body)
     set_context!(ctx, res)
     return res
 end
@@ -103,10 +106,10 @@ Retrieve document summaries for a list of UIDs.
 
 Parameters: db, id, query_key, WebEnv, retstart, retmax, retmode, version.
 """
-function esummary(ctx::Associative=empty_context(); params...)
+function esummary(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     body = HTTP.escapeuri(params)
-    return HTTP.request("POST", string(baseURL, "esummary.fcgi"), query=body)
+    return HTTP.request("POST", string(baseURL, "esummary.fcgi"), body=body)
 end
 
 """
@@ -117,10 +120,10 @@ Retrieve formatted data records for a list of UIDs.
 Parameters: db, id, query_key, WebEnv, retmode, rettype, retstart, retmax,
 strand, seq_start, seq_stop, complexity.
 """
-function efetch(ctx::Associative=empty_context(); params...)
+function efetch(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     body = HTTP.escapeuri(params)
-    return HTTP.request("POST", string(baseURL, "efetch.fcgi"), query=body, retry_non_idempotent=true)
+    return HTTP.request("POST", string(baseURL, "efetch.fcgi"), body=body, retry_non_idempotent=true)
 end
 
 """
@@ -131,10 +134,10 @@ Retrieve UIDs linked to an input set of UIDs.
 Parameters: db, dbfrom, cmd, id, query_key, WebEnv, linkname, term, holding,
 datetype, reldate, mindate, maxdate.
 """
-function elink(ctx::Associative=empty_context(); params...)
+function elink(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     body = HTTP.escapeuri(params)
-    return HTTP.request("POST", string(baseURL, "elink.fcgi"), query=body)
+    return HTTP.request("POST", string(baseURL, "elink.fcgi"), body=body)
 end
 
 """
@@ -144,7 +147,7 @@ Retrieve the number of available records in all databases by a text query.
 
 Parameters: term.
 """
-function egquery(ctx::Associative=empty_context(); params...)
+function egquery(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     return HTTP.request("GET", string(baseURL, "egquery.fcgi"), query=params)
 end
@@ -156,7 +159,7 @@ Retrieve spelling suggestions.
 
 Parameters: db, term.
 """
-function espell(ctx::Associative=empty_context(); params...)
+function espell(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     return HTTP.request("GET", string(baseURL, "espell.fcgi"), query=params)
 end
@@ -168,7 +171,7 @@ Retrieve PubMed IDs that correspond to a set of input citation strings.
 
 Parameters: db, rettype, bdata.
 """
-function ecitmatch(ctx::Associative=empty_context(); params...)
+function ecitmatch(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     return HTTP.request("GET", string(baseURL, "ecitmatch.cgi"), query=params)
 end
@@ -186,17 +189,19 @@ function set_context!(ctx, res)
 
     # extract WebEnv and query_key from the response
     contenttype = Dict(res.headers)["Content-Type"]
+    body = deepcopy(res.body)
     data = String(res.body)
 
     if startswith(contenttype, "text/xml")
-        doc = EzXML.parsexml(data)
-        ctx[:WebEnv] = EzXML.nodecontent(findfirst(doc, "//WebEnv"))
-        ctx[:query_key] = EzXML.nodecontent(findfirst(doc, "//QueryKey"))
+        doc = XMLDict.parse_xml(data)
+        ctx[:WebEnv] = doc["WebEnv"]
+        ctx[:query_key] = doc["QueryKey"]
     elseif startswith(contenttype, "application/json")
         dict = JSON.parse(data)
         ctx[:WebEnv] = dict["esearchresult"]["webenv"]
         ctx[:query_key] = dict["esearchresult"]["querykey"]
     end
+    res.body = body
 
     return ctx
 end

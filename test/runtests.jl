@@ -2,12 +2,14 @@ module TestBioServices
 
 using BioServices.EUtils
 using BioServices.UMLS
-using EzXML
-using Base.Test
+using BioServices.GGGenome
+using XMLDict
+using Test
 
 all_tests = [
     ("eutils.jl",   "       Testing: EUtils"),
-    ("umls.jl",     "       Testing: UMLS")
+    ("umls.jl",     "       Testing: UMLS"),
+    ("gggenome.jl",     "   Testing: GGGenome")
     ]
 
 println("Running tests:")
