@@ -53,12 +53,14 @@
         ctx = Dict()
         res = esearch(ctx, db="pubmed", term=query, usehistory=true, retmode="xml")
         @test res.status == 200
+
         res = esummary(ctx, db="pubmed")
         @test res.status == 200
 
         ctx = Dict()
         res = esearch(ctx, db="pubmed", term=query, usehistory=true, retmode="json")
         @test res.status == 200
+
         res = esummary(ctx, db="pubmed")
         @test res.status == 200
     end
@@ -74,10 +76,11 @@
         ctx = Dict()
         res = epost(ctx, db="protein", id="NP_005537")
         @test res.status == 200
+
         res = efetch(ctx, db="protein", retmode="xml")
         @test res.status == 200
 
-        # esearch then efeth for large number of ids
+        # esearch then efetch for large number of ids
         retmax = 1000
         search_term = """(Asthma[MeSH Major Topic])
                         AND ("1/1/2018"[Date - Publication] :
