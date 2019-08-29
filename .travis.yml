@@ -2,6 +2,7 @@ language: julia
 os:
   - linux
   - osx
+  - windows
 julia:
   - 0.7
   - 1.0
@@ -20,8 +21,6 @@ matrix:
         
 notifications:
   email: false
-before_script:
-  - export PATH=$HOME/.local/bin:$PATH
 after_success:
   - julia -e 'import Pkg; Pkg.add("Documenter"); include(joinpath("docs", "make.jl"))'
   - julia -e 'import Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
