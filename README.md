@@ -27,7 +27,7 @@ the master branch to try new features before release.
 
 ## Testing
 
-BioServices is tested against Julia `0.7` and current `1.0` on Linux, OS X,
+BioServices is tested against all currently supported versions of Julia (`1.0` and higher) on Linux, OS X,
 and Windows.
 
 | **PackageEvaluator** | **Latest Build Status** |
