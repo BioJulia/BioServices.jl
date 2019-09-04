@@ -2,7 +2,6 @@
 @testset "EUtils" begin
 
     @testset "einfo" begin
-        sleep(0.3)
         res = einfo(db="pubmed")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
@@ -12,7 +11,6 @@
     end
 
     @testset "esearch" begin
-        sleep(0.3)
         res = esearch(db="pubmed", term="""(Asthma[MeSH Major Topic]) AND
                                         ("1/1/2018"[Date - Publication] :
                                         "3000"[Date - Publication])""")
@@ -24,7 +22,6 @@
     end
 
     @testset "epost" begin
-        sleep(0.3)
         ctx = Dict()
         res = epost(ctx, db="protein", id="NP_005537")
         @test res.status == 200
@@ -37,7 +34,6 @@
 
     @testset "esummary" begin
         # esummary doesn't seem to support accession numbers
-        sleep(0.3)
         res = esummary(db="protein", id="15718680,157427902,119703751")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
@@ -45,7 +41,6 @@
         @test isa(body, XMLDict.XMLDictElement)
         @test first(body)[1] != "ERROR"
 
-        sleep(0.3)
         res = esummary(db="protein", id=["15718680", "157427902", "119703751"])
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
@@ -54,38 +49,31 @@
         @test first(body)[1] != "ERROR"
 
         # esearch then esummary
-        sleep(0.3)
         query = "asthma[mesh] AND leukotrienes[mesh] AND 2009[pdat]"
         ctx = Dict()
         res = esearch(ctx, db="pubmed", term=query, usehistory=true, retmode="xml")
         @test res.status == 200
-        sleep(0.3)
         res = esummary(ctx, db="pubmed")
         @test res.status == 200
 
-        sleep(0.3)
         ctx = Dict()
         res = esearch(ctx, db="pubmed", term=query, usehistory=true, retmode="json")
         @test res.status == 200
-        sleep(0.3)
         res = esummary(ctx, db="pubmed")
         @test res.status == 200
     end
 
 
     @testset "efetch" begin
-        sleep(0.3)
         res = efetch(db="nuccore", id="NM_001178.5", retmode="xml", idtype="acc")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parse_xml(String(res.body)), XMLDict.XMLDictElement)
 
         # epost then efetch
-        sleep(0.3)
         ctx = Dict()
         res = epost(ctx, db="protein", id="NP_005537")
         @test res.status == 200
-        sleep(0.3)
         res = efetch(ctx, db="protein", retmode="xml")
         @test res.status == 200
 
@@ -94,7 +82,6 @@
         search_term = """(Asthma[MeSH Major Topic])
                         AND ("1/1/2018"[Date - Publication] :
                         "3000"[Date - Publication])"""
-        sleep(0.3)
         res = esearch(db = "pubmed", term = search_term,
         retstart = 0, retmax = retmax, tool = "BioJulia")
 
@@ -104,7 +91,6 @@
         #get the list of ids and perfom a fetch
         ids = [parse(Int64, id_node) for id_node in esearch_dict["IdList"]["Id"]]
 
-        sleep(0.3)
         res = efetch(db = "pubmed", tool = "BioJulia", retmode = "xml", rettype = "null", id = ids)
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
@@ -117,7 +103,6 @@
     end
 
     @testset "elink" begin
-        sleep(0.3)
         res = elink(dbfrom="protein", db="gene", id="NM_001178.5")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
@@ -125,7 +110,6 @@
     end
 
     @testset "egquery" begin
-        sleep(0.3)
         res = egquery(term="""(Asthma[MeSH Major Topic]) AND
                               ("1/1/2018"[Date - Publication] :
                               "3000"[Date - Publication])""")
@@ -135,7 +119,6 @@
     end
 
     @testset "espell" begin
-        sleep(0.3)
         res = espell(db="pmc", term="fiberblast cell grwth")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
@@ -146,7 +129,6 @@
     end
 
     @testset "ecitmatch" begin
-        sleep(0.3)
         res = ecitmatch(
             db="pubmed",
             retmode="xml",
