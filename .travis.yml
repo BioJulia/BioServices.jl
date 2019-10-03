@@ -9,6 +9,15 @@ julia:
 matrix:
   allow_failures:
     - julia: nightly
+  include:
+    - stage: deploy docs
+      os: linux
+      julia: 1.2
+      script:
+        - julia --project -e 'import Pkg; Pkg.add("Documenter"); Pkg.add("DocumenterMarkdown")'
+        - julia --project --color=yes docs/make.jl
+      after_success: skip
+        
 notifications:
   email: false
 before_script:
