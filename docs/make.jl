@@ -1,9 +1,13 @@
-using Documenter, BioServices
+using Documenter, DocumenterMarkdown, BioServices
 
-makedocs()
+makedocs(
+	format	= Markdown(),
+	sitename= "BioServices.jl"
+)
+
 deploydocs(
-    deps = Deps.pip("mkdocs", "pygments", "mkdocs-material"),
-    repo = "github.com/BioJulia/BioServices.jl.git",
-    julia = "0.6",
-    osname = "linux",
+    deps 	= Deps.pip("mkdocs", "mkdocs-material", "pygments", "python-markdown-math"),
+    repo 	= "github.com/BioJulia/BioServices.jl.git",
+    make 	= () -> run(`mkdocs build`),
+    target 	= "site"
 )

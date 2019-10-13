@@ -2,11 +2,9 @@
 CurrentModule = BioServices
 ```
 
-# E-Utilities
+# EUtils
 
-E-Utilities provide a interface to Entrez databases at
-[NCBI](https://www.ncbi.nlm.nih.gov/).  The APIs are defined in the
-`BioServices.EUtils` module, which exports nine functions to access its databases:
+EUtils provide a interface to Entrez databases at [NCBI](https://www.ncbi.nlm.nih.gov/).  The APIs are defined in the `BioServices.EUtils` module, which exports nine functions to access its databases:
 
 | Function    | Description                                                                |
 | :-------    | :----------                                                                |
@@ -20,7 +18,7 @@ E-Utilities provide a interface to Entrez databases at
 | `espell`    | Retrieve spelling suggestions.                                             |
 | `ecitmatch` | Retrieve PubMed IDs that correspond to a set of input citation strings.    |
 
-["The Nine E-utilities in
+["The Nine E-Utilities in
 Brief"](https://www.ncbi.nlm.nih.gov/books/NBK25497/#_chapter2_The_Nine_Eutilities_in_Brief_)
 summarizes all of the server-side programs corresponding to each function.
 
@@ -29,7 +27,7 @@ example, some functions take `db` parameter to specify the target database.
 Functions listed above take these parameters as keyword arguments and return
 a `Response` object as follows:
 ```jlcon
-julia> using BioServices.EUtils      # import the nine functions above
+julia> using BioServices.EUtils       # import the nine functions above
 
 julia> res = einfo(db="pubmed")       # retrieve statistics of the PubMed database
 Response(200 OK, 18 headers, 27360 bytes in body)
@@ -100,12 +98,12 @@ ACGGGAGTGGCGCGCCAGGCCGCGGAAGGGGCGTGGCCT…TGATTAAAAGAACCAAATATTTCTAGTATGAAAAAAAA
 ```
 
 Every function can take a context dictionary as its first argument to set
-parameters into a query. Key-value pairs in a context are appended to a query in
+parameters for a query. Key-value pairs in a context are appended to the query in
 addition to other parameters passed by keyword arguments. The default context
 is an empty dictionary that sets no parameters. This context dictionary is
 especially useful when temporarily caching query UIDs into the Entrez History
 server. A request to the Entrez system can be associated with cached data using
-"WebEnv" and "query_key" parameters. In the following example, the search
+`WebEnv` and `query_key` parameters. In the following example, the search
 results of `esearch` is saved in the Entrez History server (note
 `usehistory=true`, which makes the server cache its search results) and then
 their summaries are retrieved in the next call of `esummary`:
