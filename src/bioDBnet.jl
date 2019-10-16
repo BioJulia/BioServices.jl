@@ -23,6 +23,7 @@ export
     dbreport,
     db_ortho,
     db_annot,
+    list_annot,
     get_inputs,
     get_pathways,
     outputs_for_input,
@@ -33,11 +34,6 @@ import HTTP
 
 const baseURL =
 "https://biodbnet-abcc.ncifcrf.gov/webServices/rest.php/biodbnetRestApi."
-
-const baseURLjson =
-"https://biodbnet-abcc.ncifcrf.gov/webServices/rest.php/biodbnetRestApi.json"
-const baseURLxml =
-"https://biodbnet-abcc.ncifcrf.gov/webServices/rest.php/biodbnetRestApi.xml"
 
 # APIs for bioDBnet
 # -------------------
@@ -119,13 +115,13 @@ function dbreport(; input::AbstractString, values::Array{String, 1}, params...)
 
     # construct a HTTP request
     if haskey(params, :taxonid)
-        return(REST_call(string(lbaseURL, rettype,
+        return(REST_call(string(baseURL, rettype,
                             "?method=dbreport&format=row",
                             "&input=", input,
                             "&inputValues=", values,
                             "&taxonId=", params[:taxonid])))
     else
-        return(REST_call(string(lbaseURL, rettype,
+        return(REST_call(string(baseURL, rettype,
                             "?method=dbreport&format=row",
                             "&input=", input,
                             "&inputValues=", values)))
@@ -175,7 +171,7 @@ function db_ortho(; input::AbstractString, values::Array{String, 1},
                   in_taxon::AbstractString, out_taxon::AbstractString,
                   output::AbstractString, params...)
 
-    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
+    haskey(params, :rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     # process parameters
     values = join([string(val) for val in values], ',')
@@ -221,6 +217,19 @@ end
 
 
 """
+    list_annot()
+Lists available annotation terms available to db_annot
+
+Parameters: nothing
+"""
+function list_annot()
+    println("available annotation terms:")
+    println("Drugs, Diseases, Genes, GO Terms, Pathways, Protein Interactors")
+    return(["Drugs","Diseases","Genes","GO Terms","Pathways",
+            "Protein Interactors"])
+end
+
+"""
     get_inputs()
 
 Get all input nodes in bioDBnet
@@ -231,7 +240,7 @@ function get_inputs(; params...)
 
     haskey(params, :rettype) ? rettype = params[:rettype] : rettype = "xml"
 
-    return(REST_call(url=string(baseURL, rettype, "?method=getinputs")))
+    return(REST_call(string(baseURL, rettype, "?method=getinputs")))
 end
 
 
@@ -245,10 +254,7 @@ Parameters: params
 function get_pathways(; params...)
 
     # if no specific database provided, "1" means return all pathways
-    if !haskey(params, :pathways)
-        pathways = "1"
-    end
-
+    !haskey(params, :pathways) ? pathways = "1" : pathways = params[:pathways]
     haskey(params, :rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     if haskey(params, :taxonid)

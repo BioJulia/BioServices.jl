@@ -3,7 +3,7 @@
         # test #1 - json
         res = bioDBnet.db2db(input="DrugBankDrugId",
             outputs = ["PubChemId","KeggDrugId"],values = ["DB00316","DB00945"],
-            taxonid = "9606")
+            taxonid = "9606", rettype="json")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "application/json")
         body = JSON.parse(String(res.body))
@@ -113,5 +113,61 @@
         @test first(body)[1] != "ERROR"
     end
 
+    @testset "db_annot" begin
+        #test #1 - json
+        res = bioDBnet.db_annot(values=["DB00316","DB00945"],
+                                annotations=["Drugs"], rettype="json")
+        @test res.status == 200
+        @test startswith(Dict(res.headers)["Content-Type"], "application/json")
+        body = JSON.parse(String(res.body))
+        @test isa(body, Array{Any,1})
+        @test isa(body[1], Dict{String, Any})
 
+        sleep(0.2)
+        # test #2 - xml
+        res = bioDBnet.db_annot(values=["DB00316","DB00945"],
+                                annotations=["Drugs"], rettype="xml")
+        @test res.status == 200
+        @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
+        body = XMLDict.parse_xml(String(res.body))
+        @test isa(body, XMLDict.XMLDictElement)
+        @test first(body)[1] != "ERROR"
+    end
+
+    @testset "get_inputs" begin
+        #test #1 - JSON
+        res = bioDBnet.get_inputs(rettype="json")
+        @test res.status == 200
+        @test startswith(Dict(res.headers)["Content-Type"], "application/json")
+        body = JSON.parse(String(res.body))
+        @test isa(body, Dict{String, Any})
+
+        sleep(0.2)
+        # test #2 - XML
+        res = bioDBnet.get_inputs(rettype="xml")
+        @test res.status == 200
+        @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
+        body = XMLDict.parse_xml(String(res.body))
+        @test isa(body, XMLDict.XMLDictElement)
+        @test first(body) != "ERROR"
+    end
+
+    @testset "get_pathways" begin
+        #test #1 - JSON
+        res = bioDBnet.get_pathways(taxonid = "9606", rettype="json")
+        @test res.status == 200
+        @test startswith(Dict(res.headers)["Content-Type"], "application/json")
+        body = JSON.parse(String(res.body))
+        @test isa(body, Array{Any,1})
+        @test isa(body[1], Dict{String, Any})
+
+        sleep(0.2)
+        # test #2 - XML
+        res = bioDBnet.get_pathways(taxonid = "9606", rettype="xml")
+        @test res.status == 200
+        @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
+        body = XMLDict.parse_xml(String(res.body))
+        @test isa(body, XMLDict.XMLDictElement)
+        @test first(body)[1] != "ERROR"
+    end
 end
