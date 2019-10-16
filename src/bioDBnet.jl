@@ -7,7 +7,11 @@
 # License is MIT: https://github.com/BioJulia/Bio.jl/blob/master/LICENSE.md
 
 """
-TODO
+bioDBnet is the work of the Advanced Biomedical Computing Center at the
+Federick National Laboratory for Cancer Research and the National Cancer
+Institute at Frederick. It stores relational connections between many
+biological databases and provides tools for querying these relations in
+various ways.
 """
 
 module bioDBnet
@@ -33,30 +37,29 @@ const baseURLjson =
 "https://biodbnet-abcc.ncifcrf.gov/webServices/rest.php/biodbnetRestApi.json"
 
 const baseURLxml =
-"https://biodbnet-abcc.ncifcrf.gov/webServices/rest.php/biodbnetRestApi"
+"https://biodbnet-abcc.ncifcrf.gov/webServices/rest.php/biodbnetRestApi.xml"
 
 # APIs for bioDBnet
 # -------------------
 
 """
-    db2db(input::AbstractString, outputs::Array{String,1}; params...)
+    db2db(;input::AbstractString, outputs::Array{String,1},
+    values::Array{String,1}; params...)
 
 Link input DB Ids to output DB IDs
 
 Parameters: input, output, params
 """
-function db2db(input::AbstractString, outputs::Array{String,1},
-    values::Array{String, 1}; params...)
-
+function db2db(; input::AbstractString, outputs::Array{String,1},
+    values::Array{String, 1}, params...)
     # process parameters
     values = join([string(val) for val in values], ',')
     outputs = join([string(val) for val in outputs], ',')
-
     local lbaseURL = nothing
-    if haskey(params["rettype"])
-        if rettype == "json"
+    if haskey(params, :rettype)
+        if params[:rettype] == "json"
             lbaseURL = baseURLjson
-        elseif rettype == "xml"
+        elseif params[:rettype] == "xml"
             lbaseURL = baseURLxml
         else
             println("Invalid rettype. Valid options are 'xml' or 'json'.
@@ -68,12 +71,12 @@ function db2db(input::AbstractString, outputs::Array{String,1},
     end
 
     # construct a HTTP request
-    if haskey(params, "taxonid")
+    if haskey(params, :taxonid)
         return(REST_call(string(lbaseURL, "?method=db2db&format=row",
                      "&input=", input,
                      "&inputValues=", values,
                      "&outputs=", outputs,
-                     "&taxonId=", params["taxonid"])))
+                     "&taxonId=", params[:taxonid])))
     else
         return(REST_call(string(lbaseURL, "?method=db2db&format=row",
                      "&input=", input,
@@ -84,26 +87,24 @@ end
 
 
 """
-    db2db(values::AbstractString, db_path::Array{String,1}; params...)
+    dbwalk(values::AbstractString, db_path::Array{String,1}; params...)
 
 Control the path of linking an ID in one database to another by specifying a
 node-walk order.
 
 Parameters: values, db_path, params
 """
-function dbwalk(values::Array{String, 1}, db_path::Array{String, 1};
+function dbwalk(; values::Array{String, 1}, db_path::Array{String, 1},
     params...)
 
     # process parameters
     values = join([string(val) for val in values], ',')
-    db_path = join([string(node) for node in db_path], "-%3")
-    outputs = join([string(val) for val in outputs], ',')
-
+    db_path = join([string(node) for node in db_path], "-%3E")
     local lbaseURL = nothing
-    if haskey(params["rettype"])
-        if rettype == "json"
+    if haskey(params, :rettype)
+        if params[:rettype] == "json"
             lbaseURL = baseURLjson
-        elseif rettype == "xml"
+        elseif params[:rettype] == "xml"
             lbaseURL = baseURLxml
         else
             println("Invalid rettype. Valid options are 'xml' or 'json'.
@@ -114,11 +115,11 @@ function dbwalk(values::Array{String, 1}, db_path::Array{String, 1};
         lbaseURL = baseURLjson
     end
 
-    if haskey(params, "taxonid")
+    if haskey(params, :taxonid)
         return(REST_call(string(lbaseURL, "?method=dbwalk&format=row",
         "&inputValues=", values,
         "&dbPath=", db_path,
-        "&taxonId=", params["taxonid"])))
+        "&taxonId=", params[:taxonid])))
     else
         return(REST_call(string(lbaseURL, "?method=dbwalk&format=row",
         "&inputValues=", values,
@@ -134,15 +135,15 @@ Link a set of IDs from one database to all other available databases.
 
 Parameters: input, values, params
 """
-function dbreport(input::AbstractString, values::Array{String, 1}; params...)
+function dbreport(; input::AbstractString, values::Array{String, 1}, params...)
     # process parameters
     values = join([string(val) for val in values], ',')
 
     local lbaseURL = nothing
-    if haskey(params["rettype"])
-        if rettype == "json"
+    if haskey(params, :rettype)
+        if params[:rettype] == "json"
             lbaseURL = baseURLjson
-        elseif rettype == "xml"
+        elseif params[:rettype] == "xml"
             lbaseURL = baseURLxml
         else
             println("Invalid rettype. Valid options are 'xml' or 'json'.
@@ -154,11 +155,11 @@ function dbreport(input::AbstractString, values::Array{String, 1}; params...)
     end
 
     # construct a HTTP request
-    if haskey(params, "taxonid")
+    if haskey(params, :taxonid)
         return(REST_call(string(lbaseURL, "?method=dbreport&format=row",
                      "&input=", input,
                      "&inputValues=", values,
-                     "&taxonId=", params["taxonid"])))
+                     "&taxonId=", params[:taxonid])))
     else
         return(REST_call(string(lbaseURL, "?method=dbreport&format=row",
                      "&input=", input,
@@ -175,17 +176,17 @@ links to requested output database.
 
 Parameters: values, output, params
 """
-function dbfind(values::Array{String, 1}, output::Array{String, 1}; params...)
+function dbfind(; values::Array{String, 1}, output::AbstractString, params...)
 
     # process parameters
     values = join([string(val) for val in values], ',')
     output = join([string(val) for val in output], ',')
 
     local lbaseURL = nothing
-    if haskey(params["rettype"])
-        if rettype == "json"
+    if haskey(params, :rettype)
+        if params[:rettype] == "json"
             lbaseURL = baseURLjson
-        elseif rettype == "xml"
+        elseif params[:rettype] == "xml"
             lbaseURL = baseURLxml
         else
             println("Invalid rettype. Valid options are 'xml' or 'json'.
@@ -196,11 +197,11 @@ function dbfind(values::Array{String, 1}, output::Array{String, 1}; params...)
         lbaseURL = baseURLjson
     end
 
-    if haskey(params, "taxonid")
+    if haskey(params, :taxonid)
         return(REST_call(string(lbaseURL, "?method=dbfind&format=row",
         "&inputValues=", values,
         "&output=", output,
-        "&taxonId=", params["taxonid"])))
+        "&taxonId=", params[:taxonid])))
     else
         return(REST_call(string(lbaseURL, "?method=dbfind&format=row",
         "&inputValues=", values,
@@ -218,23 +219,23 @@ Convert identifiers in one species to identifiers in another species.
 
 Parameters: input, values, in_taxon, out_taxon, output; params
 """
-function db_ortho(input::AbstractString, values::Array{String, 1},
+function db_ortho(; input::AbstractString, values::Array{String, 1},
                   in_taxon::AbstractString, out_taxon::AbstractString,
-                  output::AbstractString; params...)
+                  output::AbstractString, params...)
 
     local lbaseURL = nothing
-    if haskey(params["rettype"])
-      if rettype == "json"
-          lbaseURL = baseURLjson
-      elseif rettype == "xml"
-          lbaseURL = baseURLxml
-      else
-          println("Invalid rettype. Valid options are 'xml' or 'json'.
-                  Defaulting to json.")
-          lbaseURL = baseURLjson
-      end
+    if haskey(params, :rettype)
+        if params[:rettype] == "json"
+            lbaseURL = baseURLjson
+        elseif params[:rettype] == "xml"
+            lbaseURL = baseURLxml
+        else
+            println("Invalid rettype. Valid options are 'xml' or 'json'.
+                    Defaulting to json.")
+            lbaseURL = baseURLjson
+        end
     else
-      lbaseURL = baseURLjson
+        lbaseURL = baseURLjson
     end
 
     # process parameters
@@ -258,18 +259,18 @@ Obtain annotations for DB identifiers.
 
 Parameters: values, annotations, params
 """
-function db_annot(values::Array{String, 1}, annotations::Array{String, 1};
+function db_annot(; values::Array{String, 1}, annotations::Array{String, 1},
                  params...)
 
     # process parameters
     values = join([string(val) for val in values], ',')
-    annotations = join([string(ann) for ann in annotations)], ",")
+    annotations = join([string(ann) for ann in annotations], ",")
 
     local lbaseURL = nothing
-    if haskey(params["rettype"])
-        if rettype == "json"
+    if haskey(params, :rettype)
+        if params[:rettype] == "json"
             lbaseURL = baseURLjson
-        elseif rettype == "xml"
+        elseif params[:rettype] == "xml"
             lbaseURL = baseURLxml
         else
             println("Invalid rettype. Valid options are 'xml' or 'json'.
@@ -281,14 +282,14 @@ function db_annot(values::Array{String, 1}, annotations::Array{String, 1};
     end
 
     # construct a HTTP request
-    if haskey(params, "taxonid")
+    if haskey(params, :taxonid)
         return(REST_call(string(baseURL, "?method=dbreport&format=row",
                      "&inputValues=", values,
                      "&annotations=", annotations,
-                     "&taxonId=", params["taxonid"])))
+                     "&taxonId=", params[:taxonid])))
     else
         return(REST_call(string(baseURL, "?method=dbreport&format=row",
-                     "&inputValues=", values
+                     "&inputValues=", values,
                      "&annotations=", annotations)))
     end
 end
@@ -301,13 +302,13 @@ Get all input nodes in bioDBnet
 
 Parameters: params
 """
-function get_inputs(params...)
+function get_inputs(; params...)
 
     local lbaseURL = nothing
-    if haskey(params["rettype"])
-        if rettype == "json"
+    if haskey(params, :rettype)
+        if params[:rettype] == "json"
             lbaseURL = baseURLjson
-        elseif rettype == "xml"
+        elseif params[:rettype] == "xml"
             lbaseURL = baseURLxml
         else
             println("Invalid rettype. Valid options are 'xml' or 'json'.
@@ -329,18 +330,18 @@ Get all available pathways from all databases
 
 Parameters: params
 """
-function get_pathways(params...)
+function get_pathways(; params...)
 
     # if no specific database provided, "1" means return all pathways
-    if !haskey(params, "pathways")
+    if !haskey(params, :pathways)
         pathways = "1"
     end
 
     local lbaseURL = nothing
-    if haskey(params["rettype"])
-        if rettype == "json"
+    if haskey(params, :rettype)
+        if params[:rettype] == "json"
             lbaseURL = baseURLjson
-        elseif rettype == "xml"
+        elseif params[:rettype] == "xml"
             lbaseURL = baseURLxml
         else
             println("Invalid rettype. Valid options are 'xml' or 'json'.
@@ -351,13 +352,13 @@ function get_pathways(params...)
         lbaseURL = baseURLjson
     end
 
-    if haskey(params, "taxonId")
+    if haskey(params, :taxonid)
         return(REST_call(string(lbaseURL, "?method=getpathways",
-                        "&pathways=",pathways
-                        "&taxonId=", params["taxonId"])))
+                        "&pathways=", pathways,
+                        "&taxonId=", params[:taxonid])))
     else
         return(REST_call(string(lbaseURL, "?method=getpathways",
-                        "&pathways=",pathways)))
+                        "&pathways=", pathways)))
     end
 end
 
@@ -369,13 +370,13 @@ Gets all the possible output nodes for a given input node
 
 Parameters: input; params
 """
-function outputs_for_input(input::AbstractString; params...)
+function outputs_for_input(; input::AbstractString, params...)
 
     local lbaseURL = nothing
-    if haskey(params["rettype"])
-        if rettype == "json"
+    if haskey(params, :rettype)
+        if params[:rettype] == "json"
             lbaseURL = baseURLjson
-        elseif rettype == "xml"
+        elseif params[:rettype] == "xml"
             lbaseURL = baseURLxml
         else
             println("Invalid rettype. Valid options are 'xml' or 'json'.
@@ -399,13 +400,13 @@ by single edge connection in the bioDBnet graph
 
 Parameters: input, params
 """
-function dir_outputs_for_input(input::AbstractString; params...)
+function dir_outputs_for_input(; input::AbstractString, params...)
 
     local lbaseURL = nothing
-    if haskey(params["rettype"])
-        if rettype == "json"
+    if haskey(params, :rettype)
+        if params[:rettype] == "json"
             lbaseURL = baseURLjson
-        elseif rettype == "xml"
+        elseif params[:rettype] == "xml"
             lbaseURL = baseURLxml
         else
             println("Invalid rettype. Valid options are 'xml' or 'json'.
@@ -422,6 +423,9 @@ function dir_outputs_for_input(input::AbstractString; params...)
 end
 
 
+# REST Call Driver Function
+# -------------------
+
 """
     REST_call(url::AbstractString)
 
@@ -430,7 +434,6 @@ Perform an HTTP get request to a REST server. Supports get requests only.
 Parameters: url
 """
 function REST_call(url::AbstractString)
-    println(url)
     exception = nothing
     for i in 1:4
         try
