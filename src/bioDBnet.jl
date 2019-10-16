@@ -56,7 +56,7 @@ function db2db(; input::AbstractString, outputs::Array{String,1},
     values = join([string(val) for val in values], ',')
     outputs = join([string(val) for val in outputs], ',')
 
-    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
+    haskey(params, :rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     # construct a HTTP request
     if haskey(params, :taxonid)
@@ -89,7 +89,7 @@ function dbwalk(; values::Array{String, 1}, db_path::Array{String, 1},
     values = join([string(val) for val in values], ',')
     db_path = join([string(node) for node in db_path], "-%3E")
 
-    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
+    haskey(params, :rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     if haskey(params, :taxonid)
         return(REST_call(string(baseURL, rettype, "?method=dbwalk&format=row",
@@ -115,7 +115,7 @@ function dbreport(; input::AbstractString, values::Array{String, 1}, params...)
     # process parameters
     values = join([string(val) for val in values], ',')
 
-    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
+    haskey(params, :rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     # construct a HTTP request
     if haskey(params, :taxonid)
@@ -147,7 +147,7 @@ function dbfind(; values::Array{String, 1}, output::AbstractString, params...)
     values = join([string(val) for val in values], ',')
     output = join([string(val) for val in output], ',')
 
-    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
+    haskey(params, :rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     if haskey(params, :taxonid)
         return(REST_call(string(baseURL, rettype, "?method=dbfind&format=row",
@@ -204,7 +204,7 @@ function db_annot(; values::Array{String, 1}, annotations::Array{String, 1},
     values = join([string(val) for val in values], ',')
     annotations = join([string(ann) for ann in annotations], ",")
 
-    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
+    haskey(params, :rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     # construct a HTTP request
     if haskey(params, :taxonid)
@@ -229,7 +229,7 @@ Parameters: params
 """
 function get_inputs(; params...)
 
-    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
+    haskey(params, :rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     return(REST_call(url=string(baseURL, rettype, "?method=getinputs")))
 end
@@ -249,7 +249,7 @@ function get_pathways(; params...)
         pathways = "1"
     end
 
-    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
+    haskey(params, :rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     if haskey(params, :taxonid)
         return(REST_call(string(baseURL, rettype, "?method=getpathways",
@@ -271,7 +271,7 @@ Parameters: input; params
 """
 function outputs_for_input(; input::AbstractString, params...)
 
-    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
+    haskey(params, :rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     return(REST_call(string(baseURL, rettype, "?method=getoutputsforinput&",
                         "&input=", input)))
@@ -288,7 +288,7 @@ Parameters: input, params
 """
 function dir_outputs_for_input(; input::AbstractString, params...)
 
-    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
+    haskey(params, :rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     return(REST_call(string(baseURL, rettype,
                         "?method=getdirectoutputsforinput",
