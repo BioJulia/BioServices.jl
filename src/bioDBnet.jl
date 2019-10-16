@@ -19,8 +19,8 @@ module bioDBnet
 export
     db2db,
     dbwalk,
-    dbreport,
     dbfind,
+    dbreport,
     db_ortho,
     db_annot,
     get_inputs,
@@ -28,14 +28,14 @@ export
     outputs_for_input,
     dir_outputs_for_input
 
-import XMLDict
-import JSON
 import HTTP
 
 
+const baseURL =
+"https://biodbnet-abcc.ncifcrf.gov/webServices/rest.php/biodbnetRestApi."
+
 const baseURLjson =
 "https://biodbnet-abcc.ncifcrf.gov/webServices/rest.php/biodbnetRestApi.json"
-
 const baseURLxml =
 "https://biodbnet-abcc.ncifcrf.gov/webServices/rest.php/biodbnetRestApi.xml"
 
@@ -55,33 +55,21 @@ function db2db(; input::AbstractString, outputs::Array{String,1},
     # process parameters
     values = join([string(val) for val in values], ',')
     outputs = join([string(val) for val in outputs], ',')
-    local lbaseURL = nothing
-    if haskey(params, :rettype)
-        if params[:rettype] == "json"
-            lbaseURL = baseURLjson
-        elseif params[:rettype] == "xml"
-            lbaseURL = baseURLxml
-        else
-            println("Invalid rettype. Valid options are 'xml' or 'json'.
-                    Defaulting to json.")
-            lbaseURL = baseURLjson
-        end
-    else
-        lbaseURL = baseURLjson
-    end
+
+    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     # construct a HTTP request
     if haskey(params, :taxonid)
-        return(REST_call(string(lbaseURL, "?method=db2db&format=row",
-                     "&input=", input,
-                     "&inputValues=", values,
-                     "&outputs=", outputs,
-                     "&taxonId=", params[:taxonid])))
+        return(REST_call(string(baseURL, rettype, "?method=db2db&format=row",
+                            "&input=", input,
+                            "&inputValues=", values,
+                            "&outputs=", outputs,
+                            "&taxonId=", params[:taxonid])))
     else
-        return(REST_call(string(lbaseURL, "?method=db2db&format=row",
-                     "&input=", input,
-                     "&inputValues=", values,
-                     "&outputs=", outputs)))
+        return(REST_call(string(baseURL, rettype, "?method=db2db&format=row",
+                            "&input=", input,
+                            "&inputValues=", values,
+                            "&outputs=", outputs)))
     end
 end
 
@@ -100,30 +88,18 @@ function dbwalk(; values::Array{String, 1}, db_path::Array{String, 1},
     # process parameters
     values = join([string(val) for val in values], ',')
     db_path = join([string(node) for node in db_path], "-%3E")
-    local lbaseURL = nothing
-    if haskey(params, :rettype)
-        if params[:rettype] == "json"
-            lbaseURL = baseURLjson
-        elseif params[:rettype] == "xml"
-            lbaseURL = baseURLxml
-        else
-            println("Invalid rettype. Valid options are 'xml' or 'json'.
-                    Defaulting to json.")
-            lbaseURL = baseURLjson
-        end
-    else
-        lbaseURL = baseURLjson
-    end
+
+    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     if haskey(params, :taxonid)
-        return(REST_call(string(lbaseURL, "?method=dbwalk&format=row",
-        "&inputValues=", values,
-        "&dbPath=", db_path,
-        "&taxonId=", params[:taxonid])))
+        return(REST_call(string(baseURL, rettype, "?method=dbwalk&format=row",
+                            "&inputValues=", values,
+                            "&dbPath=", db_path,
+                            "&taxonId=", params[:taxonid])))
     else
-        return(REST_call(string(lbaseURL, "?method=dbwalk&format=row",
-        "&inputValues=", values,
-        "&dbPath=", db_path)))
+        return(REST_call(string(baseURL, rettype, "?method=dbwalk&format=row",
+                            "&inputValues=", values,
+                            "&dbPath=", db_path)))
     end
 end
 
@@ -139,31 +115,20 @@ function dbreport(; input::AbstractString, values::Array{String, 1}, params...)
     # process parameters
     values = join([string(val) for val in values], ',')
 
-    local lbaseURL = nothing
-    if haskey(params, :rettype)
-        if params[:rettype] == "json"
-            lbaseURL = baseURLjson
-        elseif params[:rettype] == "xml"
-            lbaseURL = baseURLxml
-        else
-            println("Invalid rettype. Valid options are 'xml' or 'json'.
-                    Defaulting to json.")
-            lbaseURL = baseURLjson
-        end
-    else
-        lbaseURL = baseURLjson
-    end
+    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     # construct a HTTP request
     if haskey(params, :taxonid)
-        return(REST_call(string(lbaseURL, "?method=dbreport&format=row",
-                     "&input=", input,
-                     "&inputValues=", values,
-                     "&taxonId=", params[:taxonid])))
+        return(REST_call(string(lbaseURL, rettype,
+                            "?method=dbreport&format=row",
+                            "&input=", input,
+                            "&inputValues=", values,
+                            "&taxonId=", params[:taxonid])))
     else
-        return(REST_call(string(lbaseURL, "?method=dbreport&format=row",
-                     "&input=", input,
-                     "&inputValues=", values)))
+        return(REST_call(string(lbaseURL, rettype,
+                            "?method=dbreport&format=row",
+                            "&input=", input,
+                            "&inputValues=", values)))
     end
 end
 
@@ -182,30 +147,17 @@ function dbfind(; values::Array{String, 1}, output::AbstractString, params...)
     values = join([string(val) for val in values], ',')
     output = join([string(val) for val in output], ',')
 
-    local lbaseURL = nothing
-    if haskey(params, :rettype)
-        if params[:rettype] == "json"
-            lbaseURL = baseURLjson
-        elseif params[:rettype] == "xml"
-            lbaseURL = baseURLxml
-        else
-            println("Invalid rettype. Valid options are 'xml' or 'json'.
-                    Defaulting to json.")
-            lbaseURL = baseURLjson
-        end
-    else
-        lbaseURL = baseURLjson
-    end
+    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     if haskey(params, :taxonid)
-        return(REST_call(string(lbaseURL, "?method=dbfind&format=row",
-        "&inputValues=", values,
-        "&output=", output,
-        "&taxonId=", params[:taxonid])))
+        return(REST_call(string(baseURL, rettype, "?method=dbfind&format=row",
+                            "&inputValues=", values,
+                            "&output=", output,
+                            "&taxonId=", params[:taxonid])))
     else
-        return(REST_call(string(lbaseURL, "?method=dbfind&format=row",
-        "&inputValues=", values,
-        "&output=", output)))
+        return(REST_call(string(baseURL, rettype, "?method=dbfind&format=row",
+                            "&inputValues=", values,
+                            "&output=", output)))
     end
 end
 
@@ -223,31 +175,17 @@ function db_ortho(; input::AbstractString, values::Array{String, 1},
                   in_taxon::AbstractString, out_taxon::AbstractString,
                   output::AbstractString, params...)
 
-    local lbaseURL = nothing
-    if haskey(params, :rettype)
-        if params[:rettype] == "json"
-            lbaseURL = baseURLjson
-        elseif params[:rettype] == "xml"
-            lbaseURL = baseURLxml
-        else
-            println("Invalid rettype. Valid options are 'xml' or 'json'.
-                    Defaulting to json.")
-            lbaseURL = baseURLjson
-        end
-    else
-        lbaseURL = baseURLjson
-    end
+    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     # process parameters
     values = join([string(val) for val in values], ',')
-    output = join([string(val) for val in output], ',')
 
-    return(REST_call(string(baseURL, "?method=dbortho&format=row",
-                    "&input=", input,
-                    "&inputValues=", values,
-                    "&inputTaxon=", in_taxon,
-                    "&outputTaxon=", out_taxon,
-                    "&output=", output)))
+    return(REST_call(string(baseURL, rettype, "?method=dbortho&format=row",
+                        "&input=", input,
+                        "&inputValues=", values,
+                        "&inputTaxon=", in_taxon,
+                        "&outputTaxon=", out_taxon,
+                        "&output=", output)))
 end
 
 
@@ -266,31 +204,18 @@ function db_annot(; values::Array{String, 1}, annotations::Array{String, 1},
     values = join([string(val) for val in values], ',')
     annotations = join([string(ann) for ann in annotations], ",")
 
-    local lbaseURL = nothing
-    if haskey(params, :rettype)
-        if params[:rettype] == "json"
-            lbaseURL = baseURLjson
-        elseif params[:rettype] == "xml"
-            lbaseURL = baseURLxml
-        else
-            println("Invalid rettype. Valid options are 'xml' or 'json'.
-                    Defaulting to json.")
-            lbaseURL = baseURLjson
-        end
-    else
-        lbaseURL = baseURLjson
-    end
+    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     # construct a HTTP request
     if haskey(params, :taxonid)
-        return(REST_call(string(baseURL, "?method=dbreport&format=row",
-                     "&inputValues=", values,
-                     "&annotations=", annotations,
-                     "&taxonId=", params[:taxonid])))
+        return(REST_call(string(baseURL, rettype, "?method=dbreport&format=row",
+                            "&inputValues=", values,
+                            "&annotations=", annotations,
+                            "&taxonId=", params[:taxonid])))
     else
-        return(REST_call(string(baseURL, "?method=dbreport&format=row",
-                     "&inputValues=", values,
-                     "&annotations=", annotations)))
+        return(REST_call(string(baseURL, rettype, "?method=dbreport&format=row",
+                            "&inputValues=", values,
+                            "&annotations=", annotations)))
     end
 end
 
@@ -304,22 +229,9 @@ Parameters: params
 """
 function get_inputs(; params...)
 
-    local lbaseURL = nothing
-    if haskey(params, :rettype)
-        if params[:rettype] == "json"
-            lbaseURL = baseURLjson
-        elseif params[:rettype] == "xml"
-            lbaseURL = baseURLxml
-        else
-            println("Invalid rettype. Valid options are 'xml' or 'json'.
-                    Defaulting to json.")
-            lbaseURL = baseURLjson
-        end
-    else
-        lbaseURL = baseURLjson
-    end
+    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
 
-    return(REST_call(url=string(lbaseURL,"?method=getinputs")))
+    return(REST_call(url=string(baseURL, rettype, "?method=getinputs")))
 end
 
 
@@ -337,28 +249,15 @@ function get_pathways(; params...)
         pathways = "1"
     end
 
-    local lbaseURL = nothing
-    if haskey(params, :rettype)
-        if params[:rettype] == "json"
-            lbaseURL = baseURLjson
-        elseif params[:rettype] == "xml"
-            lbaseURL = baseURLxml
-        else
-            println("Invalid rettype. Valid options are 'xml' or 'json'.
-                    Defaulting to json.")
-            lbaseURL = baseURLjson
-        end
-    else
-        lbaseURL = baseURLjson
-    end
+    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
 
     if haskey(params, :taxonid)
-        return(REST_call(string(lbaseURL, "?method=getpathways",
-                        "&pathways=", pathways,
-                        "&taxonId=", params[:taxonid])))
+        return(REST_call(string(baseURL, rettype, "?method=getpathways",
+                            "&pathways=", pathways,
+                            "&taxonId=", params[:taxonid])))
     else
-        return(REST_call(string(lbaseURL, "?method=getpathways",
-                        "&pathways=", pathways)))
+        return(REST_call(string(baseURL, rettype, "?method=getpathways",
+                            "&pathways=", pathways)))
     end
 end
 
@@ -372,23 +271,10 @@ Parameters: input; params
 """
 function outputs_for_input(; input::AbstractString, params...)
 
-    local lbaseURL = nothing
-    if haskey(params, :rettype)
-        if params[:rettype] == "json"
-            lbaseURL = baseURLjson
-        elseif params[:rettype] == "xml"
-            lbaseURL = baseURLxml
-        else
-            println("Invalid rettype. Valid options are 'xml' or 'json'.
-                    Defaulting to json.")
-            lbaseURL = baseURLjson
-        end
-    else
-        lbaseURL = baseURLjson
-    end
+    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
 
-    return(REST_call(string(lbaseURL, "?method=getoutputsforinput&",
-                            "&input=", input)))
+    return(REST_call(string(baseURL, rettype, "?method=getoutputsforinput&",
+                        "&input=", input)))
 end
 
 
@@ -402,24 +288,12 @@ Parameters: input, params
 """
 function dir_outputs_for_input(; input::AbstractString, params...)
 
-    local lbaseURL = nothing
-    if haskey(params, :rettype)
-        if params[:rettype] == "json"
-            lbaseURL = baseURLjson
-        elseif params[:rettype] == "xml"
-            lbaseURL = baseURLxml
-        else
-            println("Invalid rettype. Valid options are 'xml' or 'json'.
-                    Defaulting to json.")
-            lbaseURL = baseURLjson
-        end
-    else
-        lbaseURL = baseURLjson
-    end
+    haskey(params, rettype) ? rettype = params[:rettype] : rettype = "xml"
 
-    return(REST_call(string(lbaseURL, "?method=getdirectoutputsforinput",
-                            "&input=", input,
-                            "&directOutput=1")))
+    return(REST_call(string(baseURL, rettype,
+                        "?method=getdirectoutputsforinput",
+                        "&input=", input,
+                        "&directOutput=1")))
 end
 
 
@@ -464,3 +338,6 @@ end
 
 
 end
+
+# TODO
+# [] Rework base url system to save space & increase efficiency
