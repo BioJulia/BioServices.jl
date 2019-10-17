@@ -103,7 +103,7 @@ end
 """
     dbreport(input::AbstractString, values::Array{String, 1}; params...)
 
-Link a set of IDs from one database to all other available databases.
+Link an ID from one database to all other available databases.
 
 Parameters: input, values, params
 """
@@ -228,6 +228,7 @@ function list_annot()
     return(["Drugs","Diseases","Genes","GO Terms","Pathways",
             "Protein Interactors"])
 end
+
 
 """
     get_inputs()
