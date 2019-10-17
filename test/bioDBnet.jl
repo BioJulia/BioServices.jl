@@ -170,4 +170,45 @@
         @test isa(body, XMLDict.XMLDictElement)
         @test first(body)[1] != "ERROR"
     end
+
+    @testset "outputs_for_input" begin
+        #test #1 - JSON
+        res = bioDBnet.outputs_for_input(input = "DrugBankDrugId",
+                            taxonid = "9606", rettype="json")
+        @test res.status == 200
+        @test startswith(Dict(res.headers)["Content-Type"], "application/json")
+        body = JSON.parse(String(res.body))
+        @test isa(body, Dict{String, Any})
+
+        sleep(0.2)
+        # test #2 - XML
+        res = bioDBnet.outputs_for_input(input = "DrugBankDrugId",
+                            taxonid = "9606", rettype="xml")
+        @test res.status == 200
+        @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
+        body = XMLDict.parse_xml(String(res.body))
+        @test isa(body, XMLDict.XMLDictElement)
+        @test first(body)[1] != "ERROR"
+    end
+
+    @testset "dir_outputs_for_input" begin
+        #test #1 - JSON
+        res = bioDBnet.dir_outputs_for_input(input = "DrugBankDrugId",
+                            taxonid = "9606", rettype="json")
+        @test res.status == 200
+        @test startswith(Dict(res.headers)["Content-Type"], "application/json")
+        body = JSON.parse(String(res.body))
+        @test isa(body, Dict{String, Any})
+
+        sleep(0.2)
+        # test #2 - XML
+        res = bioDBnet.dir_outputs_for_input(input = "DrugBankDrugId",
+                            taxonid = "9606", rettype="xml")
+        @test res.status == 200
+        @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
+        body = XMLDict.parse_xml(String(res.body))
+        @test isa(body, XMLDict.XMLDictElement)
+        @test first(body)[1] != "ERROR"
+    end
+
 end

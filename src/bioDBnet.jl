@@ -344,6 +344,3 @@ end
 
 
 end
-
-# TODO
-# [] Rework base url system to save space & increase efficiency
