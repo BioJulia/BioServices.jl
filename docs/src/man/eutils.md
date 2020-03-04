@@ -57,7 +57,7 @@ id=["rs55863639", "rs587780067"])`). The complete list of parameters can be
 found at ["The E-utilities In-Depth: Parameters, Syntax and
 More"](https://www.ncbi.nlm.nih.gov/books/NBK25499/).
 
-When a request succeeds the response object has a `data` field containing
+When a request succeeds the response object has a `body` field containing
 formatted data, which can be saved to a file as demonstrated above. However,
 users are often interested in a part of the response data and may want to
 extract some fields in it. In such a case,
@@ -74,6 +74,8 @@ julia> doc = parsexml(res.body)
 EzXML.Document(EzXML.Node(<DOCUMENT_NODE@0x00007fdd4cc43770>))
 
 ```
+
+Note that because `res` is an HTTP Response Message, its content can be read at most once. Running `res.body` again will reveal an empty Array.
 
 After that, you can query fields you want using [XPath](https://en.wikipedia.org/wiki/XPath):
 ```jlcon
@@ -136,5 +138,21 @@ shell> head asthma_leukotrienes_2009.xml
         <Item Name="Source" Type="String">Zhongguo Dang Dai Er Ke Za Zhi</Item>
         <Item Name="AuthorList" Type="List">
                 <Item Name="Author" Type="String">He MJ</Item>
+
+```
+
+## XMLDict and LightXML
+
+Along with `EZXml` there are also other packages for parsing XML objects. The HTTP object returned by the `BioServices.EUtils` module is compatible with all of them.
+
+```jlcon
+julia> res = efetch(db="nuccore", id="NM_001126.3", retmode="xml")
+Response(200 OK, 19 headers, 41536 bytes in body)
+
+julia> using XMLDict
+
+julia> doc = parse_xml(String(res.body))
+XMLDict.XMLDictElement with 1 entry:
+  "GBSeq" => EzXML.Node(<ELEMENT_NODE[GBSeq]@0x00007fef2271e770>)
 
 ```
