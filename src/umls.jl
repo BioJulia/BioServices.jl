@@ -4,7 +4,7 @@
 # Julia utilities to interact with the Unified Medical Language System (UMLS) REST API
 #
 # This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/Bio.jl/blob/master/LICENSE.md
+# License is MIT: https://github.com/BioJulia/BioServices.jl/blob/master/LICENSE.md
 
 """
     BioServices.UMLS
