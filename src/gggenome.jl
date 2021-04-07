@@ -4,7 +4,7 @@
 # APIs for GGGenome.
 #
 # This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/Bio.jl/blob/master/LICENSE.md
+# License is MIT: https://github.com/BioJulia/BioServices.jl/blob/master/LICENSE.md
 
 """
 GGGenome module.
