@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>EUtils · BioServices.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">BioServices.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Manual</span><ul><li class="is-active"><a class="tocitem" href>EUtils</a></li><li><a class="tocitem" href="../umls/">UMLS</a></li><li><a class="tocitem" href="../gggenome/">GGGenome</a></li><li><a class="tocitem" href="../../">Home</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li class="is-active"><a href>EUtils</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>EUtils</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/BioJulia/BioServices.jl/blob/master/docs/src/man/eutils.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="EUtils"><a class="docs-heading-anchor" href="#EUtils">EUtils</a><a id="EUtils-1"></a><a class="docs-heading-anchor-permalink" href="#EUtils" title="Permalink"></a></h1><p>EUtils provide a interface to Entrez databases at <a href="https://www.ncbi.nlm.nih.gov/">NCBI</a>.  The APIs are defined in the <code>BioServices.EUtils</code> module, which exports nine functions to access its databases:</p><table><tr><th style="text-align: left">Function</th><th style="text-align: left">Description</th></tr><tr><td style="text-align: left"><code>einfo</code></td><td style="text-align: left">Retrieve a list of databases or statistics for a database.</td></tr><tr><td style="text-align: left"><code>esearch</code></td><td style="text-align: left">Retrieve a list of UIDs matching a text query.</td></tr><tr><td style="text-align: left"><code>epost</code></td><td style="text-align: left">Upload or append a list of UIDs to the Entrez History server.</td></tr><tr><td style="text-align: left"><code>esummary</code></td><td style="text-align: left">Retrieve document summaries for a list of UIDs.</td></tr><tr><td style="text-align: left"><code>efetch</code></td><td style="text-align: left">Retrieve formatted data records for a list of UIDs.</td></tr><tr><td style="text-align: left"><code>elink</code></td><td style="text-align: left">Retrieve UIDs linked to an input set of UIDs.</td></tr><tr><td style="text-align: left"><code>egquery</code></td><td style="text-align: left">Retrieve the number of available records in all databases by a text query.</td></tr><tr><td style="text-align: left"><code>espell</code></td><td style="text-align: left">Retrieve spelling suggestions.</td></tr><tr><td style="text-align: left"><code>ecitmatch</code></td><td style="text-align: left">Retrieve PubMed IDs that correspond to a set of input citation strings.</td></tr></table><p><a href="https://www.ncbi.nlm.nih.gov/books/NBK25497/#_chapter2_The_Nine_Eutilities_in_Brief_">&quot;The Nine E-Utilities in Brief&quot;</a> summarizes all of the server-side programs corresponding to each function.</p><p>In this package, queries for databases are controlled by keyword parameters. For example, some functions take <code>db</code> parameter to specify the target database. Functions listed above take these parameters as keyword arguments and return a <code>Response</code> object as follows:</p><pre><code class="language-jlcon">julia&gt; using BioServices.EUtils       # import the nine functions above
+
+julia&gt; res = einfo(db=&quot;pubmed&quot;)       # retrieve statistics of the PubMed database
+Response(200 OK, 18 headers, 27360 bytes in body)
+
+julia&gt; write(&quot;pubmed.xml&quot;, res.body)  # save retrieved data into a file
+27360
+
+shell&gt; head pubmed.xml
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;!DOCTYPE eInfoResult PUBLIC &quot;-//NLM//DTD einfo 20130322//EN&quot; &quot;https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20130322/einfo.dtd&quot;&gt;
+&lt;eInfoResult&gt;
+        &lt;DbInfo&gt;
+        &lt;DbName&gt;pubmed&lt;/DbName&gt;
+        &lt;MenuName&gt;PubMed&lt;/MenuName&gt;
+        &lt;Description&gt;PubMed bibliographic record&lt;/Description&gt;
+        &lt;DbBuild&gt;Build161024-2207m.1&lt;/DbBuild&gt;
+        &lt;Count&gt;26590895&lt;/Count&gt;
+        &lt;LastUpdate&gt;2016/10/25 02:06&lt;/LastUpdate&gt;
+</code></pre><p>Let&#39;s see a few more examples of parameters.  The <code>term</code> parameter specifies a search string (e.g. <code>esearch(db=&quot;gene&quot;, term=&quot;tumor AND human[ORGN]&quot;)</code>).  The <code>id</code> parameter specifies a UID (or accession number) or a list of UIDs (e.g. <code>efetch(db=&quot;protein&quot;, id=&quot;NP_000537.3&quot;, rettype=&quot;fasta&quot;)</code>, <code>efetch(db=&quot;snp&quot;, id=[&quot;rs55863639&quot;, &quot;rs587780067&quot;])</code>). The complete list of parameters can be found at <a href="https://www.ncbi.nlm.nih.gov/books/NBK25499/">&quot;The E-utilities In-Depth: Parameters, Syntax and More&quot;</a>.</p><p>When a request succeeds the response object has a <code>data</code> field containing formatted data, which can be saved to a file as demonstrated above. However, users are often interested in a part of the response data and may want to extract some fields in it. In such a case, <a href="https://github.com/bicycle1885/EzXML.jl">EzXML.jl</a> is helpful because it offers lots of tools to handle XML documents. The first thing you need to do is converting the response data into an XML document by <code>parsexml</code>:</p><pre><code class="language-jlcon">julia&gt; res = efetch(db=&quot;nuccore&quot;, id=&quot;NM_001126.3&quot;, retmode=&quot;xml&quot;)
+Response(200 OK, 19 headers, 41536 bytes in body)
+
+julia&gt; using EzXML
+
+julia&gt; doc = parsexml(res.body)
+EzXML.Document(EzXML.Node(&lt;DOCUMENT_NODE@0x00007fdd4cc43770&gt;))
+</code></pre><p>After that, you can query fields you want using <a href="https://en.wikipedia.org/wiki/XPath">XPath</a>:</p><pre><code class="language-jlcon">julia&gt; seq = findfirst(&quot;/GBSet/GBSeq&quot;, doc)
+EzXML.Node(&lt;ELEMENT_NODE@0x00007fdd49f34b10&gt;)
+
+julia&gt; nodecontent(findfirst(&quot;GBSeq_definition&quot;, seq))
+&quot;Homo sapiens adenylosuccinate synthase (ADSS), mRNA&quot;
+
+julia&gt; nodecontent(findfirst(&quot;GBSeq_accession-version&quot;, seq))
+&quot;NM_001126.3&quot;
+
+julia&gt; length(findall(&quot;//GBReference&quot;, seq))
+10
+
+julia&gt; using Bio.Seq
+
+julia&gt; DNASequence(nodecontent(findfirst(&quot;GBSeq_sequence&quot;, seq)))
+2791nt DNA Sequence:
+ACGGGAGTGGCGCGCCAGGCCGCGGAAGGGGCGTGGCCT…TGATTAAAAGAACCAAATATTTCTAGTATGAAAAAAAAA
+</code></pre><p>Every function can take a context dictionary as its first argument to set parameters for a query. Key-value pairs in a context are appended to the query in addition to other parameters passed by keyword arguments. The default context is an empty dictionary that sets no parameters. This context dictionary is especially useful when temporarily caching query UIDs into the Entrez History server. A request to the Entrez system can be associated with cached data using <code>WebEnv</code> and <code>query_key</code> parameters. In the following example, the search results of <code>esearch</code> is saved in the Entrez History server (note <code>usehistory=true</code>, which makes the server cache its search results) and then their summaries are retrieved in the next call of <code>esummary</code>:</p><pre><code class="language-jlcon">julia&gt; context = Dict()  # create an empty context
+Dict{Any,Any} with 0 entries
+
+julia&gt; res = esearch(context, db=&quot;pubmed&quot;, term=&quot;asthma[mesh] AND leukotrienes[mesh] AND 2009[pdat]&quot;, usehistory=true)
+Response(200 OK, 18 headers, 1574 bytes in body)
+
+julia&gt; context  # the context dictionary has been updated
+Dict{Any,Any} with 2 entries:
+  :query_key =&gt; &quot;1&quot;
+  :WebEnv    =&gt; &quot;NCID_1_9251987_130.14.22.215_9001_1477389145_1960133…
+
+julia&gt; res = esummary(context, db=&quot;pubmed&quot;)  # retrieve summaries in context
+Response(200 OK, 18 headers, 135463 bytes in body)
+
+julia&gt; write(&quot;asthma_leukotrienes_2009.xml&quot;, res.body)  # save data into a file
+135463
+
+shell&gt; head asthma_leukotrienes_2009.xml
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;!DOCTYPE eSummaryResult PUBLIC &quot;-//NLM//DTD esummary v1 20041029//EN&quot; &quot;https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20041029/esummary-v1.dtd&quot;&gt;
+&lt;eSummaryResult&gt;
+&lt;DocSum&gt;
+        &lt;Id&gt;20113659&lt;/Id&gt;
+        &lt;Item Name=&quot;PubDate&quot; Type=&quot;Date&quot;&gt;2009 Nov&lt;/Item&gt;
+        &lt;Item Name=&quot;EPubDate&quot; Type=&quot;Date&quot;&gt;&lt;/Item&gt;
+        &lt;Item Name=&quot;Source&quot; Type=&quot;String&quot;&gt;Zhongguo Dang Dai Er Ke Za Zhi&lt;/Item&gt;
+        &lt;Item Name=&quot;AuthorList&quot; Type=&quot;List&quot;&gt;
+                &lt;Item Name=&quot;Author&quot; Type=&quot;String&quot;&gt;He MJ&lt;/Item&gt;
+</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« Home</a><a class="docs-footer-nextpage" href="../umls/">UMLS »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Wednesday 7 April 2021 13:50">Wednesday 7 April 2021</span>. Using Julia version 1.6.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
