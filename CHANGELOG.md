@@ -7,11 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [UNRELEASED]
 ### Changes
 
-# [0.3.3]
+# [0.4.0] - 2021-04-17
 ### Changes
 - eutils.jl now retries requests that have been rate-limited ([#26](https://github.com/BioJulia/BioServices.jl/pull/26)).
 - Added EBIProteins ([#27](https://github.com/BioJulia/BioServices.jl/pull/37)).
 - Updated CI / documentation building ([#36](https://github.com/BioJulia/BioServices.jl/pull/39) and lots of others)
+  - also removes julia < 1.0 support
 
 ## [0.3.2] - 2018-12-13
 ### Changes
