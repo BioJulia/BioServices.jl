@@ -203,7 +203,7 @@ function request(method::String, URL::String; params...)
                 end
             else
                 # we only handle HTTP 429, so for any other status, throw the error
-                rethrow
+                rethrow()
             end
         end
     end
