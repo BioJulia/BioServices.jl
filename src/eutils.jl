@@ -46,6 +46,7 @@ export
 import XMLDict
 import JSON
 import HTTP
+import BioServices.request
 
 const baseURL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
 
@@ -174,42 +175,6 @@ Parameters: db, rettype, bdata.
 function ecitmatch(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     return request("GET", string(baseURL, "ecitmatch.cgi"), query=params)
-end
-
-# create and handle an HTTP request
-function request(method::String, URL::String; params...)
-    exception = nothing
-
-    # retry request up to four times
-    for i in 1:4
-        try
-            return HTTP.request(method, URL; status_exception=true, params...)
-        catch e
-            local found_header = false
-            exception = e
-            # here we find the Retry-After header and sleep for the specified amount of time
-            if isa(e, HTTP.StatusError) && e.response.status == 429
-                for (header, value) in e.response.headers
-                    if (header == "Retry-After")
-                        found_header = true
-                        sleep(parse(Int, value))
-                        break
-                    end
-                end
-
-                # if the header wasn't found, sleep for 2 seconds
-                if !found_header
-                    sleep(2)
-                end
-            else
-                # we only handle HTTP 429, so for any other status, throw the error
-                rethrow()
-            end
-        end
-    end
-
-    # if we get here, we should have run out of retries
-    throw(exception)
 end
 
 # Create an empty context.
