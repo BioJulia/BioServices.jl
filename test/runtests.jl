@@ -5,6 +5,7 @@ using BioServices.UMLS
 using BioServices.GGGenome
 using BioServices.bioDBnet
 using XMLDict
+using JSON
 using Test
 
 all_tests = [
