@@ -3,14 +3,17 @@ module TestBioServices
 using BioServices.EUtils
 using BioServices.UMLS
 using BioServices.GGGenome
+using BioServices.bioDBnet
 using BioServices.EBIProteins
 using XMLDict
+using JSON
 using Test
 
 all_tests = [
-    ("eutils.jl",      "      Testing: EUtils"),
-    ("umls.jl",        "      Testing: UMLS"),
-    ("gggenome.jl",    "      Testing: GGGenome"),
+    ("eutils.jl",   "       Testing: EUtils"),
+    ("umls.jl",     "       Testing: UMLS"),
+    ("gggenome.jl",     "   Testing: GGGenome"),
+    ("bioDBnet.jl",     "   Testing: bioDBnet"),
     ("ebiproteins.jl", "      Testing: EBIProteins")
     ]
 
