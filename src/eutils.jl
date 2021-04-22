@@ -4,7 +4,7 @@
 # APIs for E-Utilities.
 #
 # This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/Bio.jl/blob/master/LICENSE.md
+# License is MIT: https://github.com/BioJulia/BioServices.jl/blob/master/LICENSE.md
 
 """
 Entrez Programming Utilities (or E-Utilities) module.
@@ -46,6 +46,7 @@ export
 import XMLDict
 import JSON
 import HTTP
+import BioServices.request
 
 const baseURL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
 
@@ -62,7 +63,7 @@ Parameters: db, version, retmode.
 """
 function einfo(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
-    return HTTP.request("GET", string(baseURL, "einfo.fcgi"), query=params)
+    return request("GET", string(baseURL, "einfo.fcgi"), query=params)
 end
 
 """
@@ -75,7 +76,7 @@ retmode, sort, field, datetype, reldate, mindate, maxdate.
 """
 function esearch(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
-    res = HTTP.request("GET", string(baseURL, "esearch.fcgi"), query=params, retry_non_idempotent=true)
+    res = request("GET", string(baseURL, "esearch.fcgi"), query=params, retry_non_idempotent=true)
     if get(params, :usehistory, "") == "y"
         set_context!(ctx, res)
     end
@@ -94,7 +95,7 @@ function epost(ctx::AbstractDict=empty_context(); params...)
     body = HTTP.escapeuri(params)
     # added user-agent header as workaround for EOFError - HTTP.jl issue #342
     # headers = Dict("user-agent"=>"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
-    res = HTTP.request("POST", string(baseURL, "epost.fcgi"), body=body, retry_non_idempotent=true)
+    res = request("POST", string(baseURL, "epost.fcgi"), body=body, retry_non_idempotent=true)
     set_context!(ctx, res)
     return res
 end
@@ -109,7 +110,7 @@ Parameters: db, id, query_key, WebEnv, retstart, retmax, retmode, version.
 function esummary(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     body = HTTP.escapeuri(params)
-    return HTTP.request("POST", string(baseURL, "esummary.fcgi"), body=body, retry_non_idempotent=true)
+    return request("POST", string(baseURL, "esummary.fcgi"), body=body, retry_non_idempotent=true)
 end
 
 """
@@ -123,7 +124,7 @@ strand, seq_start, seq_stop, complexity.
 function efetch(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     body = HTTP.escapeuri(params)
-    return HTTP.request("POST", string(baseURL, "efetch.fcgi"), body=body, retry_non_idempotent=true)
+    return request("POST", string(baseURL, "efetch.fcgi"), body=body, retry_non_idempotent=true)
 end
 
 """
@@ -137,7 +138,7 @@ datetype, reldate, mindate, maxdate.
 function elink(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
     body = HTTP.escapeuri(params)
-    return HTTP.request("POST", string(baseURL, "elink.fcgi"), body=body, retry_non_idempotent=true)
+    return request("POST", string(baseURL, "elink.fcgi"), body=body, retry_non_idempotent=true)
 end
 
 """
@@ -149,7 +150,7 @@ Parameters: term.
 """
 function egquery(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
-    return HTTP.request("GET", string(baseURL, "egquery.fcgi"), query=params)
+    return request("GET", string(baseURL, "egquery.fcgi"), query=params)
 end
 
 """
@@ -161,7 +162,7 @@ Parameters: db, term.
 """
 function espell(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
-    return HTTP.request("GET", string(baseURL, "espell.fcgi"), query=params)
+    return request("GET", string(baseURL, "espell.fcgi"), query=params)
 end
 
 """
@@ -173,7 +174,7 @@ Parameters: db, rettype, bdata.
 """
 function ecitmatch(ctx::AbstractDict=empty_context(); params...)
     params = process_parameters(params, ctx)
-    return HTTP.request("GET", string(baseURL, "ecitmatch.cgi"), query=params)
+    return request("GET", string(baseURL, "ecitmatch.cgi"), query=params)
 end
 
 # Create an empty context.

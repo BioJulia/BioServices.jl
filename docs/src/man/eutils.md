@@ -2,11 +2,9 @@
 CurrentModule = BioServices
 ```
 
-# E-Utilities
+# EUtils
 
-E-Utilities provide a interface to Entrez databases at
-[NCBI](https://www.ncbi.nlm.nih.gov/).  The APIs are defined in the
-`BioServices.EUtils` module, which exports nine functions to access its databases:
+EUtils provide a interface to Entrez databases at [NCBI](https://www.ncbi.nlm.nih.gov/).  The APIs are defined in the `BioServices.EUtils` module, which exports nine functions to access its databases:
 
 | Function    | Description                                                                |
 | :-------    | :----------                                                                |
@@ -20,7 +18,7 @@ E-Utilities provide a interface to Entrez databases at
 | `espell`    | Retrieve spelling suggestions.                                             |
 | `ecitmatch` | Retrieve PubMed IDs that correspond to a set of input citation strings.    |
 
-["The Nine E-utilities in
+["The Nine E-Utilities in
 Brief"](https://www.ncbi.nlm.nih.gov/books/NBK25497/#_chapter2_The_Nine_Eutilities_in_Brief_)
 summarizes all of the server-side programs corresponding to each function.
 
@@ -29,15 +27,15 @@ example, some functions take `db` parameter to specify the target database.
 Functions listed above take these parameters as keyword arguments and return
 a `Response` object as follows:
 ```jlcon
-julia> using BioServices.EUtils      # import the nine functions above
+julia> using BioServices.EUtils       # import the nine functions above
 
 julia> res = einfo(db="pubmed")       # retrieve statistics of the PubMed database
 Response(200 OK, 18 headers, 27360 bytes in body)
 
-julia> write("pubmed.xml", res.data)  # save retrieved data into a file
+julia> write("pubmed.xml", res.body)  # save retrieved data into a file
 27360
 
-shell> head result.xml
+shell> head pubmed.xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE eInfoResult PUBLIC "-//NLM//DTD einfo 20130322//EN" "https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20130322/einfo.dtd">
 <eInfoResult>
@@ -59,7 +57,7 @@ id=["rs55863639", "rs587780067"])`). The complete list of parameters can be
 found at ["The E-utilities In-Depth: Parameters, Syntax and
 More"](https://www.ncbi.nlm.nih.gov/books/NBK25499/).
 
-When a request succeeds the response object has a `data` field containing
+When a request succeeds the response object has a `body` field containing
 formatted data, which can be saved to a file as demonstrated above. However,
 users are often interested in a part of the response data and may want to
 extract some fields in it. In such a case,
@@ -72,40 +70,42 @@ Response(200 OK, 19 headers, 41536 bytes in body)
 
 julia> using EzXML
 
-julia> doc = parsexml(res.data)
+julia> doc = parsexml(res.body)
 EzXML.Document(EzXML.Node(<DOCUMENT_NODE@0x00007fdd4cc43770>))
 
 ```
 
+Note that because `res` is an HTTP Response Message, its content can be read at most once. Running `res.body` again will reveal an empty Array.
+
 After that, you can query fields you want using [XPath](https://en.wikipedia.org/wiki/XPath):
 ```jlcon
-julia> seq = findfirst(doc, "/GBSet/GBSeq")
+julia> seq = findfirst("/GBSet/GBSeq", doc)
 EzXML.Node(<ELEMENT_NODE@0x00007fdd49f34b10>)
 
-julia> content(findfirst(seq, "GBSeq_definition"))
+julia> nodecontent(findfirst("GBSeq_definition", seq))
 "Homo sapiens adenylosuccinate synthase (ADSS), mRNA"
 
-julia> content(findfirst(seq, "GBSeq_accession-version"))
+julia> nodecontent(findfirst("GBSeq_accession-version", seq))
 "NM_001126.3"
 
-julia> length(find(seq, "//GBReference"))
+julia> length(findall("//GBReference", seq))
 10
 
 julia> using Bio.Seq
 
-julia> DNASequence(content(findfirst(seq, "GBSeq_sequence")))
+julia> DNASequence(nodecontent(findfirst("GBSeq_sequence", seq)))
 2791nt DNA Sequence:
 ACGGGAGTGGCGCGCCAGGCCGCGGAAGGGGCGTGGCCT…TGATTAAAAGAACCAAATATTTCTAGTATGAAAAAAAAA
 
 ```
 
 Every function can take a context dictionary as its first argument to set
-parameters into a query. Key-value pairs in a context are appended to a query in
-addition to other parameters passed by keyword arguments.  The default context
+parameters for a query. Key-value pairs in a context are appended to the query in
+addition to other parameters passed by keyword arguments. The default context
 is an empty dictionary that sets no parameters. This context dictionary is
 especially useful when temporarily caching query UIDs into the Entrez History
 server. A request to the Entrez system can be associated with cached data using
-"WebEnv" and "query_key" parameters. In the following example, the search
+`WebEnv` and `query_key` parameters. In the following example, the search
 results of `esearch` is saved in the Entrez History server (note
 `usehistory=true`, which makes the server cache its search results) and then
 their summaries are retrieved in the next call of `esummary`:
@@ -124,7 +124,7 @@ Dict{Any,Any} with 2 entries:
 julia> res = esummary(context, db="pubmed")  # retrieve summaries in context
 Response(200 OK, 18 headers, 135463 bytes in body)
 
-julia> write("asthma_leukotrienes_2009.xml", res.data)  # save data into a file
+julia> write("asthma_leukotrienes_2009.xml", res.body)  # save data into a file
 135463
 
 shell> head asthma_leukotrienes_2009.xml
@@ -138,5 +138,21 @@ shell> head asthma_leukotrienes_2009.xml
         <Item Name="Source" Type="String">Zhongguo Dang Dai Er Ke Za Zhi</Item>
         <Item Name="AuthorList" Type="List">
                 <Item Name="Author" Type="String">He MJ</Item>
+
+```
+
+## XMLDict and LightXML
+
+Along with `EZXml` there are also other packages for parsing XML objects. The HTTP object returned by the `BioServices.EUtils` module is compatible with all of them.
+
+```jlcon
+julia> res = efetch(db="nuccore", id="NM_001126.3", retmode="xml")
+Response(200 OK, 19 headers, 41536 bytes in body)
+
+julia> using XMLDict
+
+julia> doc = parse_xml(String(res.body))
+XMLDict.XMLDictElement with 1 entry:
+  "GBSeq" => EzXML.Node(<ELEMENT_NODE[GBSeq]@0x00007fef2271e770>)
 
 ```

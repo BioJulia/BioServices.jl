@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [UNRELEASED]
+### Changes
+
+# [0.4.0] - 2021-04-17
+### Changes
+- eutils.jl now retries requests that have been rate-limited ([#26](https://github.com/BioJulia/BioServices.jl/pull/26)).
+- Added EBIProteins ([#27](https://github.com/BioJulia/BioServices.jl/pull/37)).
+- Updated CI / documentation building ([#36](https://github.com/BioJulia/BioServices.jl/pull/39) and lots of others)
+  - also removes julia < 1.0 support
+
 ## [0.3.2] - 2018-12-13
 ### Changes
 - eutils.jl set `retry_non_idempotent=true` on http requests  
@@ -54,8 +64,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Interfaces to EUtils (Enztrez Utilities) and UMLS (Unified Medical Language System)
   APIs.
 
-
-[Unreleased]: https://github.com/BioJulia/BioServices.jl/compare/v0.2.0...HEAD
+[UNRELEASED]: https://github.com/BioJulia/BioServices.jl/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/BioJulia/BioServices.jl/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/BioJulia/BioServices.jl/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/BioJulia/BioServices.jl/tree/v0.3.0
 [0.2.0]: https://github.com/BioJulia/BioServices.jl/tree/v0.2.0
 [0.1.3]: https://github.com/BioJulia/BioServices.jl/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/BioJulia/BioServices.jl/compare/v0.1.1...v0.1.2
