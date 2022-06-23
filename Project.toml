@@ -12,7 +12,7 @@ XMLDict = "228000da-037f-5747-90a9-8195ccbf91a5"
 
 [compat]
 Gumbo = "0.5 - 0.8"
-HTTP = "0.8 - 0.9"
+HTTP = "0.8 - 0.9, 1"
 JSON = "0.19 - 0.21"
 XMLDict = "0.3 - 0.4"
 julia = "1"
