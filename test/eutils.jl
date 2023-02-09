@@ -80,8 +80,8 @@
         # esearch then efeth for large number of ids
         retmax = 1000
         search_term = """(Asthma[MeSH Major Topic])
-                        AND ("1/1/2018"[Date - Publication] :
-                        "3000"[Date - Publication])"""
+                         AND (("2018/01/01"[Date - Publication] : 
+                         "3000"[Date - Publication]))"""
         res = esearch(db = "pubmed", term = search_term,
         retstart = 0, retmax = retmax, tool = "BioJulia")
 
@@ -111,8 +111,8 @@
 
     @testset "egquery" begin
         res = egquery(term="""(Asthma[MeSH Major Topic]) AND
-                              ("1/1/2018"[Date - Publication] :
-                              "3000"[Date - Publication])""")
+                              (("2018/01/01"[Date - Publication] : 
+                              "3000"[Date - Publication]))""")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         @test isa(parse_xml(String(res.body)), XMLDict.XMLDictElement)
@@ -125,7 +125,7 @@
         body = parse_xml(String(res.body))
         @test isa(body, XMLDict.XMLDictElement)
         replaced_spell = body["SpelledQuery"]["Replaced"][2]
-        @test replaced_spell == "growth"
+        @test replaced_spell == "last"
     end
 
     @testset "ecitmatch" begin
