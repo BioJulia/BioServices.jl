@@ -1,7 +1,7 @@
 name = "BioServices"
 uuid = "a0d4ced5-b29c-5395-b614-ca030a679c4b"
 authors = ["BioJulia"]
-version = "0.4.0"
+version = "0.4.1"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
