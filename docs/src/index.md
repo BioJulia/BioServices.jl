@@ -5,6 +5,6 @@ The `BioServices` module provides APIs for various web services.
 ## Contents
 
 ```@contents
-Pages = ["man/eutils.md", "man/umls.md", "man/gggenome.md", "man/uniprot.md"]
+Pages = ["man/eutils.md", "man/umls.md", "man/gggenome.md", "man/ebiproteins.md", "man/uniprot.md"]
 Depth = 6
 ```
