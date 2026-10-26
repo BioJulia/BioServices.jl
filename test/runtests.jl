@@ -4,6 +4,9 @@ using BioServices.EUtils
 using BioServices.UMLS
 using BioServices.GGGenome
 using BioServices.EBIProteins
+using BioServices.UniProt
+using HTTP
+using JSON
 using XMLDict
 using Test
 
@@ -12,6 +15,7 @@ all_tests = [
     ("umls.jl", "      Testing: UMLS"),
     ("gggenome.jl", "      Testing: GGGenome"),
     ("ebiproteins.jl", "      Testing: EBIProteins"),
+    ("uniprot.jl", "      Testing: UniProt"),
 ]
 
 println("Running tests:")
