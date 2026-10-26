@@ -98,6 +98,40 @@ ENSMUSG00000057464	Q7TQS4	Q7TQS4_MOUSE
 A job that fails makes `uniprotidmappingstatus` throw an `HTTP.StatusError`.
 `uniprotidmappingfields` lists the supported `from` and `to` databases.
 
+### Identifiers
+
+These functions parse UniProt identifiers locally, without contacting the service.
+`uniprotaccession` extracts the [accession](https://www.uniprot.org/help/accession_numbers) from an accession with an isoform or version suffix, from the [entry name](https://www.uniprot.org/help/entry_name) of an unreviewed entry, or from a [FASTA header](https://www.uniprot.org/help/fasta-headers):
+
+```julia
+julia> uniprotaccession("Q8VGW6_MOUSE")
+"Q8VGW6"
+
+julia> isuniprotaccession("Q8VGW6")
+true
+```
+
+The entry names of reviewed (Swiss-Prot) entries contain a mnemonic protein code instead of the accession:
+
+```julia
+julia> uniprotentryname("IGF1R_HUMAN")
+(protein = "IGF1R", species = "HUMAN")
+
+julia> res = uniprotsearch("id:IGF1R_HUMAN"; fields="accession", format="list");
+
+julia> String(res.body)
+"P08069\n"
+```
+
+`uniprotfastaheader` splits a FASTA header into its fields:
+
+```julia
+julia> res = uniprotentry("P08069"; format="fasta");
+
+julia> uniprotfastaheader(first(eachline(IOBuffer(res.body))))
+(db = "sp", id = "P08069", entryname = "IGF1R_HUMAN", proteinname = "Insulin-like growth factor 1 receptor", organism = "Homo sapiens", taxid = 9606, gene = "IGF1R", existence = 1, version = 1)
+```
+
 ## Methods
 
 ```@docs
@@ -111,4 +145,8 @@ uniprotidmappingstatus
 uniprotidmappingresults
 uniprotidmappingdetails
 uniprotidmappingfields
+isuniprotaccession
+uniprotaccession
+uniprotentryname
+uniprotfastaheader
 ```

@@ -22,9 +22,15 @@ The following functions are exported from this module:
 9. `uniprotidmappingdetails`: retrieve the parameters of an ID mapping job
 10. `uniprotidmappingfields`: list the databases supported by ID mapping
 
-Each function returns an `HTTP.Response`.
+Each of these functions returns an `HTTP.Response`.
 The response format is chosen with the `format` query parameter (e.g. "json", "fasta", "tsv", "list", "xml", "txt", "gff"); not every format is supported by every dataset.
 Setting the query parameter `compressed=true` returns a gzip-compressed body.
+
+The following functions parse UniProt identifiers without contacting the service:
+1. `isuniprotaccession`: test whether a string is an accession
+2. `uniprotaccession`: extract the accession from an identifier, entry name, or FASTA header
+3. `uniprotentryname`: split an entry name into its protein and species codes
+4. `uniprotfastaheader`: parse a UniProtKB FASTA header
 
 See "UniProt website REST API" (https://www.uniprot.org/help/api) for more details.
 """
@@ -40,7 +46,11 @@ export
     uniprotidmappingstatus,
     uniprotidmappingresults,
     uniprotidmappingdetails,
-    uniprotidmappingfields
+    uniprotidmappingfields,
+    isuniprotaccession,
+    uniprotaccession,
+    uniprotentryname,
+    uniprotfastaheader
 
 import HTTP
 import BioServices.request
@@ -271,6 +281,126 @@ The body of the response is JSON.
 """
 function uniprotidmappingfields()
     return request("GET", baseURL * "configure/idmapping/fields", headers)
+end
+
+
+# Identifiers
+# -----------
+
+# https://www.uniprot.org/help/accession_numbers
+const accession_pattern = "[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9](?:[A-Z][A-Z0-9]{2}[0-9]){1,2}"
+const rex_accession = Regex("^(?:$accession_pattern)\$")
+# An accession at the start of a string, optionally preceded by a FASTA "sp|" or "tr|" prefix and followed by an isoform and/or version suffix, then by the end of the string, '_', '|', or whitespace
+const rex_accession_prefix = Regex("^>?(?:(?:sp|tr)\\|)?($accession_pattern)(?:-\\d+)?(?:\\.\\d+)?(?:\$|[_|\\s])")
+# https://www.uniprot.org/help/entry_name
+const rex_entryname = Regex("^([A-Z0-9]{1,5}|$accession_pattern)_([A-Z0-9]{1,5})\$")
+# https://www.uniprot.org/help/fasta-headers
+const rex_fastaheader = r"^>?(sp|tr)\|(\S+?)\|(\S+) (.*?) OS=(.*?) OX=(\d+)(?: GN=(.*?))?(?: PE=(\d))?(?: SV=(\d+))?$"
+
+"""
+    isuniprotaccession(s)
+
+Return `true` if `s` is a UniProtKB [accession](https://www.uniprot.org/help/accession_numbers), e.g. "P08069" or "A0A023GPI8".
+Isoform ("P05067-2") and versioned ("P05067.3") identifiers return `false`; use [`uniprotaccession`](@ref) to extract the accession from them.
+"""
+isuniprotaccession(s::AbstractString) = occursin(rex_accession, s)
+
+"""
+    uniprotaccession(s)
+
+Extract the UniProtKB accession at the start of `s`.
+`s` may be
+- an accession, optionally with an isoform or version suffix ("P05067-2", "Q8VGW6.37");
+- an [entry name](https://www.uniprot.org/help/entry_name) of an unreviewed (TrEMBL) entry, e.g. "Q8VGW6_MOUSE";
+- a UniProtKB [FASTA header](https://www.uniprot.org/help/fasta-headers), e.g. ">sp|P08069|IGF1R_HUMAN Insulin-like growth factor 1 receptor OS=...";
+- any of the above followed by '_', '|', or whitespace and other text.
+
+Isoform and version suffixes are removed.
+Throws an `ArgumentError` if `s` does not start with an accession.
+In particular, the entry name of a reviewed (Swiss-Prot) entry, such as "IGF1R_HUMAN", does not contain the accession; [`uniprotsearch`](@ref) can find it.
+
+# Examples
+
+```jldoctest; setup = :(using BioServices.UniProt)
+julia> uniprotaccession("Q8VGW6_MOUSE")
+"Q8VGW6"
+
+julia> uniprotaccession("sp|P05067-2|A4_HUMAN Isoform APP305 of Amyloid-beta precursor protein OS=Homo sapiens OX=9606 GN=APP")
+"P05067"
+```
+"""
+function uniprotaccession(s::AbstractString)
+    m = match(rex_accession_prefix, s)
+    if isnothing(m)
+        msg = "no UniProt accession found at the start of \"$s\""
+        if occursin(rex_entryname, s)
+            msg *= "; the entry names of reviewed entries contain no accession, use `uniprotsearch(\"id:$s\")` to look it up"
+        end
+        throw(ArgumentError(msg))
+    end
+    return String(m.captures[1])
+end
+
+"""
+    uniprotentryname(s)
+
+Split the UniProtKB [entry name](https://www.uniprot.org/help/entry_name) `s`, of the form "X_Y", into a named tuple `(; protein = X, species = Y)`.
+For reviewed (Swiss-Prot) entries, `X` is a mnemonic protein code of at most 5 characters; for unreviewed (TrEMBL) entries, it is the accession.
+`Y` is the mnemonic species code.
+
+Throws an `ArgumentError` if `s` is not an entry name.
+To obtain the entry name from a FASTA header, use [`uniprotfastaheader`](@ref).
+
+# Examples
+
+```jldoctest; setup = :(using BioServices.UniProt)
+julia> uniprotentryname("IGF1R_HUMAN")
+(protein = "IGF1R", species = "HUMAN")
+```
+"""
+function uniprotentryname(s::AbstractString)
+    m = match(rex_entryname, s)
+    isnothing(m) && throw(ArgumentError("\"$s\" is not a UniProt entry name (X_Y)"))
+    return (; protein = String(m.captures[1]), species = String(m.captures[2]))
+end
+
+"""
+    uniprotfastaheader(s)
+
+Parse the header line `s` of a UniProtKB [FASTA record](https://www.uniprot.org/help/fasta-headers), with or without the leading '>'.
+Returns a named tuple with fields
+- `db`: "sp" (reviewed, Swiss-Prot) or "tr" (unreviewed, TrEMBL)
+- `id`: the accession, or the isoform identifier (e.g. "P05067-2") for an isoform
+- `entryname`: the entry name, see [`uniprotentryname`](@ref)
+- `proteinname`: the recommended protein name
+- `organism`: the scientific name of the organism (`OS`)
+- `taxid`: the NCBI taxonomy identifier of the organism (`OX`), an `Int`
+- `gene`: the gene name (`GN`), or `nothing`
+- `existence`: the protein existence level (`PE`), an `Int` from 1 to 5, or `nothing`
+- `version`: the sequence version (`SV`), an `Int`, or `nothing`
+
+`GN` is absent when the entry has no gene name; `PE` and `SV` are absent for isoforms.
+Throws an `ArgumentError` if `s` is not a UniProtKB FASTA header.
+
+# Examples
+
+```jldoctest; setup = :(using BioServices.UniProt)
+julia> uniprotfastaheader(">sp|P08069|IGF1R_HUMAN Insulin-like growth factor 1 receptor OS=Homo sapiens OX=9606 GN=IGF1R PE=1 SV=1")
+(db = "sp", id = "P08069", entryname = "IGF1R_HUMAN", proteinname = "Insulin-like growth factor 1 receptor", organism = "Homo sapiens", taxid = 9606, gene = "IGF1R", existence = 1, version = 1)
+```
+"""
+function uniprotfastaheader(s::AbstractString)
+    m = match(rex_fastaheader, s)
+    isnothing(m) && throw(ArgumentError("\"$s\" is not a UniProtKB FASTA header"))
+    db, id, entryname, proteinname, organism, taxid, gene, existence, version = m.captures
+    return (;
+        db = String(db), id = String(id), entryname = String(entryname),
+        proteinname = String(proteinname), organism = String(organism),
+        taxid = parse(Int, taxid),
+        gene = isnothing(gene) ? nothing : String(gene),
+        existence = isnothing(existence) ? nothing : parse(Int, existence),
+        version = isnothing(version) ? nothing : parse(Int, version),
+    )
 end
 
 
