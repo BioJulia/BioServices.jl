@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [UNRELEASED]
 ### Changes
+- HTTP.jl 2.4 or later and Julia 1.10 or later are required.
+- Retries are those of HTTP.jl: 408, 429, 500, 502, 503, and 504 responses are retried, honoring `Retry-After`; other HTTP errors are thrown immediately.
+- The `timeout` keyword of `gggsearch` and `search_umls` limits the total time of each request.
 
 # [0.4.0] - 2021-04-17
 ### Changes

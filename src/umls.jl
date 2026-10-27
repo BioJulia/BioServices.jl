@@ -228,7 +228,7 @@ function search_umls(tgt, query; version::String="current", timeout=1)
         query["ticket"]= ticket
         query["pageNumber"]= string(page)
 
-        r = HTTP.request("GET", rest_uri*content_endpoint, query=query, timeout=timeout)
+        r = HTTP.request("GET", rest_uri*content_endpoint, query=query, request_timeout=timeout)
 
         if r.status != 200
             error("Bad HTTP status $(r.status)")
