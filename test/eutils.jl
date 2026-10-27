@@ -110,22 +110,20 @@
     end
 
     @testset "egquery" begin
-        res = egquery(term="""(Asthma[MeSH Major Topic]) AND
-                              (("2018/01/01"[Date - Publication] : 
-                              "3000"[Date - Publication]))""")
-        @test res.status == 200
-        @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
-        @test isa(parse_xml(String(res.body)), XMLDict.XMLDictElement)
+        # egquery.fcgi redirects to ext-http-eutils.linkerd.ncbi.nlm.nih.gov, which does not resolve
+        @test_broken egquery(term="""(Asthma[MeSH Major Topic]) AND
+                                     (("2018/01/01"[Date - Publication] : 
+                                     "3000"[Date - Publication]))""").status == 200
     end
 
     @testset "espell" begin
-        res = espell(db="pmc", term="fiberblast cell grwth")
+        res = espell(db="pubmed", term="fiberblast cell grwth")
         @test res.status == 200
         @test startswith(Dict(res.headers)["Content-Type"], "text/xml")
         body = parse_xml(String(res.body))
         @test isa(body, XMLDict.XMLDictElement)
         replaced_spell = body["SpelledQuery"]["Replaced"][2]
-        @test replaced_spell == "last"
+        @test replaced_spell == "growth"
     end
 
     @testset "ecitmatch" begin
