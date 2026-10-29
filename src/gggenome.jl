@@ -53,7 +53,7 @@ Retrieve results of gggenome search of a query sequence.
 - `output::String`: If "toString", a `String` object is returned. If
   "extractTopHit", a `String` object containing only top hit is returned
   (Currently, only works with format="txt"). Otherwise, a
-  `HTTP.Messages.Response` object is returned.
+  `HTTP.Response` object is returned.
 - `show_url::Bool`: If true, print URL of REST API.
 """
 function gggsearch(query::AbstractString; 
@@ -89,7 +89,7 @@ function gggsearch(query::AbstractString;
     end
 
     # Request
-    res = HTTP.request("GET", url, timeout=timeout)
+    res = HTTP.request("GET", url, request_timeout=timeout)
 
     # Output
     if output isa AbstractString
@@ -110,7 +110,7 @@ function checkQuery(query::AbstractString)
     return all(c -> c ∈ "NRYKMSWBDHVACGTU", query)
 end
 
-function gggenomeToString(res::HTTP.Messages.Response)
+function gggenomeToString(res::HTTP.Response)
     return String(res.body)
 end
 
