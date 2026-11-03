@@ -35,7 +35,7 @@ const dblistURL = "https://raw.githubusercontent.com/meso-cacase/GGGenome/master
 """
     gggsearch(query::AbstractString; 
               db="hg19", k=0, strand=nothing, 
-              format="html", timeout=5, 
+              format="html", timeout=30, 
               output=nothing, show_url=false)
 
 Retrieve results of gggenome search of a query sequence.
@@ -49,7 +49,8 @@ Retrieve results of gggenome search of a query sequence.
 - `k::Integer`: Maximum number of mismatches/gaps. 0 if not specified.
 - `strand::String`: '+' ('plus') or '-' ('minus') to search specified strand only.
 - `format::String`: [html|txt|csv|bed|gff|json]. html if not specified.
-- `timeout::Real`: Maximum time allowed for a query.
+- `timeout::Real`: Maximum time in seconds to wait for the response headers or
+  between reads of the response body. 30 if not specified.
 - `output::String`: If "toString", a `String` object is returned. If
   "extractTopHit", a `String` object containing only top hit is returned
   (Currently, only works with format="txt"). Otherwise, a
@@ -58,7 +59,7 @@ Retrieve results of gggenome search of a query sequence.
 """
 function gggsearch(query::AbstractString; 
                     db::AbstractString="hg19", k::Integer=0, strand=nothing, format::AbstractString="html", 
-                    timeout::Real=5, output=nothing, show_url::Bool=false)
+                    timeout::Real=30, output=nothing, show_url::Bool=false)
     # Check parameters
     if !checkQuery(query)
         throw(ArgumentError("`query` must be consisted of [A|C|G|T|U|N|R|Y|K|M|S|W|B|D|H|V]"))
@@ -89,7 +90,7 @@ function gggsearch(query::AbstractString;
     end
 
     # Request
-    res = HTTP.request("GET", url, read_idle_timeout =timeout)
+    res = HTTP.request("GET", url, read_idle_timeout=timeout)
 
     # Output
     if output isa AbstractString

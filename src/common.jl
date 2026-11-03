@@ -4,5 +4,5 @@ import HTTP
 # `Retry-After`, and throws an `HTTP.StatusError` for any other status of 300 or more
 # (except redirects).
 function request(method::String, URL::String, headers::Vector{Pair{String, String}} = Pair{String, String}[]; params...)
-    return HTTP.request(method, URL, headers; status_exception=true, params...)
+    return HTTP.request(method, URL, headers; params...)
 end
