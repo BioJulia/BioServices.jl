@@ -182,6 +182,8 @@ Search UMLS Rest API. For more info see
 - `tgt`: Ticket Granting Ticket
 - `query`: UMLS query containing the search term
 - `version:` Optional - defaults to current
+- `timeout`: Optional - maximum time in seconds to wait for the response headers
+  or between reads of the response body, for each page. Defaults to 30.
 
 ####Output
 
@@ -204,7 +206,7 @@ query = Dict("string"=>term, "searchType"=>"exact" )
 all_results= search_umls(tgt, query)
 ```
 """
-function search_umls(tgt, query; version::String="current", timeout=1)
+function search_umls(tgt, query; version::String="current", timeout=30)
     page = 0
     content_endpoint = "/rest/search/current"
 
@@ -228,7 +230,7 @@ function search_umls(tgt, query; version::String="current", timeout=1)
         query["ticket"]= ticket
         query["pageNumber"]= string(page)
 
-        r = HTTP.request("GET", rest_uri*content_endpoint, query=query, timeout=timeout)
+        r = HTTP.request("GET", rest_uri*content_endpoint, query=query, read_idle_timeout=timeout)
 
         if r.status != 200
             error("Bad HTTP status $(r.status)")

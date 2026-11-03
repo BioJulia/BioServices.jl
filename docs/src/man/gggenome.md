@@ -68,7 +68,7 @@ chr1    +       98281503        98281520        TCTAGTGAGGAGAAATGTAAGCTAACGTGATA
 
 ## Understanding `output` parameters
 
-By default, `gggsearch()` returns a `HTTP.Messages.Response` object.
+By default, `gggsearch()` returns a `HTTP.Response` object.
 
 ```julia
 julia> query = "GTGCGGTAACGCGACCGATCCCGGAGAAGCCGGCGGGA";
@@ -76,7 +76,7 @@ julia> query = "GTGCGGTAACGCGACCGATCCCGGAGAAGCCGGCGGGA";
 julia> res = gggsearch(query, db="refseq", format="txt");
 
 julia> typeof(res)
-HTTP.Messages.Response
+HTTP.Response
 ```
 
 By setting `output="toString"`, `gggsearch()` returns a `String` object.
