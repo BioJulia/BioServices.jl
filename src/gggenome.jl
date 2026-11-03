@@ -89,7 +89,7 @@ function gggsearch(query::AbstractString;
     end
 
     # Request
-    res = HTTP.request("GET", url, request_timeout=timeout)
+    res = HTTP.request("GET", url, read_idle_timeout =timeout)
 
     # Output
     if output isa AbstractString
