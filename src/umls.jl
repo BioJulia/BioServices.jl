@@ -31,6 +31,7 @@ export get_tgt,
 
 using Gumbo
 import HTTP
+import BioServices: request, url, form
 import JSON
 using Dates
 
@@ -107,7 +108,7 @@ tgt = get_tgt(apikey = "mykey")
 """
 function get_tgt(; force_new::Bool = false, kwargs...)
     params = Dict(kwargs)
-    body = HTTP.escapeuri(params)
+    body = form(params)
     auth_endpoint = "/cas/v1/tickets/"
 
     if !haskey(params, :apikey)
@@ -130,7 +131,7 @@ function get_tgt(; force_new::Bool = false, kwargs...)
         "Content-type" => "application/x-www-form-urlencoded",
         "Accept" => "text/plain", "User-Agent" => "julia"
     )
-    r = HTTP.request("POST", uri * auth_endpoint, body = body, headers = headers)
+    r = request("POST", uri * auth_endpoint, headers; body = body)
     ascii_r = String(r.body)
 
     doc = parsehtml(ascii_r)
@@ -157,7 +158,7 @@ Retrieve a single-use Service Ticket using TGT
 """
 function get_ticket(tgt)
     params = Dict("service" => service)
-    body = HTTP.escapeuri(params)
+    body = form(params)
 
     headers = Dict(
         "Content-type" => "application/x-www-form-urlencoded",
@@ -165,7 +166,7 @@ function get_ticket(tgt)
     )
     r = HTTP.Response(503)
     try
-        r = HTTP.request("POST", tgt; body = body, headers = headers, retry_non_idempotent = true)
+        r = request("POST", tgt, headers; body = body, retry_non_idempotent = true)
     catch
         isdefined(r, :code) ? error("UMLS GET error: ", r.code) : error("UMLS COULD NOT GET")
     end
@@ -211,7 +212,6 @@ all_results= search_umls(tgt, query)
 """
 function search_umls(tgt, query; version::String = "current", timeout = 30)
     page = 0
-    content_endpoint = "/rest/search/current"
 
     #each page of results is appended to the output list where each entry is a dictionary containing that pages's results
     # e.g
@@ -232,7 +232,7 @@ function search_umls(tgt, query; version::String = "current", timeout = 30)
         query["ticket"] = ticket
         query["pageNumber"] = string(page)
 
-        r = HTTP.request("GET", rest_uri * content_endpoint, query = query, read_idle_timeout = timeout)
+        r = request("GET", url(rest_uri * "/", "rest", "search", "current"; query = query), read_idle_timeout = timeout)
 
         if r.status != 200
             error("Bad HTTP status $(r.status)")
@@ -283,7 +283,6 @@ concept = get_cui(tgt, cui)
 ```
 """
 function get_cui(tgt, cui; version = "current")
-    content_endpoint = "/rest/content/$(version)/CUI/" * cui
     #get a new ticket
     ticket = ""
     try
@@ -294,7 +293,7 @@ function get_cui(tgt, cui; version = "current")
 
     r = HTTP.Response(503)
     try
-        r = HTTP.request("GET", rest_uri * content_endpoint, query = Dict("ticket" => ticket))
+        r = request("GET", url(rest_uri * "/", "rest", "content", version, "CUI", cui; query = ["ticket" => ticket]))
     catch
         isdefined(r, :code) ? error("UMLS GET error: ", r.code) : error("UMLS COULD NOT GET")
     end

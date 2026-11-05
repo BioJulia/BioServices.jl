@@ -41,8 +41,7 @@ export
 
 import XMLDict
 import JSON
-import HTTP
-import BioServices.request
+import BioServices: request, url, form
 
 const baseURL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
 
@@ -59,7 +58,7 @@ Parameters: db, version, retmode.
 """
 function einfo(ctx::AbstractDict = empty_context(); params...)
     params = process_parameters(params, ctx)
-    return request("GET", string(baseURL, "einfo.fcgi"), query = params)
+    return request("GET", url(baseURL * "einfo.fcgi"; query = params))
 end
 
 """
@@ -71,7 +70,7 @@ Parameters: db, term, usehistory, WebEnv, query_key, retstart, retmax, rettype, 
 """
 function esearch(ctx::AbstractDict = empty_context(); params...)
     params = process_parameters(params, ctx)
-    res = request("GET", string(baseURL, "esearch.fcgi"), query = params, retry_non_idempotent = true)
+    res = request("GET", url(baseURL * "esearch.fcgi"; query = params), retry_non_idempotent = true)
     if get(params, :usehistory, "") == "y"
         set_context!(ctx, res)
     end
@@ -87,7 +86,7 @@ Parameters: db, id, WebEnv.
 """
 function epost(ctx::AbstractDict = empty_context(); params...)
     params = process_parameters(params, ctx)
-    body = HTTP.escapeuri(params)
+    body = form(params)
     # added user-agent header as workaround for EOFError - HTTP.jl issue #342
     # headers = Dict("user-agent"=>"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
     res = request("POST", string(baseURL, "epost.fcgi"), body = body, retry_non_idempotent = true)
@@ -104,7 +103,7 @@ Parameters: db, id, query_key, WebEnv, retstart, retmax, retmode, version.
 """
 function esummary(ctx::AbstractDict = empty_context(); params...)
     params = process_parameters(params, ctx)
-    body = HTTP.escapeuri(params)
+    body = form(params)
     return request("POST", string(baseURL, "esummary.fcgi"), body = body, retry_non_idempotent = true)
 end
 
@@ -117,7 +116,7 @@ Parameters: db, id, query_key, WebEnv, retmode, rettype, retstart, retmax, stran
 """
 function efetch(ctx::AbstractDict = empty_context(); params...)
     params = process_parameters(params, ctx)
-    body = HTTP.escapeuri(params)
+    body = form(params)
     return request("POST", string(baseURL, "efetch.fcgi"), body = body, retry_non_idempotent = true)
 end
 
@@ -130,7 +129,7 @@ Parameters: db, dbfrom, cmd, id, query_key, WebEnv, linkname, term, holding, dat
 """
 function elink(ctx::AbstractDict = empty_context(); params...)
     params = process_parameters(params, ctx)
-    body = HTTP.escapeuri(params)
+    body = form(params)
     return request("POST", string(baseURL, "elink.fcgi"), body = body, retry_non_idempotent = true)
 end
 
@@ -143,7 +142,7 @@ Parameters: term.
 """
 function egquery(ctx::AbstractDict = empty_context(); params...)
     params = process_parameters(params, ctx)
-    return request("GET", string(baseURL, "egquery.fcgi"), query = params)
+    return request("GET", url(baseURL * "egquery.fcgi"; query = params))
 end
 
 """
@@ -155,7 +154,7 @@ Parameters: db, term.
 """
 function espell(ctx::AbstractDict = empty_context(); params...)
     params = process_parameters(params, ctx)
-    return request("GET", string(baseURL, "espell.fcgi"), query = params)
+    return request("GET", url(baseURL * "espell.fcgi"; query = params))
 end
 
 """
@@ -167,7 +166,7 @@ Parameters: db, rettype, bdata.
 """
 function ecitmatch(ctx::AbstractDict = empty_context(); params...)
     params = process_parameters(params, ctx)
-    return request("GET", string(baseURL, "ecitmatch.cgi"), query = params)
+    return request("GET", url(baseURL * "ecitmatch.cgi"; query = params))
 end
 
 # Create an empty context.

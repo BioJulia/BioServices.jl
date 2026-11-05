@@ -43,8 +43,7 @@ export
 
 import XMLDict
 import JSON
-import HTTP
-import BioServices.request
+import BioServices: request, url, escape
 
 const baseURL = "https://www.ebi.ac.uk/proteins/api/"
 
@@ -79,23 +78,23 @@ function ebiproteins(;
     path = baseURL * "proteins"
     if !isnothing(dbtype) || !isnothing(dbid)
         all(!isnothing, [dbid, dbtype]) || throw(ArgumentError("Both `dbtype` and `dbid` must be set."))
-        path *= "/" * HTTP.escapeuri(dbtype) * ":" * HTTP.escapeuri(dbid)
+        path *= "/" * escape(dbtype) * ":" * escape(dbid)
     elseif isempty(params)
         any(!isnothing, [operation, accession, subset]) || throw(ArgumentError("At least one parameter must be set."))
         if !isnothing(operation)
-            path *= "/" * HTTP.escapeuri(operation)
+            path *= "/" * escape(operation)
         end
         if !isnothing(accession)
-            path *= "/" * HTTP.escapeuri(accession)
+            path *= "/" * escape(accession)
         end
         if !isnothing(subset)
-            path *= "/" * HTTP.escapeuri(subset)
+            path *= "/" * escape(subset)
         end
     elseif !isnothing(accession)
         params[:accession] = string(accession)
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", path, header, query = params)
+    return request("GET", url(path; query = params), header)
 end
 
 """
@@ -121,9 +120,9 @@ function ebifeatures(; contenttype = nothing, accession = nothing, type = nothin
     !isnothing(type) && !isnothing(accession) && throw(ArgumentError("Cannot set both `type` and `accession`"))
     if !isnothing(type)
         haskey(params, :terms) && params[:terms] != "" || throw(ArgumentError("At least one term is required."))
-        path *= "/type/" * HTTP.escapeuri(type)
+        path *= "/type/" * escape(type)
     elseif !isnothing(accession) && isempty(filter(kv -> first(kv) ∉ [:categories, :types], params))
-        path *= "/" * HTTP.escapeuri(accession)
+        path *= "/" * escape(accession)
     elseif isnothing(accession) && isempty(params)
         throw(ArgumentError("At least one parameter must be set."))
     elseif !isnothing(accession)
@@ -133,7 +132,7 @@ function ebifeatures(; contenttype = nothing, accession = nothing, type = nothin
             throw(ArgumentError("Must set at least one of `gene`, `exact_gene`, `protein`, `organism`, or `taxid`."))
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", path, header, query = params)
+    return request("GET", url(path; query = params), header)
 end
 
 """
@@ -160,18 +159,18 @@ function ebivariation(; contenttype = nothing, accession = nothing, dbid = nothi
     path = baseURL * "variation"
     !isnothing(dbid) && !isnothing(hgvs) && throw(ArgumentError("Cannot set both `dbid` and `hgvs`"))
     if !isnothing(dbid)
-        path *= "/dbsnp/" * HTTP.escapeuri(dbid)
+        path *= "/dbsnp/" * escape(dbid)
     elseif !isnothing(hgvs)
-        path *= "/hgvs/" * HTTP.escapeuri(hgvs)
+        path *= "/hgvs/" * escape(hgvs)
     elseif !isnothing(accession) && isempty(filter(kv -> first(kv) ∉ [:sourcetype, :consequencetype, :wildtype, :alternativesequence, :location], params))
-        path *= "/" * accession
+        path *= "/" * escape(accession)
     elseif isnothing(accession) && isempty(params)
         throw(ArgumentError("At least one parameter must be set."))
     elseif !isnothing(accession)
         params[:accession] = string(accession)
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", path, header, query = params)
+    return request("GET", url(path; query = params), header)
 end
 
 """
@@ -194,12 +193,12 @@ function ebiproteomics(; contenttype = nothing, accession = nothing, params...)
     path = baseURL * "proteomics"
     if isempty(params)
         isnothing(accession) && throw(ArgumentError("At least one term is required."))
-        path *= "/" * HTTP.escapeuri(accession)
+        path *= "/" * escape(accession)
     elseif !isnothing(accession)
         params[:accession] = string(accession)
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", path, header, query = params)
+    return request("GET", url(path; query = params), header)
 end
 
 """
@@ -222,12 +221,12 @@ function ebiantigen(; contenttype = nothing, accession = nothing, params...)
     path = baseURL * "antigen"
     if isempty(params)
         isnothing(accession) && throw(ArgumentError("At least one term is required."))
-        path *= "/" * HTTP.escapeuri(accession)
+        path *= "/" * escape(accession)
     elseif !isnothing(accession)
         params[:accession] = string(accession)
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", path, header, query = params)
+    return request("GET", url(path; query = params), header)
 end
 
 """
@@ -252,14 +251,14 @@ function ebiproteomes(; contenttype = nothing, operation = nothing, upid = nothi
     if isempty(filter(kv -> first(kv) != :reviewed, params))
         !isnothing(upid) || throw(ArgumentError("Must set `upid`"))
         if !isnothing(operation)
-            path *= "/" * HTTP.escapeuri(operation)
+            path *= "/" * escape(operation)
         end
-        path *= "/" * HTTP.escapeuri(upid)
+        path *= "/" * escape(upid)
     elseif !isnothing(upid)
-        params[:upid] = HTTP.escapeuri(string(upid))
+        params[:upid] = string(upid)
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", path, header, query = params)
+    return request("GET", url(path; query = params), header)
 end
 
 """
@@ -282,12 +281,12 @@ function ebigenecentric(; contenttype = nothing, accession = nothing, params...)
     path = baseURL * "genecentric"
     if isempty(params)
         isnothing(accession) && throw(ArgumentError("At least one term is required."))
-        path *= "/" * HTTP.escapeuri(accession)
+        path *= "/" * escape(accession)
     elseif !isnothing(accession)
-        params[:accession] = HTTP.escapeuri(string(accession))
+        params[:accession] = string(accession)
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", path, header, query = params)
+    return request("GET", url(path; query = params), header)
 end
 
 """
@@ -313,11 +312,11 @@ function ebitaxonomy(;
     )
     params = process_parameters(params)
     !isnothing(operation) || throw(ArgumentError("Must set `operation`."))
-    path = baseURL * "taxonomy/" * HTTP.escapeuri(operation)
+    path = baseURL * "taxonomy/" * escape(operation)
     if operation == "path"
         haskey(params, :direction) || throw(ArgumentError("Must set `direction`."))
         !isnothing(ids) || throw(ArgumentError("Must set `ids`."))
-        params[:id] = HTTP.escapeuri(string(ids))
+        params[:id] = string(ids)
         if getnode
             path *= "/nodes"
         end
@@ -325,16 +324,16 @@ function ebitaxonomy(;
         haskey(params, :from) && haskey(params, :to) || throw(ArgumentError("Must set `from` and `to`."))
     else
         !isnothing(ids) || throw(ArgumentError("Must set `ids`."))
-        path *= "/" * HTTP.escapeuri(string(ids))
+        path *= "/" * escape(string(ids))
         if !isnothing(subset)
-            path *= "/" * HTTP.escapeuri(subset)
+            path *= "/" * escape(subset)
         end
         if getnode
             path *= "/node"
         end
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", path, header, query = params)
+    return request("GET", url(path; query = params), header)
 end
 
 """
@@ -371,29 +370,29 @@ function ebicoordinates(;
         path *= "/"
         if !isnothing(pPosition) || !isnothing(pStart)
             isnothing(pStart) && isnothing(pEnd) || (pPosition = pStart)
-            path *= "location/" * HTTP.escapeuri(accession) * ":" * HTTP.escapeuri(pPosition)
+            path *= "location/" * escape(accession) * ":" * escape(pPosition)
             if !isnothing(pEnd)
-                path *= "-" * HTTP.escapeuri(pEnd)
+                path *= "-" * escape(pEnd)
             end
         else
-            path *= HTTP.escapeuri(accession)
+            path *= escape(accession)
         end
     elseif !isnothing(dbtype) || !isnothing(dbid)
         isnothing(accession) && isnothing(taxonomy) && isnothing(locations) ||
             throw(ArgumentError("Cannot set `accession`, `taxonomy`, or `locations` with `dbtype` and `dbid`."))
         all(!isnothing, [dbid, dbtype]) || throw(ArgumentError("Both `dbtype` and `dbid` must be set."))
-        path *= "/" * HTTP.escapeuri(dbtype) * ":" * HTTP.escapeuri(dbid)
+        path *= "/" * escape(dbtype) * ":" * escape(dbid)
     elseif !isnothing(taxonomy) || !isnothing(locations)
         isnothing(accession) ||
             throw(ArgumentError("Cannot set `accession` with `taxonomy` and `locations`."))
         all(!isnothing, [taxonomy, locations]) || throw(ArgumentError("Both `taxonomy` and `locations` must be set."))
-        path *= "/" * HTTP.escapeuri(taxonomy) * "/" * HTTP.escapeuri(locations)
+        path *= "/" * escape(taxonomy) * "/" * escape(locations)
         getfeature && (path *= "/feature")
     elseif !isnothing(accession)
-        params[:accession] = HTTP.escapeuri(string(accession))
+        params[:accession] = string(accession)
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", path, header, query = params)
+    return request("GET", url(path; query = params), header)
 end
 
 """
@@ -425,26 +424,26 @@ function ebiuniparc(;
     if !isnothing(sequence)
         path *= "/sequence"
         header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype, "Content-Type" => sequencecontenttype]
-        body = HTTP.escapeuri(sequence)
-        return request("POST", path, body = body, header, query = params, retry_non_idempotent = true)
+        body = escape(sequence)
+        return request("POST", url(path; query = params), header; body = body, retry_non_idempotent = true)
     elseif !isnothing(accession) && isempty(filter(kv -> first(kv) ∉ [:rfDdtype, :rfDbid, :rfActive, :rfTaxId], params))
-        path *= "/accession/" * HTTP.escapeuri(accession)
+        path *= "/accession/" * escape(accession)
     elseif !isnothing(upid) && isempty(filter(kv -> first(kv) ∉ [:offset, :size, :rfDdtype, :rfDbid, :rfActive, :rfTaxId], params))
-        path *= "/proteome/" * HTTP.escapeuri(upid)
+        path *= "/proteome/" * escape(upid)
     elseif !isnothing(dbid) && isempty(filter(kv -> first(kv) ∉ [:offset, :size, :rfDdtype, :rfDbid, :rfActive, :rfTaxId], params))
-        path *= "/dbreference/" * HTTP.escapeuri(dbid)
+        path *= "/dbreference/" * escape(dbid)
     elseif !isnothing(upi) && isempty(filter(kv -> first(kv) ∉ [:rfDdtype, :rfDbid, :rfActive, :rfTaxId], params))
-        path *= "/upi/" * HTTP.escapeuri(upi)
+        path *= "/upi/" * escape(upi)
     elseif bestguess
         path *= "/bestguess"
     else
-        isnothing(accession) || (params[:accession] = HTTP.escapeuri(accession))
-        isnothing(upid) || (params[:upid] = HTTP.escapeuri(upid))
-        isnothing(dbid) || (params[:dbid] = HTTP.escapeuri(dbid))
-        isnothing(upi) || (params[:upi] = HTTP.escapeuri(upi))
+        isnothing(accession) || (params[:accession] = string(accession))
+        isnothing(upid) || (params[:upid] = string(upid))
+        isnothing(dbid) || (params[:dbid] = string(dbid))
+        isnothing(upi) || (params[:upi] = string(upi))
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", path, header, query = params)
+    return request("GET", url(path; query = params), header)
 end
 
 # Process query parameters.
