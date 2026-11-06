@@ -23,6 +23,7 @@ export
 
 
 import HTTP
+import BioServices: request, url
 
 const baseURL = "https://gggenome.dbcls.jp/"
 const dblistURL = "https://raw.githubusercontent.com/meso-cacase/GGGenome/master/DBlist.pm"
@@ -78,22 +79,16 @@ function gggsearch(
     end
 
     # Generate URL
-    url = baseURL
-    url *= db * "/"
-    url *= string(k) * "/"
-    if strand isa AbstractString
-        url *= strand * "/"
-    end
-    url *= query
-    url *= "." * format
+    segments = strand isa AbstractString ? (db, k, strand) : (db, k)
+    address = url(baseURL, segments..., query * "." * format)
 
     # Show URL
     if show_url
-        println(url)
+        println(address)
     end
 
     # Request
-    res = HTTP.request("GET", url, read_idle_timeout = timeout)
+    res = request("GET", address, read_idle_timeout = timeout)
 
     # Output
     if output isa AbstractString
@@ -139,7 +134,7 @@ Retrieve full list of available databases.
 Full list of databases: https://gggenome.dbcls.jp/en/help.html#db_list.
 """
 function gggdbs()
-    res = HTTP.request("GET", dblistURL)
+    res = request("GET", dblistURL)
     arr = split(String(res.body), "\n")
     index_l = 0
     index_r = 0

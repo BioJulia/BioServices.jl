@@ -16,6 +16,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
   The default is 30 seconds for both.
 - Functions that return the server's response return an HTTP.jl 2 `HTTP.Response`.
   `HTTP.Messages.Response` no longer exists, `version` is replaced by `proto_major` and `proto_minor`, `status` is an `Int`, and `headers` is an `HTTP.Headers`.
+- URLs and form bodies are built and percent-encoded with URIs.jl, in one place, and every request is sent through one function.
+- Fixed: GGGenome's `db`, `strand` and `query`, UMLS's `version` and `cui`, and the EBI Proteins `ebivariation` accession are percent-encoded in URL paths.
+- Fixed: EBI Proteins query values for `upid`, `accession`, `id`, `dbid` and `upi` are no longer percent-encoded twice.
 
 # [0.4.0] - 2021-04-17
 ### Changes

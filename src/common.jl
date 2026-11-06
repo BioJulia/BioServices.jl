@@ -29,6 +29,7 @@ pairsof(params) = pairs(params)
 
 # Create an HTTP request.
 # HTTP.jl retries 408, 429, 500, 502, 503, and 504 responses, honoring `Retry-After`, and throws an `HTTP.StatusError` for any other status of 300 or more (except redirects).
-function request(method::String, URL::String, headers::Vector{Pair{String, String}} = Pair{String, String}[]; params...)
+# Every module sends its requests through here, with the URL built by `url` and form bodies encoded by `form`.
+function request(method::AbstractString, URL::AbstractString, headers = Pair{String, String}[]; params...)
     return HTTP.request(method, URL, headers; params...)
 end
