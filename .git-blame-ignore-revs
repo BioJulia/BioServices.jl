@@ -3,10 +3,10 @@
 # To use it locally, run `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
 
 # Store text files with LF line endings
-f0c327c3bdba4c259e9a40e274529d61b37b0ef4
+be243100bca1678317b96e8439c4be549bf9d943
 
 # Format the Julia code with Runic
-4a7627c24a49a56a4ef1aa3972f42d658ee45262
+a21699cca0272cd51fb478a421a9c637b0955ce7
 
 # Reflow prose to one sentence per line
-1146037c150a3ee153a31930ead28abae0e8e87e
+df8308b43a3b74b8f93536dfaa9a31fa4fabc00d
