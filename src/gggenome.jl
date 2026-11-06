@@ -57,9 +57,11 @@ Retrieve results of gggenome search of a query sequence.
   `HTTP.Response` object is returned.
 - `show_url::Bool`: If true, print URL of REST API.
 """
-function gggsearch(query::AbstractString; 
-                    db::AbstractString="hg19", k::Integer=0, strand=nothing, format::AbstractString="html", 
-                    timeout::Real=30, output=nothing, show_url::Bool=false)
+function gggsearch(
+        query::AbstractString;
+        db::AbstractString = "hg19", k::Integer = 0, strand = nothing, format::AbstractString = "html",
+        timeout::Real = 30, output = nothing, show_url::Bool = false
+    )
     # Check parameters
     if !checkQuery(query)
         throw(ArgumentError("`query` must be consisted of [A|C|G|T|U|N|R|Y|K|M|S|W|B|D|H|V]"))
@@ -90,7 +92,7 @@ function gggsearch(query::AbstractString;
     end
 
     # Request
-    res = HTTP.request("GET", url, read_idle_timeout=timeout)
+    res = HTTP.request("GET", url, read_idle_timeout = timeout)
 
     # Output
     if output isa AbstractString

@@ -74,8 +74,10 @@ Query Parameters: offset, size, reviewed, isoform, goterms, keywords, ec, gene, 
 protein, organism, taxid, pubmed, seqLength, md5
 
 """
-function ebiproteins(; contenttype = nothing, accession = nothing, operation = nothing, subset = nothing,
-                  dbtype = nothing, dbid = nothing, params...)
+function ebiproteins(;
+        contenttype = nothing, accession = nothing, operation = nothing, subset = nothing,
+        dbtype = nothing, dbid = nothing, params...
+    )
     params = process_parameters(params)
     path = baseURL * "proteins"
     if !isnothing(dbtype) || !isnothing(dbid)
@@ -313,8 +315,10 @@ Key Parameters: contenttype, operation, ids, subset
 
 Query Parameters: pageNumber, pageSize, searchType, fieldName, depth, direction, from, to
 """
-function ebitaxonomy(; contenttype = nothing, operation = nothing, ids = nothing, subset = nothing,
-                     getnode = false, params...)
+function ebitaxonomy(;
+        contenttype = nothing, operation = nothing, ids = nothing, subset = nothing,
+        getnode = false, params...
+    )
     params = process_parameters(params)
     !isnothing(operation) || throw(ArgumentError("Must set `operation`."))
     path = baseURL * "taxonomy/" * HTTP.escapeuri(operation)
@@ -362,9 +366,11 @@ Key Parameters: contenttype, accession, dbtype, dbid, pPosition, pEnd, taxonomy,
 
 Query Parameters: offset, size, in_range
 """
-function ebicoordinates(; accession = nothing, dbtype = nothing, dbid = nothing, pPosition = nothing,
-                        pStart = nothing, pEnd = nothing, locations = nothing, taxonomy = nothing,
-                        getfeature = false, contenttype = nothing, params...)
+function ebicoordinates(;
+        accession = nothing, dbtype = nothing, dbid = nothing, pPosition = nothing,
+        pStart = nothing, pEnd = nothing, locations = nothing, taxonomy = nothing,
+        getfeature = false, contenttype = nothing, params...
+    )
     params = process_parameters(params)
     path = baseURL * "coordinates"
     if !isnothing(accession) && isempty(params)
@@ -420,9 +426,11 @@ bestguess
 Query Parameters: offset, size, dbtype, gene, protein, taxid, organism, sequencechecksum,
 ipr, signaturetype, signatureid, seqLength, rdDdtype, rfDbid, rfActive, rfTaxId
 """
-function ebiuniparc(; contenttype = nothing, accession = nothing, dbid = nothing, upid = nothing,
-                    upi = nothing, sequence = nothing, sequencecontenttype = "text/plain", bestguess = false,
-                    params...)
+function ebiuniparc(;
+        contenttype = nothing, accession = nothing, dbid = nothing, upid = nothing,
+        upi = nothing, sequence = nothing, sequencecontenttype = "text/plain", bestguess = false,
+        params...
+    )
     params = process_parameters(params)
     path = baseURL * "uniparc"
     if !isnothing(sequence)
@@ -462,7 +470,7 @@ function process_parameters(params)
 end
 
 if VERSION < v"1.1"
-isnothing(x) = x === nothing
+    isnothing(x) = x === nothing
 end
 
 end
