@@ -19,8 +19,7 @@ The following functions are exported from this module:
 4. `get_cui`: Get Concept ID
 5. `get_semantic_types`: Get UMLS semantic type
 
-See "UMLS REST API Home Page"
-(https://documentation.uts.nlm.nih.gov/rest/home.html) for more details.
+See "UMLS REST API Home Page" (https://documentation.uts.nlm.nih.gov/rest/home.html) for more details.
 """
 module UMLS
 
@@ -92,9 +91,9 @@ Retrieve a ticket granting ticket (TGT) using
 1. UTS username and password OR
 2. apikey
 
-A tgt is valid for 8 hours. Therefore, look for UTS_TGT.txt in the local
-directory to see if it has been recently stored. One can force getting a
-new ticket by passing keyword argument `force_new=true`
+A tgt is valid for 8 hours.
+Therefore, look for UTS_TGT.txt in the local directory to see if it has been recently stored.
+One can force getting a new ticket by passing keyword argument `force_new=true`
 
 ####Examples
 
@@ -177,8 +176,8 @@ end
 """
     search_umls(tgt, query)
 
-Search UMLS Rest API. For more info see
-[UMLS_API](https://documentation.uts.nlm.nih.gov/rest/search/)
+Search UMLS Rest API.
+For more info see [UMLS_API](https://documentation.uts.nlm.nih.gov/rest/search/)
 
 
 ####Arguments
@@ -186,8 +185,8 @@ Search UMLS Rest API. For more info see
 - `tgt`: Ticket Granting Ticket
 - `query`: UMLS query containing the search term
 - `version:` Optional - defaults to current
-- `timeout`: Optional - maximum time in seconds to wait for the response headers
-  or between reads of the response body, for each page. Defaults to 30.
+- `timeout`: Optional - maximum time in seconds to wait for the response headers or between reads of the response body, for each page.
+  Defaults to 30.
 
 ####Output
 
@@ -214,8 +213,7 @@ function search_umls(tgt, query; version::String = "current", timeout = 30)
     page = 0
     content_endpoint = "/rest/search/current"
 
-    #each page of results is appended to the output list
-    #where each entry is a dictionary containing that pages's results
+    #each page of results is appended to the output list where each entry is a dictionary containing that pages's results
     # e.g
     # Dict{AbstractString,Any} with 3 entries:
     #   "pageSize"   => 25
@@ -270,8 +268,7 @@ end
 """
     get_cui(tgt,cui)
 
-Retrieve information (name, semantic types, number of atoms, etc) for a known CUI
-from latest UMLS version or a specific release.
+Retrieve information (name, semantic types, number of atoms, etc) for a known CUI from latest UMLS version or a specific release.
 
 Returns UTS json response
 

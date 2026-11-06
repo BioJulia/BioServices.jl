@@ -9,8 +9,8 @@
 """
 EBI Proteins module.
 
-The `EBIProteins` module provides a programming interface to the Uniprot
-databases at EMBL-EBI. Ten functions are exported from this module:
+The `EBIProteins` module provides a programming interface to the Uniprot databases at EMBL-EBI.
+Ten functions are exported from this module:
 1. `proteins`: protein sequences
 2. `features`: functional annotations
 3. `variation`: variation data
@@ -22,12 +22,10 @@ databases at EMBL-EBI. Ten functions are exported from this module:
 9. `coordinates`: genomic coordinates
 10. `uniparc` : non-redundant protein sequences
 
-See "EMBL-EBI Proteins API"
-(https://www.ebi.ac.uk/proteins/api/doc/) for more details. The implemented
-APIs are based on the document as of March 24, 2021.
+See "EMBL-EBI Proteins API" (https://www.ebi.ac.uk/proteins/api/doc/) for more details.
+The implemented APIs are based on the document as of March 24, 2021.
 
-Note: size = -1 allows all results to be streamed; this is not currently
-implemented.
+Note: size = -1 allows all results to be streamed; this is not currently implemented.
 """
 module EBIProteins
 
@@ -59,8 +57,8 @@ const baseURL = "https://www.ebi.ac.uk/proteins/api/"
 
 Retrieve protein data.
 
-Calls the endpoint specified by "<operation>/<accession>/<subset>". If any argument is
-unset it will be excluded.
+Calls the endpoint specified by "<operation>/<accession>/<subset>".
+If any argument is unset it will be excluded.
 
 If `dbtype` and `dbid` are set, calls the endpoint "<dbtype>:<dbid>".
 
@@ -70,8 +68,7 @@ Key Parameters: contenttype, operation, accession, subset, dbtype, dbid
 
 `contenttype` may be "text/x-fasta", "text/x-flatfile", "application/json", "application/xml"
 
-Query Parameters: offset, size, reviewed, isoform, goterms, keywords, ec, gene, exact_gene,
-protein, organism, taxid, pubmed, seqLength, md5
+Query Parameters: offset, size, reviewed, isoform, goterms, keywords, ec, gene, exact_gene, protein, organism, taxid, pubmed, seqLength, md5
 
 """
 function ebiproteins(;
@@ -110,15 +107,13 @@ Calls the endpoint at "<accession>".
 
 If `type` is set, calls the endpoint "type/<type>".
 
-If any query parameters other than `categories` or `types` are provided,
-or `accession` is not set, calls the base endpoint.
+If any query parameters other than `categories` or `types` are provided, or `accession` is not set, calls the base endpoint.
 
 Key Parameters: contenttype, type, accession
 
 `contenttype` may be "text/x-gff", "application/json", "application/xml"
 
-Query Parameters: offset, size, reviewed, gene, exact_gene, protein,
-organism, taxid, categories, types, terms
+Query Parameters: offset, size, reviewed, gene, exact_gene, protein, organism, taxid, categories, types, terms
 """
 function ebifeatures(; contenttype = nothing, accession = nothing, type = nothing, params...)
     params = process_parameters(params)
@@ -152,16 +147,13 @@ If `dbid` is set, calls the endpoint "dbsnp/<dbid>".
 
 If `hgvs` is set, calls the endpoint "hgvs/<hgvs>".
 
-If any query parameters other than `sourcetype`, `consequencetype`,
-`wildtype`, `alternativesequence`, or `location` are provided,
-or `accession` is not set, calls the base endpoint.
+If any query parameters other than `sourcetype`, `consequencetype`, `wildtype`, `alternativesequence`, or `location` are provided, or `accession` is not set, calls the base endpoint.
 
 Key Parameters: contenttype, accession, dbid, hgvs
 
 `contenttype` may be "text/x-gff", "text/x-peff", "application/json", "application/xml"
 
-Query Parameters: offset, size, sourcetype, consequencetype, wildtype,
-alternativesequence, location, disease, omim, evidence, taxid, dbtype, dbid
+Query Parameters: offset, size, sourcetype, consequencetype, wildtype, alternativesequence, location, disease, omim, evidence, taxid, dbtype, dbid
 """
 function ebivariation(; contenttype = nothing, accession = nothing, dbid = nothing, hgvs = nothing, params...)
     params = process_parameters(params)
@@ -243,7 +235,8 @@ end
 
 Retrieve proteome data.
 
-Calls the endpoint at "<operation>/<upid>". If any argument is unset it will be excluded.
+Calls the endpoint at "<operation>/<upid>".
+If any argument is unset it will be excluded.
 
 If any other query parameters are set or `upid` is not set, calls the base endpoint.
 
@@ -251,8 +244,7 @@ Key Parameters: contenttype, upid, reviewed
 
 `contenttype` may be "application/json", "application/xml"
 
-Query Parameters: offset, size, upid, name, taxid, keyword, xref, genome_acc,
-is_ref_proteome, is_redundant, reviewed
+Query Parameters: offset, size, upid, name, taxid, keyword, xref, genome_acc, is_ref_proteome, is_redundant, reviewed
 """
 function ebiproteomes(; contenttype = nothing, operation = nothing, upid = nothing, params...)
     params = process_parameters(params)
@@ -303,11 +295,11 @@ end
 
 Retrieve taxonomy data.
 
-Calls the endpoint at "<operation>/<ids>/<subset>". If `getnode` is true, calls the endpoint
-at "<operation>/<ids>/<subset>/node". If any argument is unset it will be excluded.
+Calls the endpoint at "<operation>/<ids>/<subset>".
+If `getnode` is true, calls the endpoint at "<operation>/<ids>/<subset>/node".
+If any argument is unset it will be excluded.
 
-If `operation` is "path" or "relationship", calls those respective endpoints: "path", "path/nodes",
-"relationship".
+If `operation` is "path" or "relationship", calls those respective endpoints: "path", "path/nodes", "relationship".
 
 Key Parameters: contenttype, operation, ids, subset
 
@@ -350,13 +342,13 @@ end
 
 Retrieve coordinates data.
 
-If `accession` is set, calls the endpoint at "<accession>". If a position is also provided,
-calls the endpoint at either "location/<accession>:<pPosition>" or "location/<accession>:<pStart>-<pEnd>".
+If `accession` is set, calls the endpoint at "<accession>".
+If a position is also provided, calls the endpoint at either "location/<accession>:<pPosition>" or "location/<accession>:<pStart>-<pEnd>".
 
 If `dbtype` and `dbid` are provided, calls the endpoint at "<dbtype>:<dbid>".
 
-If `taxonomy` and `locations` are provided, calls the endpoint at "<taxonomy>/<locations>". If `getfeature`
-is true, access the endpoint at "<taxonomy>/<locations>/feature".
+If `taxonomy` and `locations` are provided, calls the endpoint at "<taxonomy>/<locations>".
+If `getfeature` is true, access the endpoint at "<taxonomy>/<locations>/feature".
 
 If any query parameters not approptiate to the specific endpoint are set, calls the base endpoint.
 
@@ -409,22 +401,19 @@ end
 
 Retrieve proteomics data.
 
-Calls the endpoint at "accession/<accession>", "dbreference/<dbid>", "uniparc/upi/<upi>",
-or "sequence", depending on provided values.
+Calls the endpoint at "accession/<accession>", "dbreference/<dbid>", "uniparc/upi/<upi>", or "sequence", depending on provided values.
 
 If `bestguess` is true, calls the endpoint at "bestguess".
 
 If any excess query parameters are set for the specific endpoint, calls the base endpoint.
 
-Key Parameters: contenttype, accession, upid, upi, dbid, sequence, sequencecontenttype,
-bestguess
+Key Parameters: contenttype, accession, upid, upi, dbid, sequence, sequencecontenttype, bestguess
 
 `contenttype` may be "text/x-fasta", "application/json", "application/xml"
 
 `sequencecontenttype` may be "text/plain" (default), "application/json", "application/xml", if set
 
-Query Parameters: offset, size, dbtype, gene, protein, taxid, organism, sequencechecksum,
-ipr, signaturetype, signatureid, seqLength, rdDdtype, rfDbid, rfActive, rfTaxId
+Query Parameters: offset, size, dbtype, gene, protein, taxid, organism, sequencechecksum, ipr, signaturetype, signatureid, seqLength, rdDdtype, rfDbid, rfActive, rfTaxId
 """
 function ebiuniparc(;
         contenttype = nothing, accession = nothing, dbid = nothing, upid = nothing,

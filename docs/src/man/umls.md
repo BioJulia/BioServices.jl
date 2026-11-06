@@ -4,7 +4,8 @@ CurrentModule = BioServices.UMLS
 
 # UMLS
 
-The Unified Medical Language System (UMLS) brings together many health and biomedical vocabularies and standards to enable interoperability between biomedical information systems and services. The [UMLS Quick Start Guide](https://www.nlm.nih.gov/research/umls/quickstart.html) provides an overview of the software, tools and services associated with the UMLS.
+The Unified Medical Language System (UMLS) brings together many health and biomedical vocabularies and standards to enable interoperability between biomedical information systems and services.
+The [UMLS Quick Start Guide](https://www.nlm.nih.gov/research/umls/quickstart.html) provides an overview of the software, tools and services associated with the UMLS.
 
 `BioServices.UMLS` is a Julia module that interfaces with the [UMLS REST API](https://documentation.uts.nlm.nih.gov/rest/home.html) to query the UMLS data programmatically.
 
@@ -23,7 +24,8 @@ The Unified Medical Language System (UMLS) brings together many health and biome
 
 For a  complete list of the endpoints available through the UMLS REST API visit the [UMLS REST API Documentation](https://documentation.uts.nlm.nih.gov/rest/home.html).
 
-This module focuses on the following three endpoints. (Requests to expand API are encouraged through pull requests or issues in out GitHub repository.)
+This module focuses on the following three endpoints.
+(Requests to expand API are encouraged through pull requests or issues in out GitHub repository.)
 
 | EndPoint                                  | Description                   | 
 | :-------                                  | :----------                   |
@@ -33,7 +35,8 @@ This module focuses on the following three endpoints. (Requests to expand API ar
 
 ## Exported Functions
 
-The following functions access the above enpoints. See the [method documentation](#Methods-1) for specific usage.
+The following functions access the above enpoints.
+See the [method documentation](#Methods-1) for specific usage.
 
 | Function                                | Description                   | 
 | :-------                                | :----------                   |
@@ -45,7 +48,10 @@ The following functions access the above enpoints. See the [method documentation
 
 ## Sample workflow
 
-Service tickets are needed each time you search or retrieve content from the UMLS REST API. A service ticket is retrieved automatically by this software from a **ticket granting ticket**. Thus, the first step of your workflow must start by requesting a **ticket granting ticket** using your credentials. There are two ways you can do this:
+Service tickets are needed each time you search or retrieve content from the UMLS REST API.
+A service ticket is retrieved automatically by this software from a **ticket granting ticket**.
+Thus, the first step of your workflow must start by requesting a **ticket granting ticket** using your credentials.
+There are two ways you can do this:
 
 **1. Use username and password**
 ```julia
@@ -60,7 +66,9 @@ Service tickets are needed each time you search or retrieve content from the UML
     tgt = get_tgt(apikey=apikey)
 ```
 
-According to the UMLS documentation, **ticket granting tickets** are valid for 8 hours, therefore we locally store the ticket in a file and reuse it as long as it has not expired. If you get errors, you can force the `get_tgt` function to get a new ticket. For instance:
+According to the UMLS documentation, **ticket granting tickets** are valid for 8 hours, therefore we locally store the ticket in a file and reuse it as long as it has not expired.
+If you get errors, you can force the `get_tgt` function to get a new ticket.
+For instance:
 
 ```julia
    tgt = get_tgt(force_new=true, apikey=apikey)
@@ -78,13 +86,20 @@ After authentication, you can query the <abbr title="Concept Unique Identifier">
 
 **Options for searchType**
 
-* Word: breaks a search term into its component parts, or words, and retrieves all concepts containing any of those words. For example: If you enter "Heart Disease, Acute" a Word search will retrieve all concepts containing any of the three words (heart, or disease, or acute). Word is the default Search Type selection and is appropriate for both English and non-English search terms.
-* Approximate Match: applies lexical variant generation (LVG) rules to the search term and generally results in expanded retrieval of concepts. For example, a search for the term "cold" retrieves all concepts that contain any of the following words: COLDs, chronic obstructive lung disease, chronic obstructive lung diseases, cold, colder, coldest.
+* Word: breaks a search term into its component parts, or words, and retrieves all concepts containing any of those words.
+  For example: If you enter "Heart Disease, Acute" a Word search will retrieve all concepts containing any of the three words (heart, or disease, or acute).
+  Word is the default Search Type selection and is appropriate for both English and non-English search terms.
+* Approximate Match: applies lexical variant generation (LVG) rules to the search term and generally results in expanded retrieval of concepts.
+  For example, a search for the term "cold" retrieves all concepts that contain any of the following words: COLDs, chronic obstructive lung disease, chronic obstructive lung diseases, cold, colder, coldest.
 * Exact Match: retrieves only concepts that include a synonym that exactly matches the search term.
-* Normalized String: use with English language terms only. Removes lexical variations such as plural and upper case text and compares search terms to the Metathesaurus normalized string index to retrieve relevant concepts.
-* Normalized Word: use with English language terms only. Removes lexical variations such as plural and upper case text, and compares search terms to the Metathesaurus normalized word index to retrieve relevant concepts.
-* Right Truncation: retrieves concepts with synonyms that begin with the letters of the search term. For example, a right truncation search for "bronch" retrieves concepts that contain synonyms such as bronchitis, bronchiole, bronchial artery.
-* Left Truncation: retrieves concepts with synonyms that end with the letters of the search term. For example, a left truncation search for "itis" retrieves concepts that contain synonyms such as colitis, bronchitis, pancreatitis.
+* Normalized String: use with English language terms only.
+  Removes lexical variations such as plural and upper case text and compares search terms to the Metathesaurus normalized string index to retrieve relevant concepts.
+* Normalized Word: use with English language terms only.
+  Removes lexical variations such as plural and upper case text, and compares search terms to the Metathesaurus normalized word index to retrieve relevant concepts.
+* Right Truncation: retrieves concepts with synonyms that begin with the letters of the search term.
+  For example, a right truncation search for "bronch" retrieves concepts that contain synonyms such as bronchitis, bronchiole, bronchial artery.
+* Left Truncation: retrieves concepts with synonyms that end with the letters of the search term.
+  For example, a left truncation search for "itis" retrieves concepts that contain synonyms such as colitis, bronchitis, pancreatitis.
 
 ## Methods
 

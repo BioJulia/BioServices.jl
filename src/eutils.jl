@@ -9,8 +9,8 @@
 """
 Entrez Programming Utilities (or E-Utilities) module.
 
-The `EUtils` module provides a programming interface to the Entrez databases at
-NCBI. Nine functions are exported from this module:
+The `EUtils` module provides a programming interface to the Entrez databases at NCBI.
+Nine functions are exported from this module:
 1. `einfo`: database statistics
 2. `esearch`: text search
 3. `epost`: UID upload
@@ -21,13 +21,9 @@ NCBI. Nine functions are exported from this module:
 8. `espell`: spelling suggestion
 9. `ecitmatch`: batch citation searching in PubMed
 
-See "Entrez Programming Utilities Help"
-(https://www.ncbi.nlm.nih.gov/books/NBK25501/) for more details. Especially,
-["E-utilities Quick Start"](https://www.ncbi.nlm.nih.gov/books/NBK25500/) is a
-good starting point and ["A General Introduction to the
-E-utilities"](https://www.ncbi.nlm.nih.gov/books/NBK25497/) will serve useful
-information about its concepts and functions. The implemented APIs are based on
-the manual on January 23, 2015.
+See "Entrez Programming Utilities Help" (https://www.ncbi.nlm.nih.gov/books/NBK25501/) for more details.
+Especially, ["E-utilities Quick Start"](https://www.ncbi.nlm.nih.gov/books/NBK25500/) is a good starting point and ["A General Introduction to the E-utilities"](https://www.ncbi.nlm.nih.gov/books/NBK25497/) will serve useful information about its concepts and functions.
+The implemented APIs are based on the manual on January 23, 2015.
 """
 module EUtils
 
@@ -71,8 +67,7 @@ end
 
 Retrieve a list of UIDs matching a text query.
 
-Parameters: db, term, usehistory, WebEnv, query_key, retstart, retmax, rettype,
-retmode, sort, field, datetype, reldate, mindate, maxdate.
+Parameters: db, term, usehistory, WebEnv, query_key, retstart, retmax, rettype, retmode, sort, field, datetype, reldate, mindate, maxdate.
 """
 function esearch(ctx::AbstractDict = empty_context(); params...)
     params = process_parameters(params, ctx)
@@ -118,8 +113,7 @@ end
 
 Retrieve formatted data records for a list of UIDs.
 
-Parameters: db, id, query_key, WebEnv, retmode, rettype, retstart, retmax,
-strand, seq_start, seq_stop, complexity.
+Parameters: db, id, query_key, WebEnv, retmode, rettype, retstart, retmax, strand, seq_start, seq_stop, complexity.
 """
 function efetch(ctx::AbstractDict = empty_context(); params...)
     params = process_parameters(params, ctx)
@@ -132,8 +126,7 @@ end
 
 Retrieve UIDs linked to an input set of UIDs.
 
-Parameters: db, dbfrom, cmd, id, query_key, WebEnv, linkname, term, holding,
-datetype, reldate, mindate, maxdate.
+Parameters: db, dbfrom, cmd, id, query_key, WebEnv, linkname, term, holding, datetype, reldate, mindate, maxdate.
 """
 function elink(ctx::AbstractDict = empty_context(); params...)
     params = process_parameters(params, ctx)

@@ -4,7 +4,8 @@ CurrentModule=BioServices.GGGenome
 
 # GGGenome
 
-GGGenome is a ultrafast DNA sequence search service hosted by Database Center for Life Science (DBCLS). See [GGGenome Help](https://gggenome.dbcls.jp/en/help.html) for more details.
+GGGenome is a ultrafast DNA sequence search service hosted by Database Center for Life Science (DBCLS).
+See [GGGenome Help](https://gggenome.dbcls.jp/en/help.html) for more details.
 
 `BioServices.GGGenome` is a Julia module interfaces with the [GGGenome REST API](https://gggenome.dbcls.jp) to query a DNA sequence to various databases programmatically.
 
@@ -102,7 +103,8 @@ NR_003287.4 Homo sapiens RNA, 28S ribosomal N5 (RNA28SN5), ribosomal RNA        
 ...
 ```
 
-By setting `output="extractTopHit"`, `gggsearch()` returns a `String` object containing the top hit. Currently, this only works with `format="txt"`.
+By setting `output="extractTopHit"`, `gggsearch()` returns a `String` object containing the top hit.
+Currently, this only works with `format="txt"`.
 
 ```julia
 julia> query = "GTGCGGTAACGCGACCGATCCCGGAGAAGCCGGCGGGA";

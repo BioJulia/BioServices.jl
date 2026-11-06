@@ -4,7 +4,8 @@ CurrentModule = BioServices
 
 # EUtils
 
-EUtils provide a interface to Entrez databases at [NCBI](https://www.ncbi.nlm.nih.gov/).  The APIs are defined in the `BioServices.EUtils` module, which exports nine functions to access its databases:
+EUtils provide a interface to Entrez databases at [NCBI](https://www.ncbi.nlm.nih.gov/).
+The APIs are defined in the `BioServices.EUtils` module, which exports nine functions to access its databases:
 
 | Function    | Description                                                                |
 | :-------    | :----------                                                                |
@@ -18,14 +19,11 @@ EUtils provide a interface to Entrez databases at [NCBI](https://www.ncbi.nlm.ni
 | `espell`    | Retrieve spelling suggestions.                                             |
 | `ecitmatch` | Retrieve PubMed IDs that correspond to a set of input citation strings.    |
 
-["The Nine E-Utilities in
-Brief"](https://www.ncbi.nlm.nih.gov/books/NBK25497/#_chapter2_The_Nine_Eutilities_in_Brief_)
-summarizes all of the server-side programs corresponding to each function.
+["The Nine E-Utilities in Brief"](https://www.ncbi.nlm.nih.gov/books/NBK25497/#_chapter2_The_Nine_Eutilities_in_Brief_) summarizes all of the server-side programs corresponding to each function.
 
-In this package, queries for databases are controlled by keyword parameters. For
-example, some functions take `db` parameter to specify the target database.
-Functions listed above take these parameters as keyword arguments and return
-a `Response` object as follows:
+In this package, queries for databases are controlled by keyword parameters.
+For example, some functions take `db` parameter to specify the target database.
+Functions listed above take these parameters as keyword arguments and return a `Response` object as follows:
 ```jlcon
 julia> using BioServices.EUtils       # import the nine functions above
 
@@ -49,21 +47,15 @@ shell> head pubmed.xml
 
 ```
 
-Let's see a few more examples of parameters.  The `term` parameter specifies a
-search string (e.g. `esearch(db="gene", term="tumor AND human[ORGN]")`).  The
-`id` parameter specifies a UID (or accession number) or a list of UIDs (e.g.
-`efetch(db="protein", id="NP_000537.3", rettype="fasta")`, `efetch(db="snp",
-id=["rs55863639", "rs587780067"])`). The complete list of parameters can be
-found at ["The E-utilities In-Depth: Parameters, Syntax and
-More"](https://www.ncbi.nlm.nih.gov/books/NBK25499/).
+Let's see a few more examples of parameters.
+The `term` parameter specifies a search string (e.g. `esearch(db="gene", term="tumor AND human[ORGN]")`).
+The `id` parameter specifies a UID (or accession number) or a list of UIDs (e.g. `efetch(db="protein", id="NP_000537.3", rettype="fasta")`, `efetch(db="snp", id=["rs55863639", "rs587780067"])`).
+The complete list of parameters can be found at ["The E-utilities In-Depth: Parameters, Syntax and More"](https://www.ncbi.nlm.nih.gov/books/NBK25499/).
 
-When a request succeeds the response object has a `body` field containing
-formatted data, which can be saved to a file as demonstrated above. However,
-users are often interested in a part of the response data and may want to
-extract some fields in it. In such a case,
-[EzXML.jl](https://github.com/bicycle1885/EzXML.jl) is helpful because it offers
-lots of tools to handle XML documents. The first thing you need to do is
-converting the response data into an XML document by `parsexml`:
+When a request succeeds the response object has a `body` field containing formatted data, which can be saved to a file as demonstrated above.
+However, users are often interested in a part of the response data and may want to extract some fields in it.
+In such a case, [EzXML.jl](https://github.com/bicycle1885/EzXML.jl) is helpful because it offers lots of tools to handle XML documents.
+The first thing you need to do is converting the response data into an XML document by `parsexml`:
 ```jlcon
 julia> res = efetch(db="nuccore", id="NM_001126.3", retmode="xml")
 Response(200 OK, 19 headers, 41536 bytes in body)
@@ -75,7 +67,8 @@ EzXML.Document(EzXML.Node(<DOCUMENT_NODE@0x00007fdd4cc43770>))
 
 ```
 
-Note that because `res` is an HTTP Response Message, its content can be read at most once. Running `res.body` again will reveal an empty Array.
+Note that because `res` is an HTTP Response Message, its content can be read at most once.
+Running `res.body` again will reveal an empty Array.
 
 After that, you can query fields you want using [XPath](https://en.wikipedia.org/wiki/XPath):
 ```jlcon
@@ -99,16 +92,12 @@ ACGGGAGTGGCGCGCCAGGCCGCGGAAGGGGCGTGGCCT…TGATTAAAAGAACCAAATATTTCTAGTATGAAAAAAAA
 
 ```
 
-Every function can take a context dictionary as its first argument to set
-parameters for a query. Key-value pairs in a context are appended to the query in
-addition to other parameters passed by keyword arguments. The default context
-is an empty dictionary that sets no parameters. This context dictionary is
-especially useful when temporarily caching query UIDs into the Entrez History
-server. A request to the Entrez system can be associated with cached data using
-`WebEnv` and `query_key` parameters. In the following example, the search
-results of `esearch` is saved in the Entrez History server (note
-`usehistory=true`, which makes the server cache its search results) and then
-their summaries are retrieved in the next call of `esummary`:
+Every function can take a context dictionary as its first argument to set parameters for a query.
+Key-value pairs in a context are appended to the query in addition to other parameters passed by keyword arguments.
+The default context is an empty dictionary that sets no parameters.
+This context dictionary is especially useful when temporarily caching query UIDs into the Entrez History server.
+A request to the Entrez system can be associated with cached data using `WebEnv` and `query_key` parameters.
+In the following example, the search results of `esearch` is saved in the Entrez History server (note `usehistory=true`, which makes the server cache its search results) and then their summaries are retrieved in the next call of `esummary`:
 ```jlcon
 julia> context = Dict()  # create an empty context
 Dict{Any,Any} with 0 entries
@@ -143,7 +132,8 @@ shell> head asthma_leukotrienes_2009.xml
 
 ## XMLDict and LightXML
 
-Along with `EZXml` there are also other packages for parsing XML objects. The HTTP object returned by the `BioServices.EUtils` module is compatible with all of them.
+Along with `EZXml` there are also other packages for parsing XML objects.
+The HTTP object returned by the `BioServices.EUtils` module is compatible with all of them.
 
 ```jlcon
 julia> res = efetch(db="nuccore", id="NM_001126.3", retmode="xml")
