@@ -8,6 +8,7 @@ using XMLDict
 using Test
 
 all_tests = [
+    ("common.jl", "      Testing: URLs"),
     ("eutils.jl", "      Testing: EUtils"),
     ("umls.jl", "      Testing: UMLS"),
     ("gggenome.jl", "      Testing: GGGenome"),
