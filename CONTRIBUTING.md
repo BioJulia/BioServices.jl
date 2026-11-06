@@ -540,6 +540,10 @@ this, may offer to take on this [responsibility](#biojulia-administrators).
   # This file is a part of BioJulia. License is MIT: <link to the license file>
   ```
 
+- Format Julia code with [Runic](https://github.com/fredrikekre/Runic.jl), which CI checks on every pull request.
+  Install it once with `julia --project=@runic -e 'using Pkg; Pkg.add("Runic")'`.
+  Then, before committing, run `julia --project=@runic -e 'using Runic; exit(Runic.main(ARGS))' -- --inplace .`.
+
 - Indent with 4 spaces.
 
 - For functions that are not a single expression, it is preferred to use an explicit `return`.

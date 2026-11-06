@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [UNRELEASED]
 ### Changes
+- The Julia code is formatted with Runic, and CI checks the formatting of every pull request.
+- Text files are stored with LF line endings.
 - HTTP.jl 2.4 or later and Julia 1.10 or later are required.
 - Retries are those of HTTP.jl: 408, 429, 500, 502, 503, and 504 responses are retried, honoring `Retry-After`; other HTTP errors are thrown immediately.
 - The `timeout` keyword of `gggsearch` and `search_umls` limits the time between reads, including the wait for the response headers of each request. The default is 30 seconds for both.
