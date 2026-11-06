@@ -1,5 +1,3 @@
-
-
 @testset "UMLS" begin
     user = ""
     psswd = ""
@@ -15,16 +13,16 @@
 
     if (user != "") && (psswd != "") && (apikey != "")
         term = "obesity"
-        query = Dict("string"=>term, "searchType"=>"exact" )
+        query = Dict("string" => term, "searchType" => "exact")
 
-        tgt = get_tgt(force_new=true, username=user, password=psswd)
+        tgt = get_tgt(force_new = true, username = user, password = psswd)
         #do it again to test reading from file
-        tgt = get_tgt(username=user, password=psswd)
+        tgt = get_tgt(username = user, password = psswd)
         #test apikey
-        tgt = get_tgt(force_new=true, apikey=apikey)
+        tgt = get_tgt(force_new = true, apikey = apikey)
 
         @testset "Testing Search/Content/CUI" begin
-            all_results= search_umls(tgt, query)
+            all_results = search_umls(tgt, query)
             @test length(all_results[1]["result"]["results"]) == 2
             cui = best_match_cui(all_results)
             @test cui == "C0028754"

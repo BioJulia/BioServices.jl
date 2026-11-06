@@ -9,8 +9,7 @@
 """
 GGGenome module.
 
-The `GGGenome` module provides a programming interface to GGGenome, 
-an ultrafast DNA sequence search service, hosted by DBCLS.
+The `GGGenome` module provides a programming interface to GGGenome, an ultrafast DNA sequence search service, hosted by DBCLS.
 Two functions are exported from this module:
 1. `gggenome`: DNA sequence search
 2. `gggenome_dblist`: List of available databases
@@ -45,21 +44,25 @@ Retrieve results of gggenome search of a query sequence.
 - `query::String`: Nucleotide sequence, case insensitive.
 
 ## Optional
-- `db::String`: Target database name. hg19 if not specified. Full list of databases: https://gggenome.dbcls.jp/en/help.html#db_list
-- `k::Integer`: Maximum number of mismatches/gaps. 0 if not specified.
+- `db::String`: Target database name.
+  hg19 if not specified.
+  Full list of databases: https://gggenome.dbcls.jp/en/help.html#db_list
+- `k::Integer`: Maximum number of mismatches/gaps.
+  0 if not specified.
 - `strand::String`: '+' ('plus') or '-' ('minus') to search specified strand only.
 - `format::String`: [html|txt|csv|bed|gff|json]. html if not specified.
-- `timeout::Real`: Maximum time in seconds to wait for the response headers or
-  between reads of the response body. 30 if not specified.
-- `output::String`: If "toString", a `String` object is returned. If
-  "extractTopHit", a `String` object containing only top hit is returned
-  (Currently, only works with format="txt"). Otherwise, a
-  `HTTP.Response` object is returned.
+- `timeout::Real`: Maximum time in seconds to wait for the response headers or between reads of the response body.
+  30 if not specified.
+- `output::String`: If "toString", a `String` object is returned.
+  If "extractTopHit", a `String` object containing only top hit is returned (Currently, only works with format="txt").
+  Otherwise, a `HTTP.Response` object is returned.
 - `show_url::Bool`: If true, print URL of REST API.
 """
-function gggsearch(query::AbstractString; 
-                    db::AbstractString="hg19", k::Integer=0, strand=nothing, format::AbstractString="html", 
-                    timeout::Real=30, output=nothing, show_url::Bool=false)
+function gggsearch(
+        query::AbstractString;
+        db::AbstractString = "hg19", k::Integer = 0, strand = nothing, format::AbstractString = "html",
+        timeout::Real = 30, output = nothing, show_url::Bool = false
+    )
     # Check parameters
     if !checkQuery(query)
         throw(ArgumentError("`query` must be consisted of [A|C|G|T|U|N|R|Y|K|M|S|W|B|D|H|V]"))
@@ -90,7 +93,7 @@ function gggsearch(query::AbstractString;
     end
 
     # Request
-    res = HTTP.request("GET", url, read_idle_timeout=timeout)
+    res = HTTP.request("GET", url, read_idle_timeout = timeout)
 
     # Output
     if output isa AbstractString

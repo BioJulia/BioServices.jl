@@ -8,11 +8,11 @@ using XMLDict
 using Test
 
 all_tests = [
-    ("eutils.jl",      "      Testing: EUtils"),
-    ("umls.jl",        "      Testing: UMLS"),
-    ("gggenome.jl",    "      Testing: GGGenome"),
-    ("ebiproteins.jl", "      Testing: EBIProteins")
-    ]
+    ("eutils.jl", "      Testing: EUtils"),
+    ("umls.jl", "      Testing: UMLS"),
+    ("gggenome.jl", "      Testing: GGGenome"),
+    ("ebiproteins.jl", "      Testing: EBIProteins"),
+]
 
 println("Running tests:")
 

@@ -1,4 +1,3 @@
-
 @testset "EBIProteins" begin
 
     # A repeated XML element parses to a Vector, a single one to the element itself
@@ -6,8 +5,10 @@
 
     @testset "ebiproteins" begin
         @testset "ebiproteins" begin
-            res = ebiproteins(reviewed = true, keywords = "kinase", size = 1, seqLength = 813,
-                              organism = "Oryza sativa subsp. indica", contenttype = "application/xml")
+            res = ebiproteins(
+                reviewed = true, keywords = "kinase", size = 1, seqLength = 813,
+                organism = "Oryza sativa subsp. indica", contenttype = "application/xml"
+            )
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -70,8 +71,10 @@
     @testset "ebifeatures" begin
         @testset "ebifeatures" begin
             types = "domain"
-            res = ebifeatures(reviewed = true, types = types, keywords = "kinase", size = 1, seqLength = 813,
-                              organism = "Oryza sativa subsp. indica", contenttype = "application/xml")
+            res = ebifeatures(
+                reviewed = true, types = types, keywords = "kinase", size = 1, seqLength = 813,
+                organism = "Oryza sativa subsp. indica", contenttype = "application/xml"
+            )
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -142,9 +145,9 @@
             @test haskey(body, "feature")
             @test body["feature"][1][:type] == "Variant"
         end
-        
+
         @testset "ebivariation hgvs" begin
-            res = ebivariation(hgvs = "NC_000017.11:g.58219213C>T", contenttype="application/xml")
+            res = ebivariation(hgvs = "NC_000017.11:g.58219213C>T", contenttype = "application/xml")
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -160,7 +163,7 @@
         end
 
         @testset "ebivariation dbid" begin
-            res = ebivariation(dbid = "rs121918508", contenttype="application/xml")
+            res = ebivariation(dbid = "rs121918508", contenttype = "application/xml")
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -179,8 +182,10 @@
         @testset "ebiproteomics" begin
             accession = "P08069"
             peptide = "ACTENNECCHPECLGSCSAPDNDTACVACR"
-            res = ebiproteomics(accession = accession, peptide = peptide,
-                                contenttype = "application/xml")
+            res = ebiproteomics(
+                accession = accession, peptide = peptide,
+                contenttype = "application/xml"
+            )
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -215,8 +220,10 @@
         @testset "ebiantigen" begin
             accession = "P08069"
             antigen_sequence = "YIVRWQRQPQDGYLYRHNYCSKDKIPIRKYADGTIDIEEVTENPKTEVCGGEKGPCCACPKTEAEKQAEKEEA"
-            res = ebiantigen(accession = accession, antigen_sequence = antigen_sequence,
-                             contenttype = "application/xml")
+            res = ebiantigen(
+                accession = accession, antigen_sequence = antigen_sequence,
+                contenttype = "application/xml"
+            )
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -250,8 +257,10 @@
     @testset "ebiproteomes" begin
         @testset "ebiproteomes" begin
             name = "Caenorhabditis elegans (Bristol N2)"
-            res = ebiproteomes(size = 1, name = name,
-                               contenttype = "application/xml")
+            res = ebiproteomes(
+                size = 1, name = name,
+                contenttype = "application/xml"
+            )
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -276,8 +285,10 @@
 
         @testset "ebiproteomes upid proteins" begin
             upid = "UP000001940"
-            res = ebiproteomes(upid = upid, operation = "proteins", reviewed = true,
-                               contenttype = "application/xml")
+            res = ebiproteomes(
+                upid = upid, operation = "proteins", reviewed = true,
+                contenttype = "application/xml"
+            )
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -363,8 +374,10 @@
 
         @testset "ebitaxonomy id parent node" begin
             ids = "9606"
-            res = ebitaxonomy(operation = "id", ids = ids, subset = "parent", getnode = true,
-                              contenttype = "application/xml")
+            res = ebitaxonomy(
+                operation = "id", ids = ids, subset = "parent", getnode = true,
+                contenttype = "application/xml"
+            )
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -391,8 +404,10 @@
 
         @testset "ebitaxonomy id children node" begin
             ids = "9606"
-            res = ebitaxonomy(operation = "id", ids = ids, subset = "children", getnode = true,
-                              contenttype = "application/xml")
+            res = ebitaxonomy(
+                operation = "id", ids = ids, subset = "children", getnode = true,
+                contenttype = "application/xml"
+            )
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -423,8 +438,10 @@
 
         @testset "ebitaxonomy id siblings node" begin
             ids = "9606"
-            res = ebitaxonomy(operation = "id", ids = ids, subset = "siblings", getnode = true,
-                              contenttype = "application/xml")
+            res = ebitaxonomy(
+                operation = "id", ids = ids, subset = "siblings", getnode = true,
+                contenttype = "application/xml"
+            )
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -469,8 +486,10 @@
 
         @testset "ebitaxonomy name node" begin
             ids = "Homo sapiens"
-            res = ebitaxonomy(operation = "name", ids = ids, getnode = true,
-                              contenttype = "application/xml")
+            res = ebitaxonomy(
+                operation = "name", ids = ids, getnode = true,
+                contenttype = "application/xml"
+            )
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -485,8 +504,10 @@
 
         @testset "ebitaxonomy path" begin
             ids = "9606"
-            res = ebitaxonomy(operation = "path", ids = ids, depth = 2, direction = "BOTTOM",
-                              contenttype = "application/xml")
+            res = ebitaxonomy(
+                operation = "path", ids = ids, depth = 2, direction = "BOTTOM",
+                contenttype = "application/xml"
+            )
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -497,8 +518,10 @@
 
         @testset "ebitaxonomy path node" begin
             ids = "9606"
-            res = ebitaxonomy(operation = "path", ids = ids, depth = 2, direction = "BOTTOM",
-                              getnode = true, contenttype = "application/xml")
+            res = ebitaxonomy(
+                operation = "path", ids = ids, depth = 2, direction = "BOTTOM",
+                getnode = true, contenttype = "application/xml"
+            )
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -515,8 +538,10 @@
         @testset "ebitaxonomy relationship" begin
             from = "9606"
             to = "9615"
-            res = ebitaxonomy(operation = "relationship", from = "9606", to = "9615",
-                              contenttype = "application/xml")
+            res = ebitaxonomy(
+                operation = "relationship", from = "9606", to = "9615",
+                contenttype = "application/xml"
+            )
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -623,8 +648,10 @@
 
         @testset "ebicoordinates taxonomy feature" begin
             locations = "98649582-98649611"
-            res = ebicoordinates(taxonomy = 9606, locations = locations, getfeature = true,
-                                 contenttype = "application/xml")
+            res = ebicoordinates(
+                taxonomy = 9606, locations = locations, getfeature = true,
+                contenttype = "application/xml"
+            )
             @test res.status == 200
             @test startswith(Dict(res.headers)["Content-Type"], "application/xml")
             body = parse_xml(String(res.body))
@@ -648,7 +675,7 @@
             @test haskey(body["entry"], "accession")
             @test body["entry"]["accession"] == "UPI00001AFE16"
         end
-        
+
         @testset "ebiuniparc accession" begin
             accession = "P08069"
             res = ebiuniparc(accession = accession, contenttype = "application/xml")

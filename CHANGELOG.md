@@ -1,15 +1,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [UNRELEASED]
 ### Changes
+- The Julia code is formatted with Runic, and CI checks the formatting of every pull request.
+- Text files are stored with LF line endings.
 - HTTP.jl 2.4 or later and Julia 1.10 or later are required.
 - Retries are those of HTTP.jl: 408, 429, 500, 502, 503, and 504 responses are retried, honoring `Retry-After`; other HTTP errors are thrown immediately.
-- The `timeout` keyword of `gggsearch` and `search_umls` limits the time between reads, including the wait for the response headers of each request. The default is 30 seconds for both.
-- Functions that return the server's response return an HTTP.jl 2 `HTTP.Response`. `HTTP.Messages.Response` no longer exists, `version` is replaced by `proto_major` and `proto_minor`, `status` is an `Int`, and `headers` is an `HTTP.Headers`.
+- The `timeout` keyword of `gggsearch` and `search_umls` limits the time between reads, including the wait for the response headers of each request.
+  The default is 30 seconds for both.
+- Functions that return the server's response return an HTTP.jl 2 `HTTP.Response`.
+  `HTTP.Messages.Response` no longer exists, `version` is replaced by `proto_major` and `proto_minor`, `status` is an `Int`, and `headers` is an `HTTP.Headers`.
 
 # [0.4.0] - 2021-04-17
 ### Changes
@@ -20,9 +23,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.3.2] - 2018-12-13
 ### Changes
-- eutils.jl set `retry_non_idempotent=true` on http requests  
+- eutils.jl set `retry_non_idempotent=true` on http requests
 ### Added
-- Project.toml 
+- Project.toml
 
 ## [0.3.1] - 2018-10-5
 ### Changes
@@ -65,8 +68,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first release of BioServices as in independent module in BioJulia.
   (Transferred from Bio.jl).
-- Interfaces to EUtils (Enztrez Utilities) and UMLS (Unified Medical Language System)
-  APIs.
+- Interfaces to EUtils (Enztrez Utilities) and UMLS (Unified Medical Language System) APIs.
 
 [UNRELEASED]: https://github.com/BioJulia/BioServices.jl/compare/v0.3.2...HEAD
 [0.3.2]: https://github.com/BioJulia/BioServices.jl/compare/v0.3.1...v0.3.2
