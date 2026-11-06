@@ -544,9 +544,16 @@
             @test isa(body, XMLDict.XMLDictElement)
             @test haskey(body, "gnEntry")
             @test isa(body["gnEntry"], XMLDict.XMLDictElement)
-            @test haskey(body["gnEntry"], "accession")
-            @test body["gnEntry"]["accession"] == "G3V2R7"
-            @test haskey(body["gnEntry"], "gnCoordinate")
+            entry = body["gnEntry"]
+            @test haskey(entry, "accession")
+            # The first entry changes as UniProt adds entries for DLK1, so check what they share.
+            @test entry["taxid"] == "9606"
+            @test entry["gene"][""] == "DLK1"
+            @test haskey(entry, "gnCoordinate")
+            coordinate = entry["gnCoordinate"]
+            coordinate = coordinate isa AbstractVector ? first(coordinate) : coordinate
+            @test coordinate[:ensembl_gene_id] == "ENSG00000185559"
+            @test coordinate["genomicLocation"][:chromosome] == "14"
         end
 
         @testset "ebicoordinates accession" begin
