@@ -15,18 +15,18 @@
         term = "obesity"
         query = Dict("string" => term, "searchType" => "exact")
 
-        tgt = get_tgt(force_new = true, username = user, password = psswd)
+        tgt = run(s, get_tgt(force_new = true, username = user, password = psswd))
         #do it again to test reading from file
-        tgt = get_tgt(username = user, password = psswd)
+        tgt = run(s, get_tgt(username = user, password = psswd))
         #test apikey
-        tgt = get_tgt(force_new = true, apikey = apikey)
+        tgt = run(s, get_tgt(force_new = true, apikey = apikey))
 
         @testset "Testing Search/Content/CUI" begin
-            all_results = search_umls(tgt, query)
+            all_results = run(s, search_umls(tgt, query))
             @test length(all_results[1]["result"]["results"]) == 2
             cui = best_match_cui(all_results)
             @test cui == "C0028754"
-            sm = get_semantic_types(tgt, cui)
+            sm = run(s, get_semantic_types(tgt, cui))
             @test sm[1] == "Disease or Syndrome"
         end
     end

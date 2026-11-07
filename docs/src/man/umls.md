@@ -104,12 +104,13 @@ After authentication, you can query the <abbr title="Concept Unique Identifier">
 ## Methods
 
 ```@docs
- get_tgt(; force_new::Bool = false, kwargs...)
+ get_tgt
 ```
 --------------------------------------------------
 
 ```@docs
-search_umls(tgt, query; version::String="current", timeout=1)
+search_umls
+search_pages
 ```
 --------------------------------------------------
 

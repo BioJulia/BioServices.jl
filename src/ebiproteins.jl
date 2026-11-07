@@ -43,7 +43,7 @@ export
 
 import XMLDict
 import JSON
-import BioServices: request, url, escapeuri
+using ..Sessions: Request, EBIProteinsAPI, escapeuri
 
 const baseURL = "https://www.ebi.ac.uk/proteins/api/"
 
@@ -94,7 +94,7 @@ function ebiproteins(;
         params[:accession] = string(accession)
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", url(path; query = params), header)
+    return Request{EBIProteinsAPI}("GET", path; headers = header, query = params)
 end
 
 """
@@ -132,7 +132,7 @@ function ebifeatures(; contenttype = nothing, accession = nothing, type = nothin
             throw(ArgumentError("Must set at least one of `gene`, `exact_gene`, `protein`, `organism`, or `taxid`."))
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", url(path; query = params), header)
+    return Request{EBIProteinsAPI}("GET", path; headers = header, query = params)
 end
 
 """
@@ -170,7 +170,7 @@ function ebivariation(; contenttype = nothing, accession = nothing, dbid = nothi
         params[:accession] = string(accession)
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", url(path; query = params), header)
+    return Request{EBIProteinsAPI}("GET", path; headers = header, query = params)
 end
 
 """
@@ -198,7 +198,7 @@ function ebiproteomics(; contenttype = nothing, accession = nothing, params...)
         params[:accession] = string(accession)
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", url(path; query = params), header)
+    return Request{EBIProteinsAPI}("GET", path; headers = header, query = params)
 end
 
 """
@@ -226,7 +226,7 @@ function ebiantigen(; contenttype = nothing, accession = nothing, params...)
         params[:accession] = string(accession)
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", url(path; query = params), header)
+    return Request{EBIProteinsAPI}("GET", path; headers = header, query = params)
 end
 
 """
@@ -258,7 +258,7 @@ function ebiproteomes(; contenttype = nothing, operation = nothing, upid = nothi
         params[:upid] = string(upid)
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", url(path; query = params), header)
+    return Request{EBIProteinsAPI}("GET", path; headers = header, query = params)
 end
 
 """
@@ -286,7 +286,7 @@ function ebigenecentric(; contenttype = nothing, accession = nothing, params...)
         params[:accession] = string(accession)
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", url(path; query = params), header)
+    return Request{EBIProteinsAPI}("GET", path; headers = header, query = params)
 end
 
 """
@@ -333,7 +333,7 @@ function ebitaxonomy(;
         end
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", url(path; query = params), header)
+    return Request{EBIProteinsAPI}("GET", path; headers = header, query = params)
 end
 
 """
@@ -392,7 +392,7 @@ function ebicoordinates(;
         params[:accession] = string(accession)
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", url(path; query = params), header)
+    return Request{EBIProteinsAPI}("GET", path; headers = header, query = params)
 end
 
 """
@@ -425,7 +425,7 @@ function ebiuniparc(;
         path *= "/sequence"
         header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype, "Content-Type" => sequencecontenttype]
         body = escapeuri(sequence)
-        return request("POST", url(path; query = params), header; body = body, retry_non_idempotent = true)
+        return Request{EBIProteinsAPI}("POST", path; headers = header, query = params, body = body)
     elseif !isnothing(accession) && isempty(filter(kv -> first(kv) ∉ [:rfDdtype, :rfDbid, :rfActive, :rfTaxId], params))
         path *= "/accession/" * escapeuri(accession)
     elseif !isnothing(upid) && isempty(filter(kv -> first(kv) ∉ [:offset, :size, :rfDdtype, :rfDbid, :rfActive, :rfTaxId], params))
@@ -443,7 +443,7 @@ function ebiuniparc(;
         isnothing(upi) || (params[:upi] = string(upi))
     end
     header = isnothing(contenttype) ? Pair{String, String}[] : ["Accept" => contenttype]
-    return request("GET", url(path; query = params), header)
+    return Request{EBIProteinsAPI}("GET", path; headers = header, query = params)
 end
 
 # Process query parameters.

@@ -20,20 +20,27 @@ The following functions are exported from this module:
 5. `get_semantic_types`: Get UMLS semantic type
 
 See "UMLS REST API Home Page" (https://documentation.uts.nlm.nih.gov/rest/home.html) for more details.
+
+Each function returns a request, or a workflow of requests, which a session runs:
+
+    using BioServices.Sessions, BioServices.UMLS, Downloads
+    s = Session(DownloadsClient(), UMLSAPI(apikey = ENV["UMLS_APIKEY"]))
+    tgt = run(s, get_tgt())
+    run(s, get_semantic_types(tgt, "C0028754"))
 """
 module UMLS
 
 export get_tgt,
     search_umls,
+    search_pages,
     best_match_cui,
     get_cui,
     get_semantic_types
 
 using Gumbo
-import HTTP
-import BioServices: request, url, form
 import JSON
 using Dates
+using ..Sessions: Request, Workflow, UMLSAPI, configuration, escapeuri, form, text, unfold
 
 #------------- Endpoints -----------------------
 const uri = "https://utslogin.nlm.nih.gov"
@@ -47,8 +54,10 @@ struct BadResponseException <: Exception
 end
 
 function Base.showerror(io::IO, e::BadResponseException)
-    return print(io, "BadResponseException with code: ", STATUS_CODES[e.code])
+    return print(io, "BadResponseException with code: ", e.code)
 end
+
+const FORM = ["Content-type" => "application/x-www-form-urlencoded", "Accept" => "text/plain", "User-Agent" => "JuliaBioServices"]
 
 #-------------- Authentication -------------------
 """
@@ -85,99 +94,79 @@ end
 
 
 """
-    get_tgt(; force_new::Bool = false, kwargs...)
+    get_tgt(; force_new::Bool = false, tgt_file = "UTS_TGT.txt", kwargs...)
 
-Retrieve a ticket granting ticket (TGT) using
+Describe the retrieval of a ticket granting ticket (TGT) using
 
 1. UTS username and password OR
-2. apikey
+2. apikey OR
+3. with neither, the apikey of the session's `UMLSAPI`.
 
 A tgt is valid for 8 hours.
-Therefore, look for UTS_TGT.txt in the local directory to see if it has been recently stored.
-One can force getting a new ticket by passing keyword argument `force_new=true`
+Therefore, when the workflow runs, it looks for `tgt_file` in the local directory to see if it has been recently stored.
+One can force getting a new ticket by passing keyword argument `force_new=true`.
 
 ####Examples
 
 ```julia
-tgt = get_tgt(username = "myuser", password = "mypass")
+tgt = run(s, get_tgt(username = "myuser", password = "mypass"))
 ```
 
 ```julia
-tgt = get_tgt(apikey = "mykey")
+tgt = run(s, get_tgt(apikey = "mykey"))
 ```
 """
-function get_tgt(; force_new::Bool = false, kwargs...)
-    params = Dict(kwargs)
-    body = form(params)
-    auth_endpoint = "/cas/v1/tickets/"
-
-    if !haskey(params, :apikey)
-        if !haskey(params, :username) && !haskey(params, :password)
-            error("UMLSRestAPI: Connection requieres passing keword arguments: apikey or username and password")
-        end
-    else
-        auth_endpoint = "/cas/v1/api-key"
+function get_tgt(; force_new::Bool = false, tgt_file = "UTS_TGT.txt", kwargs...)
+    given = Dict{Symbol, Any}(kwargs)
+    isempty(given) || endpoint(given)  # check the credentials now, before anything runs
+    return Workflow() do ss
+        !force_new && tgt_exists(tgt_file = tgt_file) && return cached_tgt(tgt_file)
+        run(ss, request_tgt(isempty(given) ? session_credentials(configuration(ss, UMLSAPI)) : given, tgt_file))
     end
+end
 
-    # Check if there is a valid ticket on disk
-    tgt_file = "UTS_TGT.txt"
-    if tgt_exists(tgt_file = tgt_file) && !force_new
-        @info "UTS: Reading TGT from file"
-        return readline(tgt_file)
-    end
+session_credentials(s::UMLSAPI) = s.apikey === nothing ?
+    error("UMLSRestAPI: Connection requieres passing keword arguments: apikey or username and password, or a session configured with UMLSAPI(apikey = ...)") :
+    Dict{Symbol, Any}(:apikey => s.apikey)
 
+endpoint(c) = haskey(c, :apikey) ? "/cas/v1/api-key" :
+    haskey(c, :username) || haskey(c, :password) ? "/cas/v1/tickets/" :
+    error("UMLSRestAPI: Connection requieres passing keword arguments: apikey or username and password")
+
+function cached_tgt(tgt_file)
+    @info "UTS: Reading TGT from file"
+    return readline(tgt_file)
+end
+
+function request_tgt(c, tgt_file)
     @info "UTS: Requesting new TGT"
-    headers = Dict(
-        "Content-type" => "application/x-www-form-urlencoded",
-        "Accept" => "text/plain", "User-Agent" => "julia"
-    )
-    r = request("POST", uri * auth_endpoint, headers; body = body)
-    ascii_r = String(r.body)
+    return map(res -> save_tgt(tgt_file, parse_tgt(text(res))), Request{UMLSAPI}("POST", uri * endpoint(c); headers = FORM, body = form(c)))
+end
 
-    doc = parsehtml(ascii_r)
-    #for now - harcoded
-    #TO DO:: parse and check
-    ticket = ""
+#for now - harcoded
+#TO DO:: parse and check
+function parse_tgt(html)
     try
-        ticket = getattr(doc.root.children[2].children[2], "action")
+        return getattr(parsehtml(html).root.children[2].children[2], "action")
     catch
         error("Could not get TGT: Unexpected structure of UTS response")
     end
-
-    open(tgt_file, "w") do f
-        write(f, ticket)
-    end
-
-    return ticket
 end
+
+save_tgt(tgt_file, ticket) = (write(tgt_file, ticket); ticket)
 
 """
     get_ticket(tgt)
 
-Retrieve a single-use Service Ticket using TGT
+Describe the retrieval of a single-use Service Ticket using TGT.
 """
-function get_ticket(tgt)
-    params = Dict("service" => service)
-    body = form(params)
-
-    headers = Dict(
-        "Content-type" => "application/x-www-form-urlencoded",
-        "Accept" => "text/plain", "User-Agent" => "JuliaBioServices"
-    )
-    r = HTTP.Response(503)
-    try
-        r = request("POST", tgt, headers; body = body, retry_non_idempotent = true)
-    catch
-        isdefined(r, :code) ? error("UMLS GET error: ", r.code) : error("UMLS COULD NOT GET")
-    end
-    return String(r.body)
-end
+get_ticket(tgt) = map(text, Request{UMLSAPI}("POST", tgt; headers = FORM, body = form(["service" => service])))
 
 #------------------Search ---------------------
 """
-    search_umls(tgt, query)
+    search_umls(tgt, query; version = "current")
 
-Search UMLS Rest API.
+Describe a search of the UMLS Rest API.
 For more info see [UMLS_API](https://documentation.uts.nlm.nih.gov/rest/search/)
 
 
@@ -186,8 +175,8 @@ For more info see [UMLS_API](https://documentation.uts.nlm.nih.gov/rest/search/)
 - `tgt`: Ticket Granting Ticket
 - `query`: UMLS query containing the search term
 - `version:` Optional - defaults to current
-- `timeout`: Optional - maximum time in seconds to wait for the response headers or between reads of the response body, for each page.
-  Defaults to 30.
+
+The timeout of each page is a policy of the session's `UMLSAPI`.
 
 ####Output
 
@@ -200,54 +189,41 @@ Dict{AbstractString,Any} with 3 entries:
 "result"     => Dict{AbstractString,Any}("classType"=>"searchResults","result…
 ```
 
+[`search_pages`](@ref) describes the same pages as a lazy iterator.
+
 ####Examples
 
 ```julia
-credentials = Credentials(user, psswd)
-tgt = get_tgt(credentials)
+tgt = run(s, get_tgt(apikey = "mykey"))
 term = "obesity"
 query = Dict("string"=>term, "searchType"=>"exact" )
-all_results= search_umls(tgt, query)
+all_results = run(s, search_umls(tgt, query))
 ```
 """
-function search_umls(tgt, query; version::String = "current", timeout = 30)
-    page = 0
+search_umls(tgt, query; version::String = "current") = map(collect, search_pages(tgt, query; version = version))
 
-    #each page of results is appended to the output list where each entry is a dictionary containing that pages's results
-    # e.g
-    # Dict{AbstractString,Any} with 3 entries:
-    #   "pageSize"   => 25
-    #   "pageNumber" => 1
-    #   "result"     => Dict{AbstractString,Any}("classType"=>"searchResults","result…
-    result_pages = Array{Any, 1}()
+"""
+    search_pages(tgt, query; version = "current")
 
-    while true
+Describe the pages of a search of the UMLS Rest API, as [`search_umls`](@ref) does, but with a lazy iterator as the result: each page is requested as it is reached.
 
-        #get a new ticket per page if necessary
-        ticket = ""
-        ticket = get_ticket(tgt)
+####Example
 
-        page += 1
-        #append ticket to query
-        query["ticket"] = ticket
-        query["pageNumber"] = string(page)
+```julia
+first_page = first(run(s, search_pages(tgt, query)))   # only the first page is requested
+```
+"""
+search_pages(tgt, query; version::String = "current") = unfold(n -> search_page(tgt, query, version, n), isnone)
 
-        r = request("GET", url(rest_uri * "/", "rest", "search", "current"; query = query), read_idle_timeout = timeout)
-
-        if r.status != 200
-            error("Bad HTTP status $(r.status)")
-        end
-
-        json_response = JSON.parse(String(r.body))
-        # println("No Results ", length(json_response["result"]["results"]))
-        if json_response["result"]["results"][1]["ui"] == "NONE"
-            break
-        end
-        push!(result_pages, json_response)
-    end
-
-    return result_pages
+# Each page needs a new ticket.
+search_page(tgt, query, version, n) = Workflow() do ss
+    ticket = run(ss, get_ticket(tgt))
+    params = merge(Dict{String, Any}(query), Dict("ticket" => ticket, "pageNumber" => string(n)))
+    JSON.parse(text(run(ss, Request{UMLSAPI}("GET", rest_uri * "/rest/search/" * escapeuri(version); query = params))))
 end
+
+# The search ends at a page whose only result is "NONE".
+isnone(json) = json["result"]["results"][1]["ui"] == "NONE"
 
 """
     best_match_cui(result_pages)
@@ -268,57 +244,40 @@ end
 """
     get_cui(tgt,cui)
 
-Retrieve information (name, semantic types, number of atoms, etc) for a known CUI from latest UMLS version or a specific release.
+Describe the retrieval of information (name, semantic types, number of atoms, etc) for a known CUI from latest UMLS version or a specific release.
 
-Returns UTS json response
+Its result is the UTS json response
 
 See: https://documentation.uts.nlm.nih.gov/rest/concept
 
 ####Example
 
 ```julia
-tgt = get_tgt(apikey = "mykey")
+tgt = run(s, get_tgt(apikey = "mykey"))
 cui = "C0028754"
-concept = get_cui(tgt, cui)
+concept = run(s, get_cui(tgt, cui))
 ```
 """
-function get_cui(tgt, cui; version = "current")
-    #get a new ticket
-    ticket = ""
-    try
-        ticket = get_ticket(tgt)
-    catch err
-        rethrow(err)
-    end
-
-    r = HTTP.Response(503)
-    try
-        r = request("GET", url(rest_uri * "/", "rest", "content", version, "CUI", cui; query = ["ticket" => ticket]))
-    catch
-        isdefined(r, :code) ? error("UMLS GET error: ", r.code) : error("UMLS COULD NOT GET")
-    end
-
-    return JSON.parse(String(r.body))
+get_cui(tgt, cui; version = "current") = Workflow() do ss
+    ticket = run(ss, get_ticket(tgt))
+    JSON.parse(text(run(ss, Request{UMLSAPI}("GET", rest_uri * "/rest/content/" * escapeuri(version) * "/CUI/" * escapeuri(cui); query = ["ticket" => ticket]))))
 end
 
 
 """
-    get_semantic_types(c::Credentials, cui)
+    get_semantic_types(tgt, cui)
 
-Return an array of the semantic types associated with a cui
+Describe the retrieval of an array of the semantic types associated with a cui
 
 ####Example
 
 ```julia
-tgt = get_tgt(apikey = "mykey")
+tgt = run(s, get_tgt(apikey = "mykey"))
 cui = "C0028754"
-sm = get_semantic_types(tgt, cui)
+sm = run(s, get_semantic_types(tgt, cui))
 ```
 """
-function get_semantic_types(tgt, cui; version = "current")
-    json_response = get_cui(tgt, cui; version = version)
-    st = json_response["result"]["semanticTypes"]
-    return [String(concept["name"]) for concept in st]
-end
+get_semantic_types(tgt, cui; version = "current") =
+    map(json -> map(concept -> String(concept["name"]), json["result"]["semanticTypes"]), get_cui(tgt, cui; version = version))
 
 end

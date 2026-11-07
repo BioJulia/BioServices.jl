@@ -1,4 +1,4 @@
-using BioServices: form, url
+using BioServices.Sessions: form, url
 
 @testset "URLs" begin
     @testset "form" begin
