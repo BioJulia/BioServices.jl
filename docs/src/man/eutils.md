@@ -23,12 +23,13 @@ The APIs are defined in the `BioServices.EUtils` module, which exports nine func
 
 In this package, queries for databases are controlled by keyword parameters.
 For example, some functions take `db` parameter to specify the target database.
-Functions listed above take these parameters as keyword arguments and return a `Response` object as follows:
+Functions listed above take these parameters as keyword arguments and return a request, which a [session](sessions.md) runs to give a `Response`:
 ```jlcon
-julia> using BioServices.EUtils       # import the nine functions above
+julia> using BioServices.Sessions, BioServices.EUtils, Downloads
 
-julia> res = einfo(db="pubmed")       # retrieve statistics of the PubMed database
-Response(200 OK, 18 headers, 27360 bytes in body)
+julia> s = Session(DownloadsClient(), EUtilsAPI());   # 3 requests per second, or 10 with EUtilsAPI(api_key = ...)
+
+julia> res = run(s, einfo(db="pubmed"))  # retrieve statistics of the PubMed database
 
 julia> write("pubmed.xml", res.body)  # save retrieved data into a file
 27360
@@ -57,7 +58,7 @@ However, users are often interested in a part of the response data and may want 
 In such a case, [EzXML.jl](https://github.com/bicycle1885/EzXML.jl) is helpful because it offers lots of tools to handle XML documents.
 The first thing you need to do is converting the response data into an XML document by `parsexml`:
 ```jlcon
-julia> res = efetch(db="nuccore", id="NM_001126.3", retmode="xml")
+julia> res = run(s, efetch(db="nuccore", id="NM_001126.3", retmode="xml"))
 Response(200 OK, 19 headers, 41536 bytes in body)
 
 julia> using EzXML
@@ -67,8 +68,7 @@ EzXML.Document(EzXML.Node(<DOCUMENT_NODE@0x00007fdd4cc43770>))
 
 ```
 
-Note that because `res` is an HTTP Response Message, its content can be read at most once.
-Running `res.body` again will reveal an empty Array.
+The body of a `Response` can be read as often as you like.
 
 After that, you can query fields you want using [XPath](https://en.wikipedia.org/wiki/XPath):
 ```jlcon
@@ -99,19 +99,17 @@ This context dictionary is especially useful when temporarily caching query UIDs
 A request to the Entrez system can be associated with cached data using `WebEnv` and `query_key` parameters.
 In the following example, the search results of `esearch` is saved in the Entrez History server (note `usehistory=true`, which makes the server cache its search results) and then their summaries are retrieved in the next call of `esummary`:
 ```jlcon
-julia> context = Dict()  # create an empty context
+julia> ctx = Dict()  # create an empty context
 Dict{Any,Any} with 0 entries
 
-julia> res = esearch(context, db="pubmed", term="asthma[mesh] AND leukotrienes[mesh] AND 2009[pdat]", usehistory=true)
-Response(200 OK, 18 headers, 1574 bytes in body)
+julia> res = run(s, esearch(ctx, db="pubmed", term="asthma[mesh] AND leukotrienes[mesh] AND 2009[pdat]", usehistory=true));
 
-julia> context  # the context dictionary has been updated
+julia> ctx = context(ctx, res)  # a new context, with the History server's WebEnv and query_key from the response
 Dict{Any,Any} with 2 entries:
   :query_key => "1"
   :WebEnv    => "NCID_1_9251987_130.14.22.215_9001_1477389145_1960133…
 
-julia> res = esummary(context, db="pubmed")  # retrieve summaries in context
-Response(200 OK, 18 headers, 135463 bytes in body)
+julia> res = run(s, esummary(ctx, db="pubmed"))  # retrieve summaries in context
 
 julia> write("asthma_leukotrienes_2009.xml", res.body)  # save data into a file
 135463
@@ -133,10 +131,10 @@ shell> head asthma_leukotrienes_2009.xml
 ## XMLDict and LightXML
 
 Along with `EZXml` there are also other packages for parsing XML objects.
-The HTTP object returned by the `BioServices.EUtils` module is compatible with all of them.
+The `Response` body is plain bytes, so it works with all of them.
 
 ```jlcon
-julia> res = efetch(db="nuccore", id="NM_001126.3", retmode="xml")
+julia> res = run(s, efetch(db="nuccore", id="NM_001126.3", retmode="xml"))
 Response(200 OK, 19 headers, 41536 bytes in body)
 
 julia> using XMLDict

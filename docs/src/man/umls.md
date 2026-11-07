@@ -17,8 +17,11 @@ The [UMLS Quick Start Guide](https://www.nlm.nih.gov/research/umls/quickstart.ht
 2. Import the module:
 
     ```julia
-    using BioServices.UMLS
+    using BioServices.Sessions, BioServices.UMLS, Downloads
+    s = Session(DownloadsClient(), UMLSAPI())
     ```
+
+    The functions describe their requests, and the [session](sessions.md) runs them, at most 20 per second, with tickets and keys kept out of error messages.
 
 ## Available Endpoints
 
@@ -57,13 +60,19 @@ There are two ways you can do this:
 ```julia
     user = "myuser"
     psswd = "mypsswd"
-    tgt = get_tgt(username=user, password=psswd)
+    tgt = run(s, get_tgt(username=user, password=psswd))
 ```
 
 **2. Use API KEY**
 ```julia
     apikey = "myapikey"
-    tgt = get_tgt(apikey=apikey)
+    tgt = run(s, get_tgt(apikey=apikey))
+```
+
+or keep the key in the session, and leave it out:
+```julia
+    s = Session(DownloadsClient(), UMLSAPI(apikey = ENV["UMLS_APIKEY"]))
+    tgt = run(s, get_tgt())
 ```
 
 According to the UMLS documentation, **ticket granting tickets** are valid for 8 hours, therefore we locally store the ticket in a file and reuse it as long as it has not expired.
@@ -71,7 +80,7 @@ If you get errors, you can force the `get_tgt` function to get a new ticket.
 For instance:
 
 ```julia
-   tgt = get_tgt(force_new=true, apikey=apikey)
+   tgt = run(s, get_tgt(force_new=true, apikey=apikey))
 ```
 
 After authentication, you can query the <abbr title="Concept Unique Identifier">CUI</abbr> associated with a term (e.g obesity) to get the semantic type(s) associated with that term (e.g obesity is a Disease or Syndrome)
@@ -79,10 +88,12 @@ After authentication, you can query the <abbr title="Concept Unique Identifier">
 ```julia
     term = "obesity"
     query = Dict("string"=>term, "searchType"=>"exact" )
-    all_results= search_umls(tgt, query)
-    cui = best_match_cui(all_results)   # cui="C0028754"
-    sm = get_semantic_types(tgt, cui)   # sm[1] == "Disease or Syndrome"
+    all_results = run(s, search_umls(tgt, query))
+    cui = best_match_cui(all_results)           # cui="C0028754"
+    sm = run(s, get_semantic_types(tgt, cui))   # sm[1] == "Disease or Syndrome"
 ```
+
+`search_pages(tgt, query)` describes the same pages lazily: `first(run(s, search_pages(tgt, query)))` requests only the first.
 
 **Options for searchType**
 

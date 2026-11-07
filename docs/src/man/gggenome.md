@@ -14,8 +14,11 @@ See [GGGenome Help](https://gggenome.dbcls.jp/en/help.html) for more details.
 Import module:
 
 ```julia
-using BioServices.GGGenome
+using BioServices.Sessions, BioServices.GGGenome, Downloads
+s = Session(DownloadsClient(), GGGenomeAPI())
 ```
+
+`gggsearch` and `gggdbs` describe requests, which the [session](sessions.md) runs.
 
 ## Available Databases
 
@@ -33,7 +36,7 @@ Full list of available databases can be found at [https://gggenome.dbcls.jp/en/m
 - in json format.
 
 ```
-julia> res = gggsearch("TTCATTGACAACATT", format="bed", output="toString");
+julia> res = run(s, gggsearch("TTCATTGACAACATT", format="bed", output="toString"));
 
 julia> print(res)
 track name=GGGenome description="GGGenome matches"
@@ -54,7 +57,7 @@ chr3    84619844        84619859        .       0       +
 
 
 ```julia
-julia> res = gggsearch("TTCATTGACAACATTGCGT", db="mm10", k=2, strand="+", format="txt", output="toString");
+julia> res = run(s, gggsearch("TTCATTGACAACATTGCGT", db="mm10", k=2, strand="+", format="txt", output="toString"));
 
 julia> print(res)
 # [ GGGenome | 2018-07-01 22:59:01 ]
@@ -69,23 +72,25 @@ chr1    +       98281503        98281520        TCTAGTGAGGAGAAATGTAAGCTAACGTGATA
 
 ## Understanding `output` parameters
 
-By default, `gggsearch()` returns a `HTTP.Response` object.
+By default, the result of `gggsearch()` is a `Response`.
 
 ```julia
 julia> query = "GTGCGGTAACGCGACCGATCCCGGAGAAGCCGGCGGGA";
 
-julia> res = gggsearch(query, db="refseq", format="txt");
+julia> res = run(s, gggsearch(query, db="refseq", format="txt"));
 
 julia> typeof(res)
-HTTP.Response
+BioServices.Sessions.Response{BioServices.Sessions.GGGenomeAPI}
 ```
 
-By setting `output="toString"`, `gggsearch()` returns a `String` object.
+The timeout is a policy of the session: `s = configure(s; timeouts = Timeouts(10, 300))`.
+
+By setting `output="toString"`, the result is a `String`.
 
 ```julia
 julia> query = "GTGCGGTAACGCGACCGATCCCGGAGAAGCCGGCGGGA";
 
-julia> res = gggsearch(query, db="refseq", format="txt", output="toString");
+julia> res = run(s, gggsearch(query, db="refseq", format="txt", output="toString"));
 
 julia> typeof(res)
 String
@@ -103,13 +108,13 @@ NR_003287.4 Homo sapiens RNA, 28S ribosomal N5 (RNA28SN5), ribosomal RNA        
 ...
 ```
 
-By setting `output="extractTopHit"`, `gggsearch()` returns a `String` object containing the top hit.
-Currently, this only works with `format="txt"`.
+By setting `output="extractTopHit"`, the result is a `String` containing the top hit.
+It needs `format="txt"`.
 
 ```julia
 julia> query = "GTGCGGTAACGCGACCGATCCCGGAGAAGCCGGCGGGA";
 
-julia> res = gggsearch(query, db="refseq", format="txt", output="extractTopHit");
+julia> res = run(s, gggsearch(query, db="refseq", format="txt", output="extractTopHit"));
 
 julia> typeof(res)
 String
