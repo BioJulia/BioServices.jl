@@ -2,5 +2,8 @@
 BioServices = "a0d4ced5-b29c-5395-b614-ca030a679c4b"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 
+[sources]
+BioServices = {path = ".."}
+
 [compat]
 Documenter = "1"
