@@ -9,6 +9,7 @@ makedocs(
             "EUtils" => "man/eutils.md",
             "UMLS" => "man/umls.md",
             "GGGenome" => "man/gggenome.md",
+            "UniProt" => "man/uniprot.md",
             "Home" => "index.md",
         ],
     ],
