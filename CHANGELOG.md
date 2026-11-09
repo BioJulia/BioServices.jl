@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ## [UNRELEASED]
 ### Added
 - UniProt module for the UniProt REST API (rest.uniprot.org): entry retrieval, search, and ID mapping, together with parsers for UniProt accessions, entry names, and FASTA headers.
+- Documentation for the EBIProteins module.
 ### Changes
 - The Julia code is formatted with Runic, and CI checks the formatting of every pull request.
 - Text files are stored with LF line endings.
