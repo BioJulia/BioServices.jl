@@ -296,6 +296,14 @@
             @test haskey(body, :upid)
             @test body[:upid] == upid
         end
+
+        @testset "ebiproteomes upid query" begin
+            # With other parameters, `upid` is sent in the query.
+            upid = "UP000001940"
+            res = ebiproteomes(size = 1, upid = upid, contenttype = "application/xml")
+            @test res.status == 200
+            @test parse_xml(String(res.body))["proteome"][:upid] == upid
+        end
     end
 
     @testset "ebigenecentric" begin
@@ -325,6 +333,14 @@
             @test isa(body["gene"], XMLDict.XMLDictElement)
             @test haskey(body["gene"], :accession)
             @test body["gene"][:accession] == accession
+        end
+
+        @testset "ebigenecentric accession query" begin
+            # With other parameters, `accession` is sent in the query.
+            accession = "P08069"
+            res = ebigenecentric(size = 1, accession = accession, contenttype = "application/xml")
+            @test res.status == 200
+            @test parse_xml(String(res.body))["canonicalGene"]["gene"][:accession] == accession
         end
     end
 
@@ -591,6 +607,14 @@
             @test haskey(body, "accession")
             @test body["accession"] == accession
             @test haskey(body, "gnCoordinate")
+        end
+
+        @testset "ebicoordinates accession query" begin
+            # With other parameters, `accession` is sent in the query.
+            accession = "P08069"
+            res = ebicoordinates(size = 1, accession = accession, contenttype = "application/xml")
+            @test res.status == 200
+            @test parse_xml(String(res.body))["gnEntry"]["accession"] == accession
         end
 
         @testset "ebicoordinates accession pPosition" begin
