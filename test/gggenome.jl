@@ -13,6 +13,18 @@
         @test typeof(res) == String
     end
 
+    @testset "gggsearch show_url" begin
+        # Each path segment is percent-encoded, so the `+` strand is sent as %2B.
+        out = mktemp() do path, io
+            redirect_stdout(io) do
+                gggsearch("TTCATTGACAACATT", db = "felCat5", strand = "+", format = "txt", show_url = true)
+            end
+            close(io)
+            read(path, String)
+        end
+        @test chomp(out) == "https://gggenome.dbcls.jp/felCat5/0/%2B/TTCATTGACAACATT.txt"
+    end
+
     @testset "gggdbs" begin
         @test  length(gggdbs()) > 0
     end

@@ -53,7 +53,7 @@ export
     uniprotfastaheader
 
 import HTTP
-import BioServices.request
+import BioServices: request, url, escapeuri, form
 
 const baseURL = "https://rest.uniprot.org/"
 
@@ -94,11 +94,8 @@ julia> res = uniprotentry("9606"; dataset="taxonomy", format="json");
 """
 function uniprotentry(id; dataset = "uniprotkb", subset = nothing, params...)
     params = process_parameters(params)
-    path = baseURL * HTTP.escapeuri(dataset) * "/" * HTTP.escapeuri(string(id))
-    if !isnothing(subset)
-        path *= "/" * HTTP.escapeuri(subset)
-    end
-    return request("GET", path, headers, query = params)
+    segments = isnothing(subset) ? (dataset, id) : (dataset, id, subset)
+    return request("GET", url(baseURL, segments...; query = params), headers)
 end
 
 """
@@ -121,8 +118,7 @@ function uniprotentries(ids; dataset = "uniprotkb", params...)
         throw(ArgumentError("`dataset` must be one of $(join(sort!(collect(keys(batchkeys))), ", ")); got \"$dataset\"."))
     params = process_parameters(params)
     params[Symbol(batchkeys[dataset])] = joinids(ids)
-    path = baseURL * dataset * "/" * batchkeys[dataset]
-    return request("GET", path, headers, query = params)
+    return request("GET", url(baseURL, dataset, batchkeys[dataset]; query = params), headers)
 end
 
 """
@@ -150,7 +146,7 @@ Q7TQA6
 function uniprotsearch(query; dataset = "uniprotkb", params...)
     params = process_parameters(params)
     params[:query] = string(query)
-    return request("GET", baseURL * HTTP.escapeuri(dataset) * "/search", headers, query = params)
+    return request("GET", url(baseURL, dataset, "search"; query = params), headers)
 end
 
 """
@@ -167,7 +163,7 @@ Query Parameters: format, fields, sort, includeIsoform, download
 function uniprotstream(query; dataset = "uniprotkb", params...)
     params = process_parameters(params)
     params[:query] = string(query)
-    return request("GET", baseURL * HTTP.escapeuri(dataset) * "/stream", headers, query = params)
+    return request("GET", url(baseURL, dataset, "stream"; query = params), headers)
 end
 
 """
@@ -219,7 +215,7 @@ function uniprotidmapping(ids; from = "UniProtKB_AC-ID", to = "UniProtKB", taxId
     isnothing(taxId) || (params["taxId"] = string(taxId))
     header = [headers; "Content-Type" => "application/x-www-form-urlencoded"]
     return request(
-        "POST", baseURL * "idmapping/run", header, body = HTTP.escapeuri(params),
+        "POST", url(baseURL, "idmapping", "run"), header, body = form(params),
         retry_non_idempotent = true
     )
 end
@@ -235,7 +231,7 @@ Once the job has finished, the response status is 303 (redirect to the results),
 A job that failed raises an `HTTP.StatusError`; its body describes the error.
 """
 function uniprotidmappingstatus(jobid)
-    return request("GET", baseURL * "idmapping/status/" * HTTP.escapeuri(string(jobid)), headers, redirect = false)
+    return request("GET", url(baseURL, "idmapping", "status", jobid), headers, redirect = false)
 end
 
 """
@@ -252,16 +248,14 @@ Query Parameters: format, fields, query, size, sort, includeIsoform, download
 """
 function uniprotidmappingresults(jobid; dataset = nothing, stream::Bool = false, params...)
     params = process_parameters(params)
-    jobid = HTTP.escapeuri(string(jobid))
-    path = baseURL * "idmapping/"
     if isnothing(dataset)
-        path *= stream ? "stream/" * jobid : "results/" * jobid
+        segments = (stream ? "stream" : "results", jobid)
     else
         dataset ∈ idmappingdatasets ||
             throw(ArgumentError("`dataset` must be `nothing` or one of $(join(idmappingdatasets, ", ")); got \"$dataset\"."))
-        path *= dataset * (stream ? "/results/stream/" : "/results/") * jobid
+        segments = stream ? (dataset, "results", "stream", jobid) : (dataset, "results", jobid)
     end
-    return request("GET", path, headers, query = params)
+    return request("GET", url(baseURL, "idmapping", segments...; query = params), headers)
 end
 
 """
@@ -270,7 +264,7 @@ end
 Retrieve the parameters (`from`, `to`, `ids`) of the ID mapping job `jobid`, together with a URL for its results.
 """
 function uniprotidmappingdetails(jobid)
-    return request("GET", baseURL * "idmapping/details/" * HTTP.escapeuri(string(jobid)), headers)
+    return request("GET", url(baseURL, "idmapping", "details", jobid), headers)
 end
 
 """
@@ -280,7 +274,7 @@ List the databases supported by ID mapping, and which can be used as `from` and 
 The body of the response is JSON.
 """
 function uniprotidmappingfields()
-    return request("GET", baseURL * "configure/idmapping/fields", headers)
+    return request("GET", url(baseURL, "configure", "idmapping", "fields"), headers)
 end
 
 
