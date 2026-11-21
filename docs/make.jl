@@ -6,6 +6,7 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "Manual" => [
+            "Sessions" => "man/sessions.md",
             "EUtils" => "man/eutils.md",
             "UMLS" => "man/umls.md",
             "GGGenome" => "man/gggenome.md",

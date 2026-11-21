@@ -24,6 +24,16 @@ Nine functions are exported from this module:
 See "Entrez Programming Utilities Help" (https://www.ncbi.nlm.nih.gov/books/NBK25501/) for more details.
 Especially, ["E-utilities Quick Start"](https://www.ncbi.nlm.nih.gov/books/NBK25500/) is a good starting point and ["A General Introduction to the E-utilities"](https://www.ncbi.nlm.nih.gov/books/NBK25497/) will serve useful information about its concepts and functions.
 The implemented APIs are based on the manual on January 23, 2015.
+
+Each function returns a request, which a session runs:
+
+    using BioServices.Sessions, BioServices.EUtils, Downloads
+    s = Session(DownloadsClient(), EUtilsAPI())
+    res = run(s, einfo(db = "pubmed"))
+
+Searches that use the History server pass their `WebEnv` and `query_key` on through a context: `context(ctx, res)` returns `ctx` with those of response `res`.
+
+The session's `EUtilsAPI` holds the NCBI API key, if any, and adds it to every request: `Session(DownloadsClient(), EUtilsAPI(api_key = ENV["NCBI_API_KEY"]))`, or `configure(s, EUtilsAPI(api_key = ...))`.
 """
 module EUtils
 
@@ -37,11 +47,12 @@ export
     egquery,
     espell,
     ecitmatch,
+    context,
     set_context!
 
 import XMLDict
 import JSON
-import BioServices: request, url, form
+using ..Sessions: Request, Response, EUtilsAPI, form, header, text
 
 const baseURL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
 
@@ -56,10 +67,7 @@ Retrieve a list of databases or statistics for a database.
 
 Parameters: db, version, retmode.
 """
-function einfo(ctx::AbstractDict = empty_context(); params...)
-    params = process_parameters(params, ctx)
-    return request("GET", url(baseURL * "einfo.fcgi"; query = params))
-end
+einfo(ctx::AbstractDict = empty_context(); params...) = query_request("einfo.fcgi", params, ctx)
 
 """
     esearch(ctx=Dict(); params...)
@@ -67,15 +75,10 @@ end
 Retrieve a list of UIDs matching a text query.
 
 Parameters: db, term, usehistory, WebEnv, query_key, retstart, retmax, rettype, retmode, sort, field, datetype, reldate, mindate, maxdate.
+
+With `usehistory = true`, pass the response to [`context`](@ref) to keep its `WebEnv` and `query_key`.
 """
-function esearch(ctx::AbstractDict = empty_context(); params...)
-    params = process_parameters(params, ctx)
-    res = request("GET", url(baseURL * "esearch.fcgi"; query = params), retry_non_idempotent = true)
-    if get(params, :usehistory, "") == "y"
-        set_context!(ctx, res)
-    end
-    return res
-end
+esearch(ctx::AbstractDict = empty_context(); params...) = query_request("esearch.fcgi", params, ctx)
 
 """
     epost(ctx=Dict(); params...)
@@ -83,16 +86,10 @@ end
 Upload or append a list of UIDs to the Entrez History server.
 
 Parameters: db, id, WebEnv.
+
+Pass the response to [`context`](@ref) to keep its `WebEnv` and `query_key`.
 """
-function epost(ctx::AbstractDict = empty_context(); params...)
-    params = process_parameters(params, ctx)
-    body = form(params)
-    # added user-agent header as workaround for EOFError - HTTP.jl issue #342
-    # headers = Dict("user-agent"=>"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
-    res = request("POST", string(baseURL, "epost.fcgi"), body = body, retry_non_idempotent = true)
-    set_context!(ctx, res)
-    return res
-end
+epost(ctx::AbstractDict = empty_context(); params...) = form_request("epost.fcgi", params, ctx)
 
 """
     esummary(ctx=Dict(); params...)
@@ -101,11 +98,7 @@ Retrieve document summaries for a list of UIDs.
 
 Parameters: db, id, query_key, WebEnv, retstart, retmax, retmode, version.
 """
-function esummary(ctx::AbstractDict = empty_context(); params...)
-    params = process_parameters(params, ctx)
-    body = form(params)
-    return request("POST", string(baseURL, "esummary.fcgi"), body = body, retry_non_idempotent = true)
-end
+esummary(ctx::AbstractDict = empty_context(); params...) = form_request("esummary.fcgi", params, ctx)
 
 """
     efetch(ctx=Dict(); params...)
@@ -114,11 +107,7 @@ Retrieve formatted data records for a list of UIDs.
 
 Parameters: db, id, query_key, WebEnv, retmode, rettype, retstart, retmax, strand, seq_start, seq_stop, complexity.
 """
-function efetch(ctx::AbstractDict = empty_context(); params...)
-    params = process_parameters(params, ctx)
-    body = form(params)
-    return request("POST", string(baseURL, "efetch.fcgi"), body = body, retry_non_idempotent = true)
-end
+efetch(ctx::AbstractDict = empty_context(); params...) = form_request("efetch.fcgi", params, ctx)
 
 """
     elink(ctx=Dict(); params...)
@@ -127,11 +116,7 @@ Retrieve UIDs linked to an input set of UIDs.
 
 Parameters: db, dbfrom, cmd, id, query_key, WebEnv, linkname, term, holding, datetype, reldate, mindate, maxdate.
 """
-function elink(ctx::AbstractDict = empty_context(); params...)
-    params = process_parameters(params, ctx)
-    body = form(params)
-    return request("POST", string(baseURL, "elink.fcgi"), body = body, retry_non_idempotent = true)
-end
+elink(ctx::AbstractDict = empty_context(); params...) = form_request("elink.fcgi", params, ctx)
 
 """
     egquery(ctx=Dict(); params...)
@@ -140,10 +125,7 @@ Retrieve the number of available records in all databases by a text query.
 
 Parameters: term.
 """
-function egquery(ctx::AbstractDict = empty_context(); params...)
-    params = process_parameters(params, ctx)
-    return request("GET", url(baseURL * "egquery.fcgi"; query = params))
-end
+egquery(ctx::AbstractDict = empty_context(); params...) = query_request("egquery.fcgi", params, ctx)
 
 """
     espell(ctx=Dict(); params...)
@@ -152,10 +134,7 @@ Retrieve spelling suggestions.
 
 Parameters: db, term.
 """
-function espell(ctx::AbstractDict = empty_context(); params...)
-    params = process_parameters(params, ctx)
-    return request("GET", url(baseURL * "espell.fcgi"; query = params))
-end
+espell(ctx::AbstractDict = empty_context(); params...) = query_request("espell.fcgi", params, ctx)
 
 """
     ecitmatch(ctx=Dict(); params...)
@@ -164,70 +143,46 @@ Retrieve PubMed IDs that correspond to a set of input citation strings.
 
 Parameters: db, rettype, bdata.
 """
-function ecitmatch(ctx::AbstractDict = empty_context(); params...)
-    params = process_parameters(params, ctx)
-    return request("GET", url(baseURL * "ecitmatch.cgi"; query = params))
-end
+ecitmatch(ctx::AbstractDict = empty_context(); params...) = query_request("ecitmatch.cgi", params, ctx)
+
+# Requests to an E-utility, with the context merged into the parameters.
+query_request(utility, params, ctx) = Request{EUtilsAPI}("GET", string(baseURL, utility); query = parameters(params, ctx))
+form_request(utility, params, ctx) = Request{EUtilsAPI}(
+    "POST", string(baseURL, utility);
+    headers = ["Content-Type" => "application/x-www-form-urlencoded"], body = form(parameters(params, ctx))
+)
 
 # Create an empty context.
-function empty_context()
-    return Dict{Symbol, Any}()
-end
+empty_context() = Dict{Symbol, Any}()
 
-# Set :WebEnv and :query_key values to the context `ctx` from `res`.
-function set_context!(ctx, res)
-    if res.status != 200
-        return ctx
-    end
+"""
+    context(ctx, res)
 
-    # extract WebEnv and query_key from the response
-    contenttype = Dict(res.headers)["Content-Type"]
-    body = deepcopy(res.body)
-    data = String(res.body)
+Return `ctx` with the `WebEnv` and `query_key` of the History server from response `res`, from `esearch` with `usehistory = true` or from `epost`.
+A response without them, or with a failed status, leaves `ctx` as it is.
+"""
+context(ctx::AbstractDict, res::Response) = merge(Dict{Symbol, Any}(ctx), history(res.status, mediatype(header(res, "Content-Type")), res))
 
-    if startswith(contenttype, "text/xml")
-        doc = XMLDict.parse_xml(data)
-        ctx[:WebEnv] = doc["WebEnv"]
-        ctx[:query_key] = doc["QueryKey"]
-    elseif startswith(contenttype, "application/json")
-        dict = JSON.parse(data)
-        ctx[:WebEnv] = dict["esearchresult"]["webenv"]
-        ctx[:query_key] = dict["esearchresult"]["querykey"]
-    end
-    res.body = body
+history(status, mediatype, res) = status == 200 ? history(mediatype, text(res)) : Dict{Symbol, Any}()
+history(::Val{:xml}, data) = (doc = XMLDict.parse_xml(data); Dict{Symbol, Any}(:WebEnv => doc["WebEnv"], :query_key => doc["QueryKey"]))
+history(::Val{:json}, data) = (r = JSON.parse(data)["esearchresult"]; Dict{Symbol, Any}(:WebEnv => r["webenv"], :query_key => r["querykey"]))
+history(::Val, data) = Dict{Symbol, Any}()
 
-    return ctx
-end
+mediatype(contenttype) = startswith(contenttype, "text/xml") ? Val(:xml) : startswith(contenttype, "application/json") ? Val(:json) : Val(:other)
 
-# Process query parameters.
-function process_parameters(params, ctx)
-    # merge context `ctx` into `params`
-    params = merge(ctx, Dict(params))
+"""
+    set_context!(ctx, res)
 
-    # flatten a set of IDs into a comma-separated string
-    if haskey(params, :id)
-        ids = params[:id]
-        if isa(ids, AbstractString)
-            ids = [ids]
-        end
-        params[:id] = join([string(id) for id in ids], ',')
-    end
+Set the `WebEnv` and `query_key` from response `res` in `ctx`, as [`context`](@ref) returns them.
+"""
+set_context!(ctx, res) = merge!(ctx, context(ctx, res))
 
-    # normalize the usehistory parameter
-    if haskey(params, :usehistory) && isa(params[:usehistory], Bool)
-        if params[:usehistory]
-            params[:usehistory] = "y"
-        else
-            delete!(params, :usehistory)
-        end
-    end
+# The query parameters: the context and `params` merged, with IDs joined by commas, `usehistory` as "y" or left out, and every value a string.
+parameters(params, ctx) = Dict(filter(p -> last(p) !== nothing, map(p -> first(p) => value(Val(first(p)), last(p)), collect(merge(Dict{Symbol, Any}(ctx), Dict{Symbol, Any}(params))))))
 
-    # stringify all values
-    for (key, val) in params
-        params[key] = string(val)
-    end
-
-    return params
-end
+value(::Val{:id}, ids::AbstractString) = ids
+value(::Val{:id}, ids) = join(map(string, ids), ',')
+value(::Val{:usehistory}, use::Bool) = use ? "y" : nothing
+value(_, x) = string(x)
 
 end

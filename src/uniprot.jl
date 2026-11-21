@@ -22,7 +22,7 @@ The following functions are exported from this module:
 9. `uniprotidmappingdetails`: retrieve the parameters of an ID mapping job
 10. `uniprotidmappingfields`: list the databases supported by ID mapping
 
-Each of these functions returns an `HTTP.Response`.
+Each of these functions returns a `Request`, which a session runs: `run(s, uniprotentry("P08069"))`, where `s = Session(DownloadsClient(), UniProtAPI())`.
 The response format is chosen with the `format` query parameter (e.g. "json", "fasta", "tsv", "list", "xml", "txt", "gff"); not every format is supported by every dataset.
 Setting the query parameter `compressed=true` returns a gzip-compressed body.
 
@@ -52,12 +52,11 @@ export
     uniprotentryname,
     uniprotfastaheader
 
-import HTTP
-import BioServices: request, url, escapeuri, form
+using ..Sessions: Request, Response, UniProtAPI, form, header, url
 
 const baseURL = "https://rest.uniprot.org/"
 
-# rest.uniprot.org applies gzip twice when the client accepts gzip, leaving the body compressed after HTTP.jl decodes it.
+# rest.uniprot.org applies gzip twice when the client accepts gzip, leaving the body compressed after the client decodes it.
 # Compressed bodies can be requested explicitly with the `compressed=true` query parameter.
 const headers = ["Accept-Encoding" => "identity"]
 
@@ -87,15 +86,15 @@ Query Parameters: format, fields, version (uniprotkb); see the UniProt API docum
 # Examples
 
 ```julia
-julia> res = uniprotentry("P08069"; format="fasta");
+julia> res = run(s, uniprotentry("P08069"; format="fasta"));
 
-julia> res = uniprotentry("9606"; dataset="taxonomy", format="json");
+julia> res = run(s, uniprotentry("9606"; dataset="taxonomy", format="json"));
 ```
 """
 function uniprotentry(id; dataset = "uniprotkb", subset = nothing, params...)
     params = process_parameters(params)
     segments = isnothing(subset) ? (dataset, id) : (dataset, id, subset)
-    return request("GET", url(baseURL, segments...; query = params), headers)
+    return Request{UniProtAPI}("GET", url(baseURL, segments...); headers, query = params)
 end
 
 """
@@ -110,7 +109,7 @@ Query Parameters: format, fields, size, sort, download
 # Examples
 
 ```julia
-julia> res = uniprotentries(["P08069", "P35626"]; format="fasta");
+julia> res = run(s, uniprotentries(["P08069", "P35626"]; format="fasta"));
 ```
 """
 function uniprotentries(ids; dataset = "uniprotkb", params...)
@@ -118,7 +117,7 @@ function uniprotentries(ids; dataset = "uniprotkb", params...)
         throw(ArgumentError("`dataset` must be one of $(join(sort!(collect(keys(batchkeys))), ", ")); got \"$dataset\"."))
     params = process_parameters(params)
     params[Symbol(batchkeys[dataset])] = joinids(ids)
-    return request("GET", url(baseURL, dataset, batchkeys[dataset]; query = params), headers)
+    return Request{UniProtAPI}("GET", url(baseURL, dataset, batchkeys[dataset]); headers, query = params)
 end
 
 """
@@ -136,9 +135,9 @@ Query Parameters: format, fields, size, sort, includeIsoform, cursor
 # Examples
 
 ```julia
-julia> res = uniprotsearch("id:T2R38_MOUSE"; fields="accession", format="tsv");
+julia> res = run(s, uniprotsearch("id:T2R38_MOUSE"; fields="accession", format="tsv"));
 
-julia> print(String(res.body))
+julia> print(text(res))
 Entry
 Q7TQA6
 ```
@@ -146,7 +145,7 @@ Q7TQA6
 function uniprotsearch(query; dataset = "uniprotkb", params...)
     params = process_parameters(params)
     params[:query] = string(query)
-    return request("GET", url(baseURL, dataset, "search"; query = params), headers)
+    return Request{UniProtAPI}("GET", url(baseURL, dataset, "search"); headers, query = params)
 end
 
 """
@@ -163,30 +162,31 @@ Query Parameters: format, fields, sort, includeIsoform, download
 function uniprotstream(query; dataset = "uniprotkb", params...)
     params = process_parameters(params)
     params[:query] = string(query)
-    return request("GET", url(baseURL, dataset, "stream"; query = params), headers)
+    return Request{UniProtAPI}("GET", url(baseURL, dataset, "stream"); headers, query = params)
 end
 
 """
-    uniprotnext(res::HTTP.Response)
+    uniprotnext(res::Response)
 
-Retrieve the next page of a paginated result `res`, as returned by [`uniprotsearch`](@ref), [`uniprotentries`](@ref), or [`uniprotidmappingresults`](@ref).
+The request for the next page of a paginated result `res`, as returned by [`uniprotsearch`](@ref), [`uniprotentries`](@ref), or [`uniprotidmappingresults`](@ref).
 Returns `nothing` if `res` is the last page.
 
 # Examples
 
 ```julia
-res = uniprotsearch("gene:IGF1R"; format="list", size=100)
+res = run(s, uniprotsearch("gene:IGF1R"; format="list", size=100))
 while res !== nothing
-    # process String(res.body)
-    res = uniprotnext(res)
+    # process text(res)
+    next = uniprotnext(res)
+    res = next === nothing ? nothing : run(s, next)
 end
 ```
 """
-function uniprotnext(res::HTTP.Response)
-    link = HTTP.header(res, "Link")
+function uniprotnext(res::Response)
+    link = header(res, "Link")
     m = match(r"<([^>]*)>\s*;\s*rel=\"next\"", link)
     isnothing(m) && return nothing
-    return request("GET", String(m.captures[1]), headers)
+    return Request{UniProtAPI}("GET", String(m.captures[1]); headers)
 end
 
 
@@ -205,19 +205,16 @@ The supported `from`/`to` pairs are listed by [`uniprotidmappingfields`](@ref).
 # Examples
 
 ```julia
-julia> res = uniprotidmapping(["ENSMUSG00000067064", "ENSMUSG00000057464"]; from="Ensembl");
+julia> res = run(s, uniprotidmapping(["ENSMUSG00000067064", "ENSMUSG00000057464"]; from="Ensembl"));
 
-julia> jobid = JSON.parse(String(res.body))["jobId"];
+julia> jobid = JSON.parse(text(res))["jobId"];
 ```
 """
 function uniprotidmapping(ids; from = "UniProtKB_AC-ID", to = "UniProtKB", taxId = nothing)
     params = Dict{String, String}("ids" => joinids(ids), "from" => string(from), "to" => string(to))
     isnothing(taxId) || (params["taxId"] = string(taxId))
-    header = [headers; "Content-Type" => "application/x-www-form-urlencoded"]
-    return request(
-        "POST", url(baseURL, "idmapping", "run"), header, body = form(params),
-        retry_non_idempotent = true
-    )
+    h = [headers; "Content-Type" => "application/x-www-form-urlencoded"]
+    return Request{UniProtAPI}("POST", url(baseURL, "idmapping", "run"); headers = h, body = form(params))
 end
 
 """
@@ -226,12 +223,12 @@ end
 Check the status of the ID mapping job `jobid`.
 
 While the job is in progress, the response status is 200 and its JSON body has a `jobStatus` field (e.g. "NEW", "RUNNING").
-Once the job has finished, the response status is 303 (redirect to the results), and the results can be retrieved with [`uniprotidmappingresults`](@ref).
+Once the job has finished, the service redirects to its results, which the session follows, so the response is their first page, as from [`uniprotidmappingresults`](@ref).
 
-A job that failed raises an `HTTP.StatusError`; its body describes the error.
+A job that failed raises a `StatusError`; its body describes the error.
 """
 function uniprotidmappingstatus(jobid)
-    return request("GET", url(baseURL, "idmapping", "status", jobid), headers, redirect = false)
+    return Request{UniProtAPI}("GET", url(baseURL, "idmapping", "status", jobid); headers)
 end
 
 """
@@ -255,7 +252,7 @@ function uniprotidmappingresults(jobid; dataset = nothing, stream::Bool = false,
             throw(ArgumentError("`dataset` must be `nothing` or one of $(join(idmappingdatasets, ", ")); got \"$dataset\"."))
         segments = stream ? (dataset, "results", "stream", jobid) : (dataset, "results", jobid)
     end
-    return request("GET", url(baseURL, "idmapping", segments...; query = params), headers)
+    return Request{UniProtAPI}("GET", url(baseURL, "idmapping", segments...); headers, query = params)
 end
 
 """
@@ -264,7 +261,7 @@ end
 Retrieve the parameters (`from`, `to`, `ids`) of the ID mapping job `jobid`, together with a URL for its results.
 """
 function uniprotidmappingdetails(jobid)
-    return request("GET", url(baseURL, "idmapping", "details", jobid), headers)
+    return Request{UniProtAPI}("GET", url(baseURL, "idmapping", "details", jobid); headers)
 end
 
 """
@@ -274,7 +271,7 @@ List the databases supported by ID mapping, and which can be used as `from` and 
 The body of the response is JSON.
 """
 function uniprotidmappingfields()
-    return request("GET", url(baseURL, "configure", "idmapping", "fields"), headers)
+    return Request{UniProtAPI}("GET", url(baseURL, "configure", "idmapping", "fields"); headers)
 end
 
 

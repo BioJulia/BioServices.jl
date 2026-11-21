@@ -12,10 +12,11 @@ CurrentModule=BioServices.UniProt
 Import module:
 
 ```julia
-using BioServices.UniProt
+using BioServices.Sessions, BioServices.UniProt, Downloads
+s = Session(DownloadsClient(), UniProtAPI())
 ```
 
-Every function returns an `HTTP.Response`; the data is in `res.body`.
+Every function returns a request, which the [session](sessions.md) runs: `run(s, uniprotentry("P08069"))` returns a `Response`, whose data `text(res)` reads.
 The format of the data is set by the `format` query parameter, e.g. `"json"`, `"fasta"`, `"tsv"`, `"list"`, `"xml"`, or `"txt"`.
 With `format="json"`, the body can be parsed with a JSON library such as [JSON.jl](https://github.com/JuliaIO/JSON.jl).
 
@@ -32,14 +33,14 @@ The default is `"uniprotkb"`; others include `"uniref"`, `"uniparc"`, `"proteome
 ### Retrieve entries
 
 ```julia
-julia> res = uniprotentry("P08069"; format="fasta");
+julia> res = run(s, uniprotentry("P08069"; format="fasta"));
 
-julia> print(String(res.body))
+julia> print(text(res))
 >sp|P08069|IGF1R_HUMAN Insulin-like growth factor 1 receptor OS=Homo sapiens OX=9606 GN=IGF1R PE=1 SV=1
 MKSGSGGGSPTSLWGLLFLSAALSLWPTSGEICGPGIDIRNDYQQLKRLENCTVIEGYLH
 ...
 
-julia> res = uniprotentries(["P08069", "P35626"]; format="fasta");
+julia> res = run(s, uniprotentries(["P08069", "P35626"]; format="fasta"));
 ```
 
 ### Search
@@ -48,24 +49,24 @@ The query syntax is described in the [UniProt help](https://www.uniprot.org/help
 `fields` selects the [columns](https://www.uniprot.org/help/return_fields) returned in `tsv` format.
 
 ```julia
-julia> res = uniprotsearch("id:T2R38_MOUSE"; fields="accession", format="tsv");
+julia> res = run(s, uniprotsearch("id:T2R38_MOUSE"; fields="accession", format="tsv"));
 
-julia> print(String(res.body))
+julia> print(text(res))
 Entry
 Q7TQA6
 
-julia> res = uniprotsearch("gene_exact:IGF1R AND reviewed:true"; fields=["accession", "organism_name"], format="tsv");
+julia> res = run(s, uniprotsearch("gene_exact:IGF1R AND reviewed:true"; fields=["accession", "organism_name"], format="tsv"));
 ```
 
 Search results are paginated, with at most 500 results per page (set by `size`).
-The total number of results is in the `X-Total-Results` header, and `uniprotnext` retrieves the following page:
+The total number of results is in the `X-Total-Results` header, and `uniprotnext` gives the request for the following page:
 
 ```julia
-res = uniprotsearch("gene_exact:IGF1R"; format="list", size=100)
-accessions = String[]
-while res !== nothing
-    append!(accessions, split(String(res.body)))
-    res = uniprotnext(res)
+res = run(s, uniprotsearch("gene_exact:IGF1R"; format="list", size=100))
+accessions = split(text(res))
+while (next = uniprotnext(res)) !== nothing
+    res = run(s, next)
+    append!(accessions, split(text(res)))
 end
 ```
 
@@ -73,29 +74,30 @@ Alternatively, `uniprotstream` returns all results in a single response.
 
 ### ID mapping
 
-ID mapping converts identifiers between databases. It runs as a job on the server: submit it, poll until it finishes, then retrieve the results.
+ID mapping converts identifiers between databases.
+It runs as a job on the server: submit it, poll until it finishes, then retrieve the results.
 
 ```julia
 julia> using JSON
 
-julia> res = uniprotidmapping(["ENSMUSG00000067064", "ENSMUSG00000057464"]; from="Ensembl", to="UniProtKB");
+julia> res = run(s, uniprotidmapping(["ENSMUSG00000067064", "ENSMUSG00000057464"]; from="Ensembl", to="UniProtKB"));
 
-julia> jobid = JSON.parse(String(res.body))["jobId"];
+julia> jobid = JSON.parse(text(res))["jobId"];
 
-julia> while uniprotidmappingstatus(jobid).status != 303   # 303 indicates that the job has finished
+julia> while haskey(JSON.parse(text(run(s, uniprotidmappingstatus(jobid)))), "jobStatus")   # the finished job's status redirects to its results
            sleep(1)
        end
 
-julia> res = uniprotidmappingresults(jobid; dataset="uniprotkb", fields=["accession", "id"], format="tsv");
+julia> res = run(s, uniprotidmappingresults(jobid; dataset="uniprotkb", fields=["accession", "id"], format="tsv"));
 
-julia> print(String(res.body))
+julia> print(text(res))
 From	Entry	Entry Name
 ENSMUSG00000067064	Q8VGU4	Q8VGU4_MOUSE
 ENSMUSG00000057464	A0A0N4SV77	A0A0N4SV77_MOUSE
 ENSMUSG00000057464	Q7TQS4	Q7TQS4_MOUSE
 ```
 
-A job that fails makes `uniprotidmappingstatus` throw an `HTTP.StatusError`.
+A job that fails makes running `uniprotidmappingstatus` throw a `StatusError`.
 `uniprotidmappingfields` lists the supported `from` and `to` databases.
 
 ### Identifiers
@@ -117,18 +119,18 @@ The entry names of reviewed (Swiss-Prot) entries contain a mnemonic protein code
 julia> uniprotentryname("IGF1R_HUMAN")
 (protein = "IGF1R", species = "HUMAN")
 
-julia> res = uniprotsearch("id:IGF1R_HUMAN"; fields="accession", format="list");
+julia> res = run(s, uniprotsearch("id:IGF1R_HUMAN"; fields="accession", format="list"));
 
-julia> String(res.body)
+julia> text(res)
 "P08069\n"
 ```
 
 `uniprotfastaheader` splits a FASTA header into its fields:
 
 ```julia
-julia> res = uniprotentry("P08069"; format="fasta");
+julia> res = run(s, uniprotentry("P08069"; format="fasta"));
 
-julia> uniprotfastaheader(first(eachline(IOBuffer(res.body))))
+julia> uniprotfastaheader(first(eachline(IOBuffer(text(res)))))
 (db = "sp", id = "P08069", entryname = "IGF1R_HUMAN", proteinname = "Insulin-like growth factor 1 receptor", organism = "Homo sapiens", taxid = 9606, gene = "IGF1R", existence = 1, version = 1)
 ```
 

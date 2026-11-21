@@ -10,13 +10,22 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ### Changes
 - The Julia code is formatted with Runic, and CI checks the formatting of every pull request.
 - Text files are stored with LF line endings.
-- HTTP.jl 2.4 or later and Julia 1.10 or later are required.
-- Retries are those of HTTP.jl: 408, 429, 500, 502, 503, and 504 responses are retried, honoring `Retry-After`; other HTTP errors are thrown immediately.
-- The `timeout` keyword of `gggsearch` and `search_umls` limits the time between reads, including the wait for the response headers of each request.
-  The default is 30 seconds for both.
-- Functions that return the server's response return an HTTP.jl 2 `HTTP.Response`.
-  `HTTP.Messages.Response` no longer exists, `version` is replaced by `proto_major` and `proto_minor`, `status` is an `Int`, and `headers` is an `HTTP.Headers`.
-- URLs and form bodies are built and percent-encoded with URIs.jl, in one place, and every request is sent through one function.
+- Julia 1.10 or later is required.
+- The service functions return requests instead of sending them, and a session from `BioServices.Sessions` runs them: `run(Session(DownloadsClient(), EUtilsAPI()), einfo(db = "pubmed"))`.
+  A session is for one service, with its own rate limiter, and sessions combine as a vector that runs each request with the session for its service.
+  Work that needs several requests, such as `search_umls` and `get_tgt`, is a `Workflow`, which sessions run too.
+  Any other type, such as an endpoint type of a generated client, can be run once it has a `Request(x)` method.
+- HTTP.jl is no longer a dependency.
+  Sessions send requests with HTTP.jl 2.4 or later (`HTTPClient()`) or Downloads.jl (`DownloadsClient()`), each loaded by a package extension when you load that package.
+- Each service has tuned policies: timeouts, retries honouring `Retry-After`, redirects, a rate limit per service (UMLS 20 per second; E-utilities 3 per second, or 10 with an API key), and keys kept out of errors.
+  `configure` changes a session's credentials, policies or client, or those of every session for a service in a vector.
+- `search_pages` returns the pages of a UMLS search as a lazy iterator.
+- Results are a `Sessions.Response` with `status`, `headers` (a vector of pairs) and `body` (bytes), which can be read more than once; use `header(res, name)` to look up a header.
+  Failures throw `StatusError`, `TransportError` or `RedirectError`.
+- The `timeout` keyword of `gggsearch` and `search_umls` and the `show_url` keyword of `gggsearch` are removed: timeouts are session policies, and `Sessions.url` gives a request's URL.
+- `esearch` and `epost` no longer update their context; `context(ctx, res)` returns the context with the History server's `WebEnv` and `query_key`, and `set_context!` updates it in place.
+- `gggsearch` leaves `k = 0` out of the URL, because GGGenome redirects such URLs to plain http, which sessions refuse.
+- URLs and form bodies are built and percent-encoded with URIs.jl, in one place, and redirects are resolved as RFC 3986 says.
 - Fixed: GGGenome's `db`, `strand` and `query`, UMLS's `version` and `cui`, and the EBI Proteins `ebivariation` accession are percent-encoded in URL paths.
 - Fixed: EBI Proteins query values for `upid`, `accession`, `id`, `dbid` and `upi` are no longer percent-encoded twice.
 
